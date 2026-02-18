@@ -1,0 +1,48 @@
+body{
+    font-family: Arial;
+    background:#f4f6f9;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+}
+
+.logo{
+    width:160px;
+}
+
+.header{
+    text-align:center;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:10px;
+    margin-bottom:20px;
+}
+
+input,textarea{
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+textarea{
+    min-height:120px;
+}
+
+button{
+    background:#e67e22;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:6px;
+    margin-top:10px;
+    cursor:pointer;
+}
