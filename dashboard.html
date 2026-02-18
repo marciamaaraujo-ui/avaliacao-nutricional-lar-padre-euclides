@@ -5,6 +5,22 @@
 <title>Dashboard Institucional</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="style.css">
+<style>
+.card {
+    padding:15px;
+    border-radius:10px;
+    color:white;
+    font-weight:bold;
+    text-align:center;
+}
+.normal { background:#27ae60; }
+.risco { background:#f39c12; }
+.desnutrido { background:#c0392b; }
+.nrs { background:#8e44ad; }
+.media { background:#2980b9; }
+.tendencia { font-size:20px; margin-top:5px; }
+select { padding:8px; margin-bottom:20px; }
+</style>
 </head>
 
 <body>
@@ -12,26 +28,127 @@
 
 <h1>Painel Institucional - ILPI</h1>
 
+<select id="filtroResidente" onchange="atualizarDashboard()">
+<option value="todos">Todos os Residentes</option>
+</select>
+
+<div id="cards" class="grid"></div>
+
+<h2>Distribuição Nutricional</h2>
+<canvas id="graficoPizza"></canvas>
+
+<h2>Evolução IMC</h2>
 <canvas id="graficoIMC"></canvas>
 
 </div>
 
 <script>
-let registros=JSON.parse(localStorage.getItem("avaliacoes"))||[];
 
-let datas=registros.map(r=>r.data);
-let imcs=registros.map(r=>r.imc);
+let registros = JSON.parse(localStorage.getItem("avaliacoes")) || [];
 
-new Chart(document.getElementById("graficoIMC"),{
+let filtro = document.getElementById("filtroResidente");
+
+// Popular lista residentes
+let nomesUnicos = [...new Set(registros.map(r => r.nome))];
+nomesUnicos.forEach(nome=>{
+    let opt = document.createElement("option");
+    opt.value = nome;
+    opt.textContent = nome;
+    filtro.appendChild(opt);
+});
+
+function atualizarDashboard(){
+
+let selecionado = filtro.value;
+
+let dados = selecionado === "todos"
+    ? registros
+    : registros.filter(r => r.nome === selecionado);
+
+let total = dados.length;
+
+let normal = 0;
+let risco = 0;
+let desnutrido = 0;
+let riscoNRS = 0;
+
+let somaIMC = 0;
+
+dados.forEach(r=>{
+
+let mna = parseFloat(r.mna);
+let nrs = parseFloat(r.nrs);
+let imc = parseFloat(r.imc);
+
+somaIMC += imc;
+
+if(mna >= 24) normal++;
+else if(mna >= 17) risco++;
+else desnutrido++;
+
+if(nrs >= 3) riscoNRS++;
+
+});
+
+// Tendência IMC
+let tendencia = "";
+if(dados.length >= 2){
+let primeiro = parseFloat(dados[0].imc);
+let ultimo = parseFloat(dados[dados.length-1].imc);
+
+if(ultimo > primeiro) tendencia = "↑ Melhora";
+else if(ultimo < primeiro) tendencia = "↓ Piora";
+else tendencia = "→ Estável";
+}
+
+document.getElementById("cards").innerHTML = `
+<div class="card normal">% Normal<br>${percent(normal,total)}</div>
+<div class="card risco">% Risco MNA<br>${percent(risco,total)}</div>
+<div class="card desnutrido">% Desnutrição<br>${percent(desnutrido,total)}</div>
+<div class="card nrs">% Risco NRS<br>${percent(riscoNRS,total)}</div>
+<div class="card media">Média IMC<br>${total ? (somaIMC/total).toFixed(2) : 0}
+<div class="tendencia">${tendencia}</div>
+</div>
+`;
+
+// Pizza
+new Chart(document.getElementById("graficoPizza"), {
+type:'pie',
+data:{
+labels:["Normal","Risco","Desnutrido"],
+datasets:[{
+data:[normal, risco, desnutrido],
+backgroundColor:["#27ae60","#f39c12","#c0392b"]
+}]
+}
+});
+
+// Linha IMC
+let datas = dados.map(r=>r.data);
+let imcs = dados.map(r=>r.imc);
+
+new Chart(document.getElementById("graficoIMC"), {
 type:'line',
 data:{
 labels:datas,
 datasets:[{
-label:"Evolução IMC",
-data:imcs
+label:"IMC",
+data:imcs,
+borderColor:"#2980b9",
+fill:false
 }]
 }
 });
+
+}
+
+function percent(valor,total){
+if(total===0) return "0%";
+return ((valor/total)*100).toFixed(1)+"%";
+}
+
+atualizarDashboard();
+
 </script>
 
 </body>
