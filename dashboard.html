@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Institucional</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="container">
+
+<h1>Painel Institucional - ILPI</h1>
+
+<canvas id="graficoIMC"></canvas>
+
+</div>
+
+<script>
+let registros=JSON.parse(localStorage.getItem("avaliacoes"))||[];
+
+let datas=registros.map(r=>r.data);
+let imcs=registros.map(r=>r.imc);
+
+new Chart(document.getElementById("graficoIMC"),{
+type:'line',
+data:{
+labels:datas,
+datasets:[{
+label:"Evolução IMC",
+data:imcs
+}]
+}
+});
+</script>
+
+</body>
+</html>
