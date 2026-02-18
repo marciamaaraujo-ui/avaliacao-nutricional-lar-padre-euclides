@@ -1,64 +1,87 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ficha Nutricional ILPI v3.0</title>
+<title>Dashboard Institucional</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
 <div class="container">
 
-<div class="header">
-    <img src="logo.png" class="logo">
-    <h1>Ficha Unificada ILPI v3.0</h1>
-    <p>Lar Padre Euclides</p>
-</div>
+<h1>Painel Institucional - ILPI</h1>
 
-<h2>Identificação</h2>
-<div class="grid">
-    <input type="text" id="nome" placeholder="Nome do Residente">
-    <input type="date" id="data">
-    <input type="number" id="idade" placeholder="Idade">
-</div>
+<div id="indicadores" class="grid"></div>
 
-<h2>Antropometria</h2>
-<div class="grid">
-    <input type="number" id="peso" placeholder="Peso (kg)" oninput="calcularTudo()">
-    <input type="number" id="altura" placeholder="Altura (m)" step="0.01" oninput="calcularTudo()">
-    <input type="number" id="pesoHab" placeholder="Peso habitual (kg)" oninput="calcularTudo()">
-    <input type="text" id="imc" placeholder="IMC" readonly>
-    <input type="text" id="classImc" placeholder="Classificação IMC" readonly>
-    <input type="text" id="perda" placeholder="% Perda de Peso" readonly>
-</div>
-
-<h2>MNA Completo (30 pontos)</h2>
-<div class="grid">
-    <input type="number" id="mnaTriagem" placeholder="Triagem (0-14)" oninput="calcularTudo()">
-    <input type="number" id="mnaGlobal" placeholder="Avaliação Global (0-16)" oninput="calcularTudo()">
-    <input type="text" id="mnaTotal" placeholder="Pontuação Total MNA" readonly>
-    <input type="text" id="mnaClass" placeholder="Classificação MNA" readonly>
-</div>
-
-<h2>NRS 2002</h2>
-<div class="grid">
-    <input type="number" id="nrsNutri" placeholder="Estado Nutricional (0-3)" oninput="calcularTudo()">
-    <input type="number" id="nrsGrav" placeholder="Gravidade Doença (0-3)" oninput="calcularTudo()">
-    <input type="text" id="nrsTotal" placeholder="Total NRS" readonly>
-    <input type="text" id="nrsClass" placeholder="Classificação NRS" readonly>
-</div>
-
-<h2>Parecer Clínico Automático</h2>
-<textarea id="parecer" readonly></textarea>
-
-<button onclick="salvarRegistro()">Salvar Avaliação</button>
-<button onclick="window.print()">Exportar PDF</button>
-<a href="dashboard.html"><button>Ir para Dashboard</button></a>
+<h2>Evolução IMC</h2>
+<canvas id="graficoIMC"></canvas>
 
 </div>
 
-<script src="script.js"></script>
+<script>
+
+let registros = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+
+let total = registros.length;
+
+let normal = 0;
+let risco = 0;
+let desnutrido = 0;
+let riscoNRS = 0;
+
+let somaIMC = 0;
+let somaMNA = 0;
+let somaNRS = 0;
+
+registros.forEach(r => {
+
+    let mna = parseFloat(r.mna);
+    let nrs = parseFloat(r.nrs);
+    let imc = parseFloat(r.imc);
+
+    somaIMC += imc;
+    somaMNA += mna;
+    somaNRS += nrs;
+
+    if(mna >= 24) normal++;
+    else if(mna >= 17) risco++;
+    else desnutrido++;
+
+    if(nrs >= 3) riscoNRS++;
+});
+
+function percent(valor){
+    if(total === 0) return "0%";
+    return ((valor/total)*100).toFixed(1) + "%";
+}
+
+document.getElementById("indicadores").innerHTML = `
+<div><strong>Total Avaliações:</strong> ${total}</div>
+<div><strong>% Estado Normal:</strong> ${percent(normal)}</div>
+<div><strong>% Risco MNA:</strong> ${percent(risco)}</div>
+<div><strong>% Desnutrição:</strong> ${percent(desnutrido)}</div>
+<div><strong>% Risco NRS:</strong> ${percent(riscoNRS)}</div>
+<div><strong>Média IMC:</strong> ${total ? (somaIMC/total).toFixed(2) : 0}</div>
+<div><strong>Média MNA:</strong> ${total ? (somaMNA/total).toFixed(2) : 0}</div>
+<div><strong>Média NRS:</strong> ${total ? (somaNRS/total).toFixed(2) : 0}</div>
+`;
+
+let datas = registros.map(r => r.data);
+let imcs = registros.map(r => r.imc);
+
+new Chart(document.getElementById("graficoIMC"), {
+    type: 'line',
+    data: {
+        labels: datas,
+        datasets: [{
+            label: "Evolução IMC",
+            data: imcs
+        }]
+    }
+});
+
+</script>
+
 </body>
 </html>
