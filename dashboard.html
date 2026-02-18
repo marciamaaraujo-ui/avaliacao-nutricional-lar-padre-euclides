@@ -2,9 +2,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Institucional</title>
+<title>Painel Institucional - ILPI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="style.css">
+
 <style>
 .card {
     padding:15px;
@@ -18,15 +19,24 @@
 .desnutrido { background:#c0392b; }
 .nrs { background:#8e44ad; }
 .media { background:#2980b9; }
-.tendencia { font-size:20px; margin-top:5px; }
-select { padding:8px; margin-bottom:20px; }
+.alerta { background:#e74c3c; margin-bottom:10px; }
+.meta-ok { background:#27ae60; }
+.meta-alerta { background:#c0392b; }
+select, input { padding:8px; margin-bottom:15px; }
+button { margin-top:10px; }
 </style>
-</head>
 
+</head>
 <body>
+
 <div class="container">
 
 <h1>Painel Institucional - ILPI</h1>
+
+<label>Meta institucional de desnutrição (% máximo permitido):</label>
+<input type="number" id="metaDesnutricao" value="15" onchange="atualizarDashboard()">
+
+<br>
 
 <select id="filtroResidente" onchange="atualizarDashboard()">
 <option value="todos">Todos os Residentes</option>
@@ -40,15 +50,21 @@ select { padding:8px; margin-bottom:20px; }
 <h2>Evolução IMC</h2>
 <canvas id="graficoIMC"></canvas>
 
+<h2>Alertas Clínicos</h2>
+<div id="alertas"></div>
+
+<button onclick="gerarRelatorioMensal()">Gerar Relatório do Mês</button>
+<button onclick="rankingPrioritario()">Ranking Prioritário</button>
+<button onclick="exportarBackup()">Backup Automático</button>
+<button onclick="window.print()">Exportar PDF</button>
+
 </div>
 
 <script>
 
 let registros = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-
 let filtro = document.getElementById("filtroResidente");
 
-// Popular lista residentes
 let nomesUnicos = [...new Set(registros.map(r => r.nome))];
 nomesUnicos.forEach(nome=>{
     let opt = document.createElement("option");
@@ -60,6 +76,7 @@ nomesUnicos.forEach(nome=>{
 function atualizarDashboard(){
 
 let selecionado = filtro.value;
+let meta = parseFloat(document.getElementById("metaDesnutricao").value);
 
 let dados = selecionado === "todos"
     ? registros
@@ -67,52 +84,62 @@ let dados = selecionado === "todos"
 
 let total = dados.length;
 
-let normal = 0;
-let risco = 0;
-let desnutrido = 0;
-let riscoNRS = 0;
-
-let somaIMC = 0;
+let normal=0, risco=0, desnutrido=0, riscoNRS=0, somaIMC=0;
 
 dados.forEach(r=>{
+let mna=parseFloat(r.mna);
+let nrs=parseFloat(r.nrs);
+let imc=parseFloat(r.imc);
 
-let mna = parseFloat(r.mna);
-let nrs = parseFloat(r.nrs);
-let imc = parseFloat(r.imc);
+somaIMC+=imc;
 
-somaIMC += imc;
-
-if(mna >= 24) normal++;
-else if(mna >= 17) risco++;
+if(mna>=24) normal++;
+else if(mna>=17) risco++;
 else desnutrido++;
 
-if(nrs >= 3) riscoNRS++;
-
+if(nrs>=3) riscoNRS++;
 });
 
-// Tendência IMC
-let tendencia = "";
-if(dados.length >= 2){
-let primeiro = parseFloat(dados[0].imc);
-let ultimo = parseFloat(dados[dados.length-1].imc);
-
-if(ultimo > primeiro) tendencia = "↑ Melhora";
-else if(ultimo < primeiro) tendencia = "↓ Piora";
-else tendencia = "→ Estável";
-}
+let percDesnutrido = total ? ((desnutrido/total)*100) : 0;
+let metaStatus = percDesnutrido <= meta ? "meta-ok" : "meta-alerta";
 
 document.getElementById("cards").innerHTML = `
 <div class="card normal">% Normal<br>${percent(normal,total)}</div>
 <div class="card risco">% Risco MNA<br>${percent(risco,total)}</div>
 <div class="card desnutrido">% Desnutrição<br>${percent(desnutrido,total)}</div>
 <div class="card nrs">% Risco NRS<br>${percent(riscoNRS,total)}</div>
-<div class="card media">Média IMC<br>${total ? (somaIMC/total).toFixed(2) : 0}
-<div class="tendencia">${tendencia}</div>
-</div>
+<div class="card media">Média IMC<br>${total?(somaIMC/total).toFixed(2):0}</div>
+<div class="card ${metaStatus}">Meta Desnutrição<br>${percDesnutrido.toFixed(1)}%</div>
 `;
 
-// Pizza
-new Chart(document.getElementById("graficoPizza"), {
+gerarAlertas();
+gerarGraficos(dados, normal, risco, desnutrido);
+}
+
+function gerarAlertas(){
+let alertaHTML="";
+let residentes=[...new Set(registros.map(r=>r.nome))];
+
+residentes.forEach(nome=>{
+let hist=registros.filter(r=>r.nome===nome);
+if(hist.length>=2){
+let primeiro=parseFloat(hist[0].imc);
+let ultimo=parseFloat(hist[hist.length-1].imc);
+if(ultimo<primeiro){
+alertaHTML+=`<div class="card alerta">⚠ ${nome} apresentou piora no IMC</div>`;
+}
+}
+});
+
+document.getElementById("alertas").innerHTML=alertaHTML||"Nenhum alerta no momento.";
+}
+
+function gerarGraficos(dados, normal, risco, desnutrido){
+
+if(window.pizzaChart) window.pizzaChart.destroy();
+if(window.lineChart) window.lineChart.destroy();
+
+window.pizzaChart=new Chart(document.getElementById("graficoPizza"),{
 type:'pie',
 data:{
 labels:["Normal","Risco","Desnutrido"],
@@ -123,11 +150,10 @@ backgroundColor:["#27ae60","#f39c12","#c0392b"]
 }
 });
 
-// Linha IMC
-let datas = dados.map(r=>r.data);
-let imcs = dados.map(r=>r.imc);
+let datas=dados.map(r=>r.data);
+let imcs=dados.map(r=>r.imc);
 
-new Chart(document.getElementById("graficoIMC"), {
+window.lineChart=new Chart(document.getElementById("graficoIMC"),{
 type:'line',
 data:{
 labels:datas,
@@ -139,7 +165,92 @@ fill:false
 }]
 }
 });
+}
 
+function gerarRelatorioMensal(){
+
+let agora=new Date();
+let mesAtual=agora.getMonth();
+let anoAtual=agora.getFullYear();
+
+let mesAnterior=mesAtual-1;
+let anoAnterior=anoAtual;
+if(mesAnterior<0){mesAnterior=11;anoAnterior--;}
+
+let atual=registros.filter(r=>{
+let d=new Date(r.data);
+return d.getMonth()===mesAtual && d.getFullYear()===anoAtual;
+});
+
+let anterior=registros.filter(r=>{
+let d=new Date(r.data);
+return d.getMonth()===mesAnterior && d.getFullYear()===anoAnterior;
+});
+
+let resumoAtual=calcularResumo(atual);
+let resumoAnterior=calcularResumo(anterior);
+
+let tendencia=resumoAtual.percDesnutrido<resumoAnterior.percDesnutrido
+?"Melhora Institucional":"Piora Institucional";
+
+alert(`
+RELATÓRIO MENSAL
+
+Mês Atual:
+% Desnutrição: ${resumoAtual.percDesnutrido.toFixed(1)}%
+% Risco: ${resumoAtual.percRisco.toFixed(1)}%
+
+Mês Anterior:
+% Desnutrição: ${resumoAnterior.percDesnutrido.toFixed(1)}%
+% Risco: ${resumoAnterior.percRisco.toFixed(1)}%
+
+Tendência: ${tendencia}
+`);
+}
+
+function calcularResumo(lista){
+let total=lista.length;
+let risco=0,desnutrido=0;
+lista.forEach(r=>{
+let mna=parseFloat(r.mna);
+if(mna>=17 && mna<24) risco++;
+if(mna<17) desnutrido++;
+});
+return{
+percRisco:total?(risco/total)*100:0,
+percDesnutrido:total?(desnutrido/total)*100:0
+};
+}
+
+function rankingPrioritario(){
+let ranking={};
+registros.forEach(r=>{
+if(!ranking[r.nome]) ranking[r.nome]=[];
+ranking[r.nome].push(r);
+});
+
+let lista=[];
+for(let nome in ranking){
+let hist=ranking[nome];
+let ultimo=parseFloat(hist[hist.length-1].mna);
+lista.push({nome,mna:ultimo});
+}
+
+lista.sort((a,b)=>a.mna-b.mna);
+
+let texto="RANKING PRIORITÁRIO\n\n";
+lista.forEach(r=>{texto+=`${r.nome} - MNA: ${r.mna}\n`;});
+alert(texto);
+}
+
+function exportarBackup(){
+let dados=JSON.stringify(registros,null,2);
+let blob=new Blob([dados],{type:"application/json"});
+let url=URL.createObjectURL(blob);
+let a=document.createElement("a");
+a.href=url;
+a.download="backup_ilpi.json";
+a.click();
 }
 
 function percent(valor,total){
