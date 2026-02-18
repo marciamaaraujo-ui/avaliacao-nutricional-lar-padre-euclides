@@ -1,165 +1,64 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliação Nutricional - Lar Padre Euclides</title>
-    <style>
-        :root { --primary: #2c3e50; --secondary: #27ae60; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        h1, h2, h3 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .section { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .field { display: flex; flex-direction: column; }
-        label { font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #555; }
-        input, select, textarea { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
-        textarea { resize: vertical; min-height: 80px; }
-        .full-width { grid-column: 1 / -1; }
-        button { background-color: var(--secondary); color: white; padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #219150; }
-        .result-box { background: #eef9f1; padding: 20px; border-radius: 8px; border-left: 6px solid var(--secondary); margin-top: 20px; display: none; }
-        .calc-auto { background: #f9f9f9; padding: 10px; border: 1px dashed #ccc; font-weight: bold; color: var(--primary); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha Nutricional ILPI v3.0</title>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
-    <h1>Avaliação Nutricional - Lar Padre Euclides</h1>
-    
-    <h2>1. Identificação</h2>
-    <div class="section">
-        <div class="field"><label>Ações</label><input type="text" placeholder="Ex: Nova Avaliação"></div>
-        <div class="field"><label>Data da Avaliação</label><input type="date"></div>
-        <div class="field"><label>Nome</label><input type="text"></div>
-        <div class="field"><label>Data de Admissão</label><input type="date"></div>
-        <div class="field"><label>Data de Nasc.</label><input type="date" id="dataNasc" onchange="calcularIdade()"></div>
-        <div class="field"><label>Idade</label><input type="text" id="idade" readonly class="calc-auto"></div>
-        <div class="field"><label>Gênero</label><select><option>Feminino</option><option>Masculino</option></select></div>
-        <div class="field"><label>Setor</label><input type="text"></div>
-    </div>
 
-    <h2>2. Histórico Clínico e Comorbidades</h2>
-    <div class="section">
-        <div class="field"><label>Comorbidades</label>
-            <div>
-                <input type="checkbox"> DM I <input type="checkbox"> DM II <input type="checkbox"> Dislipidemia <br>
-                <input type="checkbox"> HAS <input type="checkbox"> AVC <input type="checkbox"> Cardiopata <br>
-                <input type="checkbox"> Nefropata
-            </div>
-        </div>
-        <div class="field"><label>Comorb: Outros:</label><input type="text"></div>
-        <div class="field"><label>Faz uso de Medicamentos?</label><select><option>Sim</option><option>Não</option></select></div>
-        <div class="field full-width"><label>Medicamentos (Separar por vírgula)</label><textarea></textarea></div>
-        <div class="field"><label>Fumante?</label><select><option>Não</option><option>Sim</option></select></div>
-        <div class="field"><label>Tempo (Fumante/Ex-fumante)</label><input type="text"></div>
-    </div>
-
-    <h2>3. Função Gastrointestinal e Alimentação</h2>
-    <div class="section">
-        <div class="field"><label>Dieta Atual</label><input type="text"></div>
-        <div class="field"><label>Alteração Mastig/Deglut</label><select><option>Não</option><option>Sim</option></select></div>
-        <div class="field full-width"><label>Descrição (Mastig/Deglut.)</label><input type="text"></div>
-        <div class="field"><label>H.U. Escala/Cor/Freq</label><input type="text" placeholder="Escala, Cor, Frequência"></div>
-        <div class="field"><label>H.U. Dor/Odor?</label><input type="text"></div>
-        <div class="field"><label>H.I. Escala (Bristol)</label><input type="number" min="1" max="7"></div>
-        <div class="field"><label>Bolsa de Colostomia?</label><select><option>Não</option><option>Sim</option></select></div>
-        <div class="field"><label>Via de Alimentação</label><select><option>Oral</option><option>Enteral</option><option>Parenteral</option></select></div>
-    </div>
-
-    <h2>4. Antropometria</h2>
-    <div class="section">
-        <div class="field"><label>Altura (m)</label><input type="number" id="alt" step="0.01" oninput="executarCalculos()"></div>
-        <div class="field"><label>Peso Atual (kg)</label><input type="number" id="peso" step="0.1" oninput="executarCalculos()"></div>
-        <div class="field"><label>CB (cm)</label><input type="number" id="cb" step="0.1"></div>
-        <div class="field"><label>CP (cm)</label><input type="number" id="cp" step="0.1"></div>
-        <div class="field"><label>AJ (cm)</label><input type="number" id="aj" step="0.1"></div>
-        <div class="field"><label>IMC (kg/m²)</label><input type="text" id="imc" readonly class="calc-auto"></div>
-        <div class="field"><label>Classificação IMC</label><input type="text" id="classImc" readonly class="calc-auto"></div>
-    </div>
-
-    <h2>5. Triagem NRS 2002</h2>
-    <div class="section">
-        <div class="field"><label>Estado Nutricional (0-3)</label><input type="number" id="nrsEst" min="0" max="3" oninput="calcNRS()"></div>
-        <div class="field"><label>Gravidade Doença (0-3)</label><input type="number" id="nrsGrav" min="0" max="3" oninput="calcNRS()"></div>
-        <div class="field"><label>Idade ≥ 70 anos</label><select id="nrsIdade" onchange="calcNRS()"><option value="0">Não</option><option value="1">Sim</option></select></div>
-        <div class="field"><label>Score Total NRS</label><input type="text" id="nrsTotal" readonly class="calc-auto"></div>
-        <div class="field"><label>Risco Nutricional (≥3)</label><input type="text" id="nrsRisco" readonly class="calc-auto"></div>
-    </div>
-
-    <h2>6. Exame Físico (N.4)</h2>
-    <div class="section">
-        <div class="field"><label>Ascite/Turgor/Cabelo</label><input type="text"></div>
-        <div class="field"><label>Olhos (Conjuntiva/Córnea)</label><input type="text"></div>
-        <div class="field"><label>Edema (Região/Lado/Grau)</label><input type="text"></div>
-    </div>
-
-    <h2>7. Metas e Diagnóstico</h2>
-    <div class="section">
-        <div class="field"><label>Fator Calórico (kcal/kg)</label><input type="number" id="fCal" oninput="calcMetas()"></div>
-        <div class="field"><label>Meta Calórica (kcal/dia)</label><input type="text" id="mCal" readonly class="calc-auto"></div>
-        <div class="field"><label>Fator Proteico (g/kg)</label><input type="number" id="fProt" oninput="calcMetas()"></div>
-        <div class="field"><label>Meta Proteica (g/dia)</label><input type="text" id="mProt" readonly class="calc-auto"></div>
-    </div>
-
-    <div class="field full-width">
-        <label>PES - Escreva aqui o seu Diagnóstico Nutricional</label>
-        <textarea placeholder="P (Problema) relacionado a E (Etiologia) evidenciado por S (Sinais/Sintomas)"></textarea>
-    </div>
-    
-    <div class="field full-width">
-        <label>Plano Nutricional</label>
-        <textarea></textarea>
-    </div>
-
-    <button onclick="window.print()">Gerar Relatório PDF</button>
+<div class="header">
+    <img src="logo.png" class="logo">
+    <h1>Ficha Unificada ILPI v3.0</h1>
+    <p>Lar Padre Euclides</p>
 </div>
 
-<script>
-    function calcularIdade() {
-        const nasc = new Date(document.getElementById('dataNasc').value);
-        const hoje = new Date();
-        let idade = hoje.getFullYear() - nasc.getFullYear();
-        if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() == nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
-        document.getElementById('idade').value = idade + " anos";
-        if (idade >= 70) document.getElementById('nrsIdade').value = "1";
-        calcNRS();
-    }
+<h2>Identificação</h2>
+<div class="grid">
+    <input type="text" id="nome" placeholder="Nome do Residente">
+    <input type="date" id="data">
+    <input type="number" id="idade" placeholder="Idade">
+</div>
 
-    function executarCalculos() {
-        const p = parseFloat(document.getElementById('peso').value);
-        const a = parseFloat(document.getElementById('alt').value);
-        if (p > 0 && a > 0) {
-            const imc = (p / (a * a)).toFixed(2);
-            document.getElementById('imc').value = imc;
-            // Classificação para Idosos (Sabanrit)
-            let classe = "";
-            if (imc < 22) classe = "Baixo Peso";
-            else if (imc <= 27) classe = "Eutrofia";
-            else classe = "Sobrepeso";
-            document.getElementById('classImc').value = classe;
-        }
-        calcMetas();
-    }
+<h2>Antropometria</h2>
+<div class="grid">
+    <input type="number" id="peso" placeholder="Peso (kg)" oninput="calcularTudo()">
+    <input type="number" id="altura" placeholder="Altura (m)" step="0.01" oninput="calcularTudo()">
+    <input type="number" id="pesoHab" placeholder="Peso habitual (kg)" oninput="calcularTudo()">
+    <input type="text" id="imc" placeholder="IMC" readonly>
+    <input type="text" id="classImc" placeholder="Classificação IMC" readonly>
+    <input type="text" id="perda" placeholder="% Perda de Peso" readonly>
+</div>
 
-    function calcNRS() {
-        const est = parseInt(document.getElementById('nrsEst').value) || 0;
-        const grav = parseInt(document.getElementById('nrsGrav').value) || 0;
-        const idade = parseInt(document.getElementById('nrsIdade').value) || 0;
-        const total = est + grav + idade;
-        document.getElementById('nrsTotal').value = total;
-        document.getElementById('nrsRisco').value = total >= 3 ? "Sim" : "Não";
-    }
+<h2>MNA Completo (30 pontos)</h2>
+<div class="grid">
+    <input type="number" id="mnaTriagem" placeholder="Triagem (0-14)" oninput="calcularTudo()">
+    <input type="number" id="mnaGlobal" placeholder="Avaliação Global (0-16)" oninput="calcularTudo()">
+    <input type="text" id="mnaTotal" placeholder="Pontuação Total MNA" readonly>
+    <input type="text" id="mnaClass" placeholder="Classificação MNA" readonly>
+</div>
 
-    function calcMetas() {
-        const p = parseFloat(document.getElementById('peso').value) || 0;
-        const fc = parseFloat(document.getElementById('fCal').value) || 0;
-        const fp = parseFloat(document.getElementById('fProt').value) || 0;
-        if (p > 0) {
-            document.getElementById('mCal').value = (p * fc).toFixed(0) + " kcal";
-            document.getElementById('mProt').value = (p * fp).toFixed(1) + " g";
-        }
-    }
-</script>
+<h2>NRS 2002</h2>
+<div class="grid">
+    <input type="number" id="nrsNutri" placeholder="Estado Nutricional (0-3)" oninput="calcularTudo()">
+    <input type="number" id="nrsGrav" placeholder="Gravidade Doença (0-3)" oninput="calcularTudo()">
+    <input type="text" id="nrsTotal" placeholder="Total NRS" readonly>
+    <input type="text" id="nrsClass" placeholder="Classificação NRS" readonly>
+</div>
 
+<h2>Parecer Clínico Automático</h2>
+<textarea id="parecer" readonly></textarea>
+
+<button onclick="salvarRegistro()">Salvar Avaliação</button>
+<button onclick="window.print()">Exportar PDF</button>
+<a href="dashboard.html"><button>Ir para Dashboard</button></a>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
