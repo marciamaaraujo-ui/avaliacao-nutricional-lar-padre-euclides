@@ -1,48 +1,76 @@
+/* =========================
+   RESET BÁSICO
+========================= */
+
 body{
     margin:0;
     font-family: Arial, sans-serif;
     background:#f4f6f9;
 }
 
-/* NAVBAR */
+
+/* =========================
+   NAVBAR PROFISSIONAL
+========================= */
+
 .navbar{
     position:fixed;
     top:0;
     width:100%;
     background:#2c3e50;
-    color:white;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:10px 30px;
     z-index:1000;
 }
 
+.navbar-inner{
+    max-width:1200px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 40px;
+}
+
 .navbar .logo{
-    height:40px;
+    height:42px;
+}
+
+.navbar .links{
+    display:flex;
+    align-items:center;
 }
 
 .navbar .links a{
     color:white;
     text-decoration:none;
-    margin-left:20px;
+    margin-left:30px;
     font-weight:bold;
+    font-size:16px;
+    transition:0.2s;
 }
 
 .navbar .links a:hover{
-    text-decoration:underline;
+    opacity:0.8;
 }
 
-/* CONTAINER */
+
+/* =========================
+   CONTAINER PRINCIPAL
+========================= */
+
 .container{
     max-width:1100px;
-    margin:100px auto 40px auto;
+    margin:110px auto 40px auto;
     background:white;
     padding:30px;
-    border-radius:10px;
+    border-radius:12px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.05);
 }
 
-/* GRID */
+
+/* =========================
+   GRID RESPONSIVO
+========================= */
+
 .grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -50,11 +78,21 @@ body{
     margin-bottom:20px;
 }
 
-input,textarea,select{
+
+/* =========================
+   INPUTS E BOTÕES
+========================= */
+
+input, textarea, select{
     padding:10px;
     border:1px solid #ccc;
     border-radius:6px;
     width:100%;
+    font-size:14px;
+}
+
+textarea{
+    min-height:120px;
 }
 
 button{
@@ -64,8 +102,56 @@ button{
     padding:10px 20px;
     border-radius:6px;
     cursor:pointer;
+    font-weight:bold;
+    transition:0.2s;
 }
 
 button:hover{
     background:#d35400;
+}
+
+
+/* =========================
+   CARDS DASHBOARD
+========================= */
+
+.card{
+    padding:18px;
+    border-radius:12px;
+    color:white;
+    font-weight:bold;
+    text-align:center;
+    font-size:15px;
+}
+
+.normal{ background:#27ae60; }
+.risco{ background:#f39c12; }
+.desnutrido{ background:#c0392b; }
+.nrs{ background:#8e44ad; }
+.media{ background:#2980b9; }
+.alerta{ background:#e74c3c; margin-bottom:10px; }
+.meta-ok{ background:#27ae60; }
+.meta-alerta{ background:#c0392b; }
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media(max-width:768px){
+
+    .navbar-inner{
+        padding:12px 20px;
+    }
+
+    .navbar .links a{
+        margin-left:15px;
+        font-size:14px;
+    }
+
+    .container{
+        margin:100px 15px 30px 15px;
+        padding:20px;
+    }
+
 }
