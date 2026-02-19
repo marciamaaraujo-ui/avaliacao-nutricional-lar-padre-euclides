@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Painel Médico</title>
+<link rel="stylesheet" href="style.css">
+<script src="app.js"></script>
+</head>
+
+<body>
+
+<div class="navbar">
+<div class="navbar-inner">
+<img src="logo.png" class="logo">
+<div class="links">
+<a href="ficha.html">Ficha</a>
+<a href="exames.html">Exames</a>
+<a href="dashboard.html">Dashboard</a>
+<a href="relatorio.html">Direção</a>
+</div>
+</div>
+</div>
+
+<div class="container">
+
+<h1>Painel Médico</h1>
+
+<div class="grid">
+
+<div>
+<label>Albumina (g/dL)</label>
+<input type="number" step="0.1" id="albumina">
+</div>
+
+<div>
+<label>PCR (mg/L)</label>
+<input type="number" step="0.1" id="pcr">
+</div>
+
+<div>
+<label>Creatinina (mg/dL)</label>
+<input type="number" step="0.1" id="creatinina">
+</div>
+
+<div>
+<label>Idade</label>
+<input type="number" id="idadeMed">
+</div>
+
+<div>
+<label>Sexo</label>
+<select id="sexoMed">
+<option>Feminino</option>
+<option>Masculino</option>
+</select>
+</div>
+
+</div>
+
+<br>
+<button onclick="integrarExames()">Atualizar Diagnóstico</button>
+
+</div>
+
+<script>
+
+function integrarExames(){
+
+    const registros = obterRegistros();
+    if(registros.length===0){
+        alert("Nenhuma ficha encontrada.");
+        return;
+    }
+
+    const ultimo = registros[registros.length-1];
+
+    const albumina=parseFloat(albumina.value)||0;
+    const pcr=parseFloat(pcr.value)||0;
+    const creat=parseFloat(creatinina.value)||0;
+    const idade=parseFloat(idadeMed.value)||0;
+    const sexo=sexoMed.value;
+
+    /* Índice Inflamatório */
+    const ratio = albumina>0 ? (pcr/albumina) : 0;
+    ultimo.indiceInflamatorio = ratio;
+
+    /* Score Bio */
+    let scoreBio=0;
+    if(albumina<3.5) scoreBio+=2;
+    if(pcr>5) scoreBio+=2;
+
+    ultimo.scoreBio=scoreBio;
+
+    /* TFGe */
+    let tfge=0;
+    if(creat>0 && idade>0){
+        let k=(sexo==="Feminino")?0.7:0.9;
+        let a=(sexo==="Feminino")?-0.329:-0.411;
+
+        tfge = 141 *
+            Math.min(creat/k,1)**a *
+            Math.max(creat/k,1)**-1.209 *
+            (0.993**idade) *
+            (sexo==="Feminino"?1.018:1);
+
+        ultimo.tfge=tfge;
+
+        if(tfge>=90) ultimo.riscoRenal="Preservada";
+        else if(tfge>=60) ultimo.riscoRenal="Leve redução";
+        else if(tfge>=30) ultimo.riscoRenal="Moderada";
+        else ultimo.riscoRenal="Grave";
+    }
+
+    /* Score Final */
+    const scoreFinal = ultimo.icn + scoreBio;
+
+    if(scoreFinal>=6) ultimo.classificacao="Alto Risco Clínico";
+    else if(scoreFinal>=3) ultimo.classificacao="Risco Moderado";
+    else ultimo.classificacao="Baixo Risco";
+
+    ultimo.parecerClinico =
+        "ICN ajustado por inflamação e função renal. Risco renal: "
+        + ultimo.riscoRenal;
+
+    localStorage.setItem("avaliacoes", JSON.stringify(registros));
+
+    alert("Diagnóstico atualizado com exames.");
+}
+
+</script>
+
+</body>
+</html>
