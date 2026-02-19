@@ -6,12 +6,9 @@
 <title>Painel Institucional - ILPI</title>
 <link rel="stylesheet" href="style.css">
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- jsPDF -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -22,115 +19,297 @@
         <div class="links">
             <a href="index.html">Ficha Clínica</a>
             <a href="dashboard.html">Dashboard</a>
+            <a href="metodologia.html">Metodologia</a>
         </div>
     </div>
 </div>
 
 <div class="container">
 
-<h1>Painel Institucional</h1>
+<h1>Painel Analítico Institucional</h1>
 
+<!-- INDICADORES -->
 <div class="grid">
-
-    <div class="card normal">
-        Normal<br><span id="normalPct">0%</span>
-    </div>
-
-    <div class="card risco">
-        Risco<br><span id="riscoPct">0%</span>
-    </div>
-
-    <div class="card desnutrido">
-        Desnutrição<br><span id="desnutPct">0%</span>
-    </div>
-
+    <div class="card normal">% Normal<br><span id="normalPct">0%</span></div>
+    <div class="card risco">% Risco<br><span id="riscoPct">0%</span></div>
+    <div class="card desnutrido">% Desnutrição<br><span id="desnutPct">0%</span></div>
 </div>
 
-<h2>Distribuição Nutricional</h2>
+<!-- SCORE INSTITUCIONAL -->
+<h2>Score Institucional</h2>
+<div id="scoreInstitucional" class="card media"></div>
 
+<!-- META -->
+<h2>Meta Institucional</h2>
+<div id="metaStatus" class="card"></div>
+
+<!-- GRÁFICO PIZZA -->
+<h2>Distribuição Atual</h2>
 <canvas id="graficoPizza" height="120"></canvas>
 
-<br><br>
+<!-- TENDÊNCIA -->
+<h2>Tendência Mensal</h2>
+<canvas id="graficoTendencia" height="120"></canvas>
+<div id="projecao" class="card"></div>
 
-<button onclick="gerarPDF()">Gerar Relatório Institucional (PDF A4)</button>
+<!-- RANKING -->
+<h2>Ranking Prioritário</h2>
+<ul id="ranking"></ul>
+
+<hr>
+
+<!-- HISTÓRICO INDIVIDUAL -->
+<h2>Histórico Individual</h2>
+<select id="selectResidente" onchange="mostrarHistorico()"></select>
+
+<div id="areaRelatorio">
+    <canvas id="graficoIndividual" height="120"></canvas>
+    <div id="indicadorRisco" class="card"></div>
+</div>
+
+<br>
+<button onclick="gerarPDFIndividual()">Gerar PDF Individual</button>
 
 </div>
 
 <script>
 
-function carregarDados(){
+const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
 
-    const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+let chartIndividual;
 
-    let normal = 0;
-    let risco = 0;
-    let desnut = 0;
+function iniciar(){
+    calcularIndicadores();
+    gerarTendenciaMensal();
+    carregarResidentes();
+}
 
-    dados.forEach(r => {
-        if(r.classificacao === "Normal") normal++;
-        else if(r.classificacao === "Risco") risco++;
-        else if(r.classificacao === "Desnutrição") desnut++;
+function calcularIndicadores(){
+
+    let normal=0, risco=0, desnut=0;
+
+    dados.forEach(r=>{
+        if(r.classificacao==="Normal") normal++;
+        else if(r.classificacao==="Risco") risco++;
+        else if(r.classificacao==="Desnutrição") desnut++;
     });
 
     const total = dados.length || 1;
 
-    const normalPct = Math.round((normal/total)*100);
-    const riscoPct = Math.round((risco/total)*100);
-    const desnutPct = Math.round((desnut/total)*100);
+    const normalPct = (normal/total)*100;
+    const riscoPct = (risco/total)*100;
+    const desnutPct = (desnut/total)*100;
 
-    document.getElementById("normalPct").innerText = normalPct + "%";
-    document.getElementById("riscoPct").innerText = riscoPct + "%";
-    document.getElementById("desnutPct").innerText = desnutPct + "%";
+    document.getElementById("normalPct").innerText=Math.round(normalPct)+"%";
+    document.getElementById("riscoPct").innerText=Math.round(riscoPct)+"%";
+    document.getElementById("desnutPct").innerText=Math.round(desnutPct)+"%";
 
-    gerarGrafico(normal, risco, desnut);
+    calcularScoreInstitucional(normalPct, riscoPct, desnutPct);
+    verificarMeta(desnutPct);
+    gerarGraficoPizza(normal, risco, desnut);
+    gerarRanking();
 }
 
-function gerarGrafico(normal, risco, desnut){
+function calcularScoreInstitucional(normalPct, riscoPct, desnutPct){
 
-    const ctx = document.getElementById('graficoPizza');
+    const score = (desnutPct*3 + riscoPct*2 + normalPct*1)/6;
 
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Normal', 'Risco', 'Desnutrição'],
-            datasets: [{
-                data: [normal, risco, desnut],
-                backgroundColor: [
-                    '#27ae60',
-                    '#f39c12',
-                    '#c0392b'
-                ]
+    const div=document.getElementById("scoreInstitucional");
+
+    div.innerHTML="Score: "+score.toFixed(1);
+
+    if(score<30){
+        div.className="card normal";
+        div.innerHTML+="<br>Controlado";
+    }else if(score<60){
+        div.className="card risco";
+        div.innerHTML+="<br>Moderado";
+    }else{
+        div.className="card desnutrido";
+        div.innerHTML+="<br>Elevado";
+    }
+}
+
+function verificarMeta(desnutPct){
+    const div=document.getElementById("metaStatus");
+
+    if(desnutPct<15){
+        div.className="card meta-ok";
+        div.innerHTML="Meta atingida ✔";
+    }else{
+        div.className="card meta-alerta";
+        div.innerHTML="Meta NÃO atingida ⚠";
+    }
+}
+
+function gerarGraficoPizza(normal, risco, desnut){
+    new Chart(document.getElementById("graficoPizza"),{
+        type:'pie',
+        data:{
+            labels:['Normal','Risco','Desnutrição'],
+            datasets:[{
+                data:[normal,risco,desnut],
+                backgroundColor:['#27ae60','#f39c12','#c0392b']
             }]
-        },
-        options:{
-            plugins:{
-                legend:{
-                    position:'bottom'
-                }
-            }
         }
     });
 }
 
-async function gerarPDF(){
+function gerarTendenciaMensal(){
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("p", "mm", "a4");
+    const meses={};
 
-    doc.setFontSize(18);
-    doc.text("Relatório Institucional - ILPI", 20, 20);
+    dados.forEach(r=>{
+        const d=new Date(r.data);
+        const chave=d.getFullYear()+"-"+(d.getMonth()+1);
 
-    doc.setFontSize(12);
-    doc.text("Data: " + new Date().toLocaleDateString(), 20, 30);
+        if(!meses[chave]) meses[chave]={total:0,desnut:0};
 
-    doc.text("Normal: " + document.getElementById("normalPct").innerText, 20, 45);
-    doc.text("Risco: " + document.getElementById("riscoPct").innerText, 20, 55);
-    doc.text("Desnutrição: " + document.getElementById("desnutPct").innerText, 20, 65);
+        meses[chave].total++;
+        if(r.classificacao==="Desnutrição") meses[chave].desnut++;
+    });
 
-    doc.save("Relatorio-Institucional-ILPI.pdf");
+    const labels=[];
+    const valores=[];
+
+    Object.keys(meses).sort().forEach(m=>{
+        labels.push(m);
+        valores.push((meses[m].desnut/meses[m].total)*100);
+    });
+
+    if(valores.length<2) return;
+
+    new Chart(document.getElementById("graficoTendencia"),{
+        type:'line',
+        data:{
+            labels:labels,
+            datasets:[{
+                label:"% Desnutrição",
+                data:valores,
+                borderColor:"#c0392b",
+                fill:false
+            }]
+        }
+    });
+
+    // regressão
+    const n=valores.length;
+    let sumX=0,sumY=0,sumXY=0,sumXX=0;
+
+    for(let i=0;i<n;i++){
+        sumX+=i;
+        sumY+=valores[i];
+        sumXY+=i*valores[i];
+        sumXX+=i*i;
+    }
+
+    const slope=(n*sumXY - sumX*sumY)/(n*sumXX - sumX*sumX);
+    const intercept=(sumY - slope*sumX)/n;
+
+    const proj=slope*n + intercept;
+
+    const div=document.getElementById("projecao");
+
+    div.innerHTML="Projeção próximo mês: "+proj.toFixed(1)+"%";
+
+    if(proj>valores[n-1]){
+        div.className="card alerta";
+        div.innerHTML+="<br>Tendência de piora";
+    }else{
+        div.className="card normal";
+        div.innerHTML+="<br>Tendência de melhora";
+    }
 }
 
-carregarDados();
+function gerarRanking(){
+
+    const lista=[...dados];
+
+    lista.sort((a,b)=>b.score-a.score);
+
+    const ul=document.getElementById("ranking");
+    ul.innerHTML="";
+
+    lista.slice(0,5).forEach(r=>{
+        const li=document.createElement("li");
+        li.innerText=r.nome+" - Score: "+r.score;
+        ul.appendChild(li);
+    });
+}
+
+function carregarResidentes(){
+    const select=document.getElementById("selectResidente");
+    const nomes=[...new Set(dados.map(r=>r.nome))];
+
+    nomes.forEach(n=>{
+        const opt=document.createElement("option");
+        opt.value=n;
+        opt.text=n;
+        select.appendChild(opt);
+    });
+
+    if(nomes.length>0) mostrarHistorico();
+}
+
+function mostrarHistorico(){
+
+    const nome=document.getElementById("selectResidente").value;
+    const hist=dados.filter(r=>r.nome===nome);
+
+    if(chartIndividual) chartIndividual.destroy();
+
+    chartIndividual=new Chart(document.getElementById("graficoIndividual"),{
+        type:'line',
+        data:{
+            labels:hist.map(r=>r.data),
+            datasets:[{
+                label:"Score",
+                data:hist.map(r=>r.score),
+                borderColor:"#2980b9",
+                fill:false
+            }]
+        }
+    });
+
+    if(hist.length>=2){
+        const ult=hist[hist.length-1].score;
+        const ant=hist[hist.length-2].score;
+
+        const div=document.getElementById("indicadorRisco");
+
+        if(ult>ant){
+            div.className="card alerta";
+            div.innerHTML="Piora recente ⚠";
+        }else{
+            div.className="card normal";
+            div.innerHTML="Estável / Melhora ✔";
+        }
+    }
+}
+
+async function gerarPDFIndividual(){
+
+    const { jsPDF } = window.jspdf;
+    const doc=new jsPDF("p","mm","a4");
+
+    const nome=document.getElementById("selectResidente").value;
+    const canvas=await html2canvas(document.getElementById("areaRelatorio"));
+    const img=canvas.toDataURL("image/png");
+
+    const logo=new Image();
+    logo.src="logo.png";
+
+    logo.onload=function(){
+
+        doc.addImage(logo,"PNG",15,10,30,30);
+        doc.text("Relatório Individual",60,20);
+        doc.text("Residente: "+nome,60,30);
+        doc.addImage(img,"PNG",15,50,180,120);
+        doc.save("Relatorio-"+nome+".pdf");
+    }
+}
+
+iniciar();
 
 </script>
 
