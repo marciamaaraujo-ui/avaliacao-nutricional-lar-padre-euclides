@@ -3,15 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Institucional - ILPI</title>
+<title>Dashboard Epidemiológico - ILPI</title>
 <link rel="stylesheet" href="style.css">
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Excel -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
+<script src="app.js"></script>
 </head>
 
 <body>
@@ -20,285 +14,119 @@
   <div class="navbar-inner">
     <img src="logo.png" class="logo">
     <div class="links">
-      <a href="index.html">Ficha Clínica</a>
+      <a href="ficha-completa.html">Ficha</a>
+      <a href="exames-laboratoriais.html">Exames</a>
       <a href="dashboard.html">Dashboard</a>
-      <a href="metodologia.html">Metodologia</a>
+      <a href="relatorio.html">Direção</a>
     </div>
   </div>
 </div>
 
 <div class="container">
 
-<h1>Painel Institucional</h1>
+<h1>Dashboard Epidemiológico</h1>
 
 <div class="grid">
-  <div class="card normal">
-    % Normal<br><span id="normalPct">0%</span>
-  </div>
 
-  <div class="card risco">
-    % Risco<br><span id="riscoPct">0%</span>
-  </div>
-
-  <div class="card desnutrido">
-    % Desnutrição<br><span id="desnutPct">0%</span>
-  </div>
+<div class="card normal">
+Baixo Risco
+<br>
+<span id="baixo">0</span>
 </div>
 
-<h2>Score Institucional</h2>
-<div id="scoreInstitucional" class="card media"></div>
+<div class="card risco">
+Risco Moderado
+<br>
+<span id="moderado">0</span>
+</div>
 
-<h2>Meta Institucional (&lt; 15% desnutrição)</h2>
-<div id="metaStatus" class="card"></div>
+<div class="card desnutrido">
+Alto Risco Clínico
+<br>
+<span id="alto">0</span>
+</div>
 
-<h2>Distribuição Atual</h2>
-<canvas id="graficoPizza" height="120"></canvas>
+<div class="card media">
+Total de Avaliações
+<br>
+<span id="total">0</span>
+</div>
 
-<hr>
+</div>
 
-<h2>Ranking de Prioridade Clínica</h2>
-<ul id="ranking"></ul>
+<h2>Tendência por Residente</h2>
 
-<hr>
+<div class="grid">
 
-<h2>Histórico Individual</h2>
-<select id="selectResidente" onchange="mostrarHistorico()"></select>
-<canvas id="graficoIndividual" height="120"></canvas>
+<div>
+<label>Nome do Residente</label>
+<input type="text" id="residenteTendencia">
+</div>
 
-<br><br>
+<div>
+<button onclick="verTendencia()">Ver Tendência</button>
+</div>
 
-<button onclick="exportarExcel()">Exportar Excel com Estatísticas</button>
+<div>
+<label>Resultado</label>
+<input type="text" id="resultadoTendencia" readonly>
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-let chartIndividual = null;
+const banco = obterBanco();
 
-function iniciar(){
+let baixo = 0;
+let moderado = 0;
+let alto = 0;
+let total = 0;
 
-  let normal=0, risco=0, desnut=0;
+Object.keys(banco).forEach(nome => {
+    banco[nome].forEach(reg => {
+        total++;
 
-  dados.forEach(r=>{
-    if(r.classificacao==="Normal") normal++;
-    else if(r.classificacao==="Risco") risco++;
-    else if(r.classificacao==="Desnutrição") desnut++;
-  });
-
-  const total = dados.length || 1;
-
-  const normalPct = (normal/total)*100;
-  const riscoPct = (risco/total)*100;
-  const desnutPct = (desnut/total)*100;
-
-  document.getElementById("normalPct").innerText = Math.round(normalPct)+"%";
-  document.getElementById("riscoPct").innerText = Math.round(riscoPct)+"%";
-  document.getElementById("desnutPct").innerText = Math.round(desnutPct)+"%";
-
-  calcularScore(normalPct, riscoPct, desnutPct);
-  verificarMeta(desnutPct);
-  gerarGrafico(normal, risco, desnut);
-  gerarRanking();
-  carregarResidentes();
-}
-
-function calcularScore(normalPct, riscoPct, desnutPct){
-
-  const score = (desnutPct*3 + riscoPct*2 + normalPct*1)/6;
-
-  const div = document.getElementById("scoreInstitucional");
-
-  div.innerHTML = "Score Institucional: " + score.toFixed(1);
-
-  if(score < 30){
-    div.className="card normal";
-    div.innerHTML += "<br>Situação Controlada";
-  }else if(score < 60){
-    div.className="card risco";
-    div.innerHTML += "<br>Risco Moderado";
-  }else{
-    div.className="card desnutrido";
-    div.innerHTML += "<br>Risco Elevado";
-  }
-}
-
-function verificarMeta(desnutPct){
-
-  const div = document.getElementById("metaStatus");
-
-  if(desnutPct < 15){
-    div.className="card meta-ok";
-    div.innerHTML="Meta atingida ✔";
-  }else{
-    div.className="card meta-alerta";
-    div.innerHTML="Meta NÃO atingida ⚠";
-  }
-}
-
-function gerarGrafico(normal, risco, desnut){
-
-  new Chart(document.getElementById("graficoPizza"),{
-    type:"pie",
-    data:{
-      labels:["Normal","Risco","Desnutrição"],
-      datasets:[{
-        data:[normal, risco, desnut],
-        backgroundColor:["#27ae60","#f39c12","#c0392b"]
-      }]
-    }
-  });
-}
-
-function gerarRanking(){
-
-  const lista = [...dados];
-  lista.sort((a,b)=> b.score - a.score);
-
-  const ul = document.getElementById("ranking");
-  ul.innerHTML="";
-
-  lista.slice(0,5).forEach(r=>{
-    const li=document.createElement("li");
-    li.innerText = r.nome + " — ICN: " + r.score.toFixed(1);
-    ul.appendChild(li);
-  });
-}
-
-function carregarResidentes(){
-
-  const select = document.getElementById("selectResidente");
-  const nomes = [...new Set(dados.map(r=>r.nome))];
-
-  select.innerHTML="";
-
-  nomes.forEach(n=>{
-    const opt=document.createElement("option");
-    opt.value=n;
-    opt.text=n;
-    select.appendChild(opt);
-  });
-
-  if(nomes.length>0){
-    mostrarHistorico();
-  }
-}
-
-function mostrarHistorico(){
-
-  const nome = document.getElementById("selectResidente").value;
-  const historico = dados.filter(r=>r.nome===nome);
-
-  if(chartIndividual){
-    chartIndividual.destroy();
-  }
-
-  chartIndividual = new Chart(document.getElementById("graficoIndividual"),{
-    type:"line",
-    data:{
-      labels:historico.map(r=>r.data),
-      datasets:[{
-        label:"ICN",
-        data:historico.map(r=>r.score),
-        borderColor:"#2980b9",
-        fill:false,
-        tension:0.3
-      }]
-    }
-  });
-}
-
-/* =========================
-   EXPORTAÇÃO COMPLETA
-========================= */
-
-function exportarExcel(){
-
-  if(dados.length===0){
-    alert("Não há dados para exportar.");
-    return;
-  }
-
-  /* ABA 1 – Dados Brutos */
-
-  const dadosFormatados = dados.map(r=>{
-    const dataObj = new Date(r.data);
-    return {
-      Nome: r.nome,
-      Data: r.data,
-      Mes: dataObj.getMonth()+1,
-      Ano: dataObj.getFullYear(),
-      Score_ICN: r.score,
-      Classificacao: r.classificacao
-    };
-  });
-
-  const wsDados = XLSX.utils.json_to_sheet(dadosFormatados);
-
-  /* Estatísticas */
-
-  const total = dados.length;
-  const scores = dados.map(r=>r.score);
-
-  const media = scores.reduce((a,b)=>a+b,0)/total;
-  const max = Math.max(...scores);
-  const min = Math.min(...scores);
-
-  const desnut = dados.filter(r=>r.classificacao==="Desnutrição").length;
-  const risco = dados.filter(r=>r.classificacao==="Risco").length;
-  const normal = dados.filter(r=>r.classificacao==="Normal").length;
-
-  const pctDesnut = (desnut/total)*100;
-
-  const estatisticas = [
-    {Indicador:"Total de Avaliações", Valor: total},
-    {Indicador:"Média ICN", Valor: media.toFixed(2)},
-    {Indicador:"ICN Máximo", Valor: max.toFixed(2)},
-    {Indicador:"ICN Mínimo", Valor: min.toFixed(2)},
-    {Indicador:"% Desnutrição", Valor: pctDesnut.toFixed(2)+"%"},
-    {Indicador:"Total Normal", Valor: normal},
-    {Indicador:"Total Risco", Valor: risco},
-    {Indicador:"Total Desnutrição", Valor: desnut}
-  ];
-
-  const wsEstat = XLSX.utils.json_to_sheet(estatisticas);
-
-  /* Média Mensal */
-
-  const meses = {};
-
-  dados.forEach(r=>{
-    const d = new Date(r.data);
-    const chave = d.getFullYear()+"-"+(d.getMonth()+1);
-
-    if(!meses[chave]) meses[chave]=[];
-    meses[chave].push(r.score);
-  });
-
-  const mediaMensal = [];
-
-  Object.keys(meses).forEach(m=>{
-    const lista = meses[m];
-    const mediaMes = lista.reduce((a,b)=>a+b,0)/lista.length;
-    mediaMensal.push({
-      Mes: m,
-      Media_ICN: mediaMes.toFixed(2)
+        if(reg.classificacao === "Alto Risco Clínico") alto++;
+        else if(reg.classificacao === "Risco Moderado") moderado++;
+        else baixo++;
     });
-  });
+});
 
-  const wsMediaMensal = XLSX.utils.json_to_sheet(mediaMensal);
+document.getElementById("baixo").innerText = baixo;
+document.getElementById("moderado").innerText = moderado;
+document.getElementById("alto").innerText = alto;
+document.getElementById("total").innerText = total;
 
-  /* Criar Workbook */
+function verTendencia(){
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, wsDados, "Dados_Brutos");
-  XLSX.utils.book_append_sheet(wb, wsEstat, "Estatisticas_Gerais");
-  XLSX.utils.book_append_sheet(wb, wsMediaMensal, "Media_Mensal");
+    const nome = residenteTendencia.value.trim();
 
-  XLSX.writeFile(wb, "Relatorio_Estatistico_ILPI.xlsx");
+    if(!banco[nome]){
+        resultadoTendencia.value = "Residente não encontrado.";
+        return;
+    }
+
+    const historico = banco[nome];
+
+    if(historico.length < 2){
+        resultadoTendencia.value = "Sem dados suficientes.";
+        return;
+    }
+
+    const ultimo = historico[historico.length-1].icn;
+    const anterior = historico[historico.length-2].icn;
+
+    if(ultimo > anterior){
+        resultadoTendencia.value = "Piora clínica.";
+    } else if(ultimo < anterior){
+        resultadoTendencia.value = "Melhora clínica.";
+    } else {
+        resultadoTendencia.value = "Estável.";
+    }
 }
-
-iniciar();
 
 </script>
 
