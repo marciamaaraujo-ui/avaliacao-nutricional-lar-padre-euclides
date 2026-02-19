@@ -57,10 +57,6 @@ input,textarea,select{
     width:100%;
 }
 
-textarea{
-    min-height:120px;
-}
-
 button{
     background:#e67e22;
     color:white;
@@ -73,20 +69,3 @@ button{
 button:hover{
     background:#d35400;
 }
-
-.card{
-    padding:15px;
-    border-radius:10px;
-    color:white;
-    font-weight:bold;
-    text-align:center;
-}
-
-.normal{ background:#27ae60; }
-.risco{ background:#f39c12; }
-.desnutrido{ background:#c0392b; }
-.nrs{ background:#8e44ad; }
-.media{ background:#2980b9; }
-.alerta{ background:#e74c3c; margin-bottom:10px; }
-.meta-ok{ background:#27ae60; }
-.meta-alerta{ background:#c0392b; }
