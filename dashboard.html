@@ -3,18 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Institucional - ILPI</title>
+<title>Painel Institucional - ILPI</title>
 <link rel="stylesheet" href="style.css">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
-    <img src="logo.png" class="logo">
-    <div class="links">
-        <a href="index.html">Ficha Clínica</a>
-        <a href="dashboard.html">Dashboard</a>
+    <div class="navbar-inner">
+        <img src="logo.png" class="logo">
+        <div class="links">
+            <a href="index.html">Ficha Clínica</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
     </div>
 </div>
 
@@ -23,14 +31,108 @@
 <h1>Painel Institucional</h1>
 
 <div class="grid">
-    <div class="card normal">Normal<br>0%</div>
-    <div class="card risco">Risco<br>0%</div>
-    <div class="card desnutrido">Desnutrição<br>0%</div>
+
+    <div class="card normal">
+        Normal<br><span id="normalPct">0%</span>
+    </div>
+
+    <div class="card risco">
+        Risco<br><span id="riscoPct">0%</span>
+    </div>
+
+    <div class="card desnutrido">
+        Desnutrição<br><span id="desnutPct">0%</span>
+    </div>
+
 </div>
 
-<p>Sistema funcionando corretamente.</p>
+<h2>Distribuição Nutricional</h2>
+
+<canvas id="graficoPizza" height="120"></canvas>
+
+<br><br>
+
+<button onclick="gerarPDF()">Gerar Relatório Institucional (PDF A4)</button>
 
 </div>
+
+<script>
+
+function carregarDados(){
+
+    const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+
+    let normal = 0;
+    let risco = 0;
+    let desnut = 0;
+
+    dados.forEach(r => {
+        if(r.classificacao === "Normal") normal++;
+        else if(r.classificacao === "Risco") risco++;
+        else if(r.classificacao === "Desnutrição") desnut++;
+    });
+
+    const total = dados.length || 1;
+
+    const normalPct = Math.round((normal/total)*100);
+    const riscoPct = Math.round((risco/total)*100);
+    const desnutPct = Math.round((desnut/total)*100);
+
+    document.getElementById("normalPct").innerText = normalPct + "%";
+    document.getElementById("riscoPct").innerText = riscoPct + "%";
+    document.getElementById("desnutPct").innerText = desnutPct + "%";
+
+    gerarGrafico(normal, risco, desnut);
+}
+
+function gerarGrafico(normal, risco, desnut){
+
+    const ctx = document.getElementById('graficoPizza');
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Normal', 'Risco', 'Desnutrição'],
+            datasets: [{
+                data: [normal, risco, desnut],
+                backgroundColor: [
+                    '#27ae60',
+                    '#f39c12',
+                    '#c0392b'
+                ]
+            }]
+        },
+        options:{
+            plugins:{
+                legend:{
+                    position:'bottom'
+                }
+            }
+        }
+    });
+}
+
+async function gerarPDF(){
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("p", "mm", "a4");
+
+    doc.setFontSize(18);
+    doc.text("Relatório Institucional - ILPI", 20, 20);
+
+    doc.setFontSize(12);
+    doc.text("Data: " + new Date().toLocaleDateString(), 20, 30);
+
+    doc.text("Normal: " + document.getElementById("normalPct").innerText, 20, 45);
+    doc.text("Risco: " + document.getElementById("riscoPct").innerText, 20, 55);
+    doc.text("Desnutrição: " + document.getElementById("desnutPct").innerText, 20, 65);
+
+    doc.save("Relatorio-Institucional-ILPI.pdf");
+}
+
+carregarDados();
+
+</script>
 
 </body>
 </html>
