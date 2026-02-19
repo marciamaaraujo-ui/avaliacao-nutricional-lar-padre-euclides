@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ficha Clínica Completa - ILPI</title>
 <link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
 <script src="app.js"></script>
 </head>
 
@@ -17,10 +14,10 @@
   <div class="navbar-inner">
     <img src="logo.png" class="logo">
     <div class="links">
-      <a href="index.html">Ficha Simplificada</a>
       <a href="ficha-completa.html">Ficha Completa</a>
+      <a href="exames.html">Exames</a>
       <a href="dashboard.html">Dashboard</a>
-      <a href="metodologia.html">Metodologia</a>
+      <a href="relatorio.html">Direção</a>
     </div>
   </div>
 </div>
@@ -28,6 +25,8 @@
 <div class="container">
 
 <h1>Ficha Clínica Completa ILPI</h1>
+
+<!-- ================= IDENTIFICAÇÃO ================= -->
 
 <h2>Identificação</h2>
 
@@ -58,7 +57,7 @@
 
 <div>
 <label>Data de Nascimento</label>
-<input type="date" id="dataNascimento" onchange="calcularIdadeLocal()">
+<input type="date" id="dataNascimento" onchange="atualizarIdade()">
 </div>
 
 <div>
@@ -76,18 +75,20 @@
 
 </div>
 
+<!-- ================= ANTROPOMETRIA ================= -->
+
 <h2>Antropometria</h2>
 
 <div class="grid">
 
 <div>
 <label>Altura (m)</label>
-<input type="number" step="0.01" id="altura" oninput="calculosAntropometricos()">
+<input type="number" step="0.01" id="altura" oninput="calcularAntropometria()">
 </div>
 
 <div>
 <label>Peso Atual (kg)</label>
-<input type="number" step="0.1" id="peso" oninput="calculosAntropometricos()">
+<input type="number" step="0.1" id="peso" oninput="calcularAntropometria()">
 </div>
 
 <div>
@@ -106,6 +107,8 @@
 </div>
 
 </div>
+
+<!-- ================= TRIAGEM ================= -->
 
 <h2>Triagem Nutricional</h2>
 
@@ -135,95 +138,87 @@
 
 <br><br>
 
-<button onclick="salvarAvaliacao()">Salvar e Integrar ao Sistema</button>
-<button onclick="gerarPDF()">Gerar PDF Institucional</button>
+<button onclick="salvarAvaliacao()">Salvar Avaliação</button>
 
 </div>
 
 <script>
 
-/* ===== IDADE ===== */
+/* ================= IDADE ================= */
 
-function calcularIdadeLocal(){
-  const idadeNum = calcularIdade(document.getElementById("dataNascimento").value);
-  document.getElementById("idade").value = idadeNum;
+function atualizarIdade(){
+    const idadeNum = calcularIdade(dataNascimento.value);
+    idade.value = idadeNum;
 }
 
-/* ===== ANTROPOMETRIA ===== */
+/* ================= ANTROPOMETRIA ================= */
 
-function calculosAntropometricos(){
+function calcularAntropometria(){
 
-  const p = parseFloat(document.getElementById("peso").value)||0;
-  const a = parseFloat(document.getElementById("altura").value)||0;
+    const pesoVal = Number(peso.value) || 0;
+    const alturaVal = Number(altura.value) || 0;
 
-  if(p>0 && a>0){
+    if(pesoVal > 0 && alturaVal > 0){
 
-    const imcVal = p/(a*a);
-    document.getElementById("imc").value = imcVal.toFixed(2);
+        const imcVal = pesoVal / (alturaVal * alturaVal);
 
-    document.getElementById("classImc").value = classificarIMCIdoso(imcVal);
+        imc.value = imcVal.toFixed(2);
+        classImc.value = classificarIMC(imcVal);
 
-    calcularICNLocal();
-  }
+        calcularICNLocal();
+    }
 }
 
-/* ===== ICN ===== */
+/* ================= ICN ================= */
 
 function calcularICNLocal(){
 
-  const mna = parseFloat(document.getElementById("mna").value)||0;
-  const nrs = parseFloat(document.getElementById("nrs").value)||0;
-  const imc = parseFloat(document.getElementById("imc").value)||0;
+    const mnaVal = Number(mna.value) || 0;
+    const nrsVal = Number(nrs.value) || 0;
+    const imcVal = Number(imc.value) || 0;
 
-  const icnVal = calcularICN(mna,nrs,imc);
+    const icnVal = calcularICN(mnaVal, nrsVal, imcVal);
 
-  document.getElementById("icn").value = icnVal.toFixed(2);
-  document.getElementById("classificacaoFinal").value = classificarICN(icnVal);
+    icn.value = icnVal.toFixed(2);
+    classificacaoFinal.value = classificarICN(icnVal);
 }
 
-/* ===== SALVAR ===== */
+/* ================= SALVAR ================= */
 
 function salvarAvaliacao(){
 
-  if(!nome.value || !dataAvaliacao.value){
-    alert("Preencha Nome e Data.");
-    return;
-  }
+    if(!nome.value || !dataAvaliacao.value){
+        alert("Preencha Nome e Data da Avaliação.");
+        return;
+    }
 
-  const registro={
-    nome: nome.value,
-    data: dataAvaliacao.value,
-    idade: Number(idade.value)||0,
-    imc: Number(imc.value)||0,
-    icn: Number(icn.value)||0,
-    classificacao: classificacaoFinal.value,
-    scoreBio:0,
-    indiceInflamatorio:0,
-    tfge:0,
-    riscoRenal:"",
-    parecerClinico:""
-  };
+    const banco = obterBanco();
+    const residente = nome.value.trim();
 
-  salvarRegistro(registro);
+    if(!banco[residente]){
+        banco[residente] = [];
+    }
 
-  alert("Avaliação salva com sucesso e integrada ao sistema.");
-}
+    const registro = {
+        data: dataAvaliacao.value,
+        setor: setor.value,
+        genero: genero.value,
+        idade: Number(idade.value) || 0,
+        imc: Number(imc.value) || 0,
+        icn: Number(icn.value) || 0,
+        classificacao: classificacaoFinal.value,
+        scoreBio: 0,
+        indiceInflamatorio: 0,
+        tfge: 0,
+        riscoRenal: "",
+        parecerClinico: ""
+    };
 
-/* ===== PDF ===== */
+    banco[residente].push(registro);
 
-function gerarPDF(){
+    salvarBanco(banco);
 
-  html2canvas(document.querySelector(".container")).then(canvas=>{
-
-    const imgData=canvas.toDataURL("image/png");
-    const pdf=new jspdf.jsPDF("p","mm","a4");
-
-    const largura=210;
-    const altura=(canvas.height*largura)/canvas.width;
-
-    pdf.addImage(imgData,"PNG",0,0,largura,altura);
-    pdf.save("Ficha_Clinica_ILPI.pdf");
-  });
+    alert("Avaliação salva com histórico individual.");
 }
 
 </script>
