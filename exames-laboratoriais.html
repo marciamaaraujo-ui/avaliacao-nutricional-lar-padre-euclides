@@ -2,7 +2,8 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Painel Médico</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Médico - ILPI</title>
 <link rel="stylesheet" href="style.css">
 <script src="app.js"></script>
 </head>
@@ -10,20 +11,22 @@
 <body>
 
 <div class="navbar">
-<div class="navbar-inner">
-<img src="logo.png" class="logo">
-<div class="links">
-<a href="ficha.html">Ficha</a>
-<a href="exames.html">Exames</a>
-<a href="dashboard.html">Dashboard</a>
-<a href="relatorio.html">Direção</a>
-</div>
-</div>
+  <div class="navbar-inner">
+    <img src="logo.png" class="logo">
+    <div class="links">
+      <a href="ficha-completa.html">Ficha</a>
+      <a href="exames.html">Exames</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="relatorio.html">Direção</a>
+    </div>
+  </div>
 </div>
 
 <div class="container">
 
-<h1>Painel Médico</h1>
+<h1>Painel Médico Integrado</h1>
+
+<h2>Inflamação</h2>
 
 <div class="grid">
 
@@ -36,6 +39,12 @@
 <label>PCR (mg/L)</label>
 <input type="number" step="0.1" id="pcr">
 </div>
+
+</div>
+
+<h2>Função Renal</h2>
+
+<div class="grid">
 
 <div>
 <label>Creatinina (mg/dL)</label>
@@ -58,7 +67,7 @@
 </div>
 
 <br>
-<button onclick="integrarExames()">Atualizar Diagnóstico</button>
+<button onclick="integrarExames()">Integrar ao Diagnóstico Nutricional</button>
 
 </div>
 
@@ -67,6 +76,7 @@
 function integrarExames(){
 
     const registros = obterRegistros();
+
     if(registros.length===0){
         alert("Nenhuma ficha encontrada.");
         return;
@@ -74,28 +84,44 @@ function integrarExames(){
 
     const ultimo = registros[registros.length-1];
 
-    const albumina=parseFloat(albumina.value)||0;
-    const pcr=parseFloat(pcr.value)||0;
-    const creat=parseFloat(creatinina.value)||0;
-    const idade=parseFloat(idadeMed.value)||0;
-    const sexo=sexoMed.value;
+    if(!ultimo.icn){
+        alert("ICN não encontrado na ficha.");
+        return;
+    }
 
-    /* Índice Inflamatório */
-    const ratio = albumina>0 ? (pcr/albumina) : 0;
-    ultimo.indiceInflamatorio = ratio;
+    const albumina = Number(albumina.value) || 0;
+    const pcr = Number(pcr.value) || 0;
+    const creat = Number(creatinina.value) || 0;
+    const idade = Number(idadeMed.value) || 0;
+    const sexo = sexoMed.value;
 
-    /* Score Bio */
-    let scoreBio=0;
-    if(albumina<3.5) scoreBio+=2;
-    if(pcr>5) scoreBio+=2;
+    /* ===== ÍNDICE INFLAMATÓRIO ===== */
 
-    ultimo.scoreBio=scoreBio;
+    let ratio = 0;
+    if(albumina>0){
+        ratio = pcr / albumina;
+    }
 
-    /* TFGe */
-    let tfge=0;
+    ultimo.indiceInflamatorio = Number(ratio.toFixed(2));
+
+    /* ===== SCORE BIO ===== */
+
+    let scoreBio = 0;
+
+    if(albumina>0 && albumina < 3.5) scoreBio += 2;
+    if(pcr > 5) scoreBio += 2;
+
+    ultimo.scoreBio = scoreBio;
+
+    /* ===== TFGe CKD-EPI ===== */
+
+    let tfge = 0;
+    let riscoRenal = "Não avaliado";
+
     if(creat>0 && idade>0){
-        let k=(sexo==="Feminino")?0.7:0.9;
-        let a=(sexo==="Feminino")?-0.329:-0.411;
+
+        let k = (sexo==="Feminino") ? 0.7 : 0.9;
+        let a = (sexo==="Feminino") ? -0.329 : -0.411;
 
         tfge = 141 *
             Math.min(creat/k,1)**a *
@@ -103,28 +129,47 @@ function integrarExames(){
             (0.993**idade) *
             (sexo==="Feminino"?1.018:1);
 
-        ultimo.tfge=tfge;
+        tfge = Number(tfge.toFixed(1));
 
-        if(tfge>=90) ultimo.riscoRenal="Preservada";
-        else if(tfge>=60) ultimo.riscoRenal="Leve redução";
-        else if(tfge>=30) ultimo.riscoRenal="Moderada";
-        else ultimo.riscoRenal="Grave";
+        if(tfge >= 90) riscoRenal="Preservada";
+        else if(tfge >=60) riscoRenal="Leve redução";
+        else if(tfge >=30) riscoRenal="Moderada";
+        else riscoRenal="Grave";
     }
 
-    /* Score Final */
-    const scoreFinal = ultimo.icn + scoreBio;
+    ultimo.tfge = tfge;
+    ultimo.riscoRenal = riscoRenal;
 
-    if(scoreFinal>=6) ultimo.classificacao="Alto Risco Clínico";
-    else if(scoreFinal>=3) ultimo.classificacao="Risco Moderado";
-    else ultimo.classificacao="Baixo Risco";
+    /* ===== SCORE FINAL INTEGRADO ===== */
 
-    ultimo.parecerClinico =
-        "ICN ajustado por inflamação e função renal. Risco renal: "
-        + ultimo.riscoRenal;
+    const scoreFinal = Number(ultimo.icn) + scoreBio;
+
+    if(scoreFinal >= 6) ultimo.classificacao = "Alto Risco Clínico";
+    else if(scoreFinal >= 3) ultimo.classificacao = "Risco Moderado";
+    else ultimo.classificacao = "Baixo Risco";
+
+    /* ===== PARECER CLÍNICO ===== */
+
+    let parecer = "Diagnóstico integrado: ";
+
+    if(scoreBio>0){
+        parecer += "Evidência de inflamação clínica. ";
+    }
+
+    if(riscoRenal==="Moderada" || riscoRenal==="Grave"){
+        parecer += "Comprometimento renal relevante. ";
+    }
+
+    if(scoreFinal<3){
+        parecer += "Quadro clínico estável.";
+    }
+
+    ultimo.parecerClinico = parecer;
 
     localStorage.setItem("avaliacoes", JSON.stringify(registros));
 
-    alert("Diagnóstico atualizado com exames.");
+    alert("Diagnóstico atualizado com integração bioquímica.");
+
 }
 
 </script>
