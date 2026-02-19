@@ -1,3 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha Nutricional - ILPI</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <img src="logo.png" class="logo">
+    <div class="links">
+        <a href="index.html">Ficha Clínica</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+</div>
+
+<!-- CONTEÚDO -->
+<div class="container">
+
+<h1>Ficha Nutricional ILPI</h1>
+
+<div class="grid">
+    <input type="text" placeholder="Nome do Residente">
+    <input type="date">
+    <input type="number" placeholder="Idade">
+</div>
+
+<h2>Antropometria</h2>
+
+<div class="grid">
+    <input type="number" placeholder="Peso (kg)">
+    <input type="number" placeholder="Altura (m)" step="0.01">
+    <input type="number" placeholder="Peso habitual (kg)">
+    <input type="text" placeholder="IMC" readonly>
+    <input type="text" placeholder="Classificação IMC" readonly>
+    <input type="text" placeholder="% Perda de Peso" readonly>
+</div>
+
+<button>Salvar Avaliação</button>
+
+</div>
+
+</body>
+</html>
+Clique em Commit changes.
+
+🟢 2️⃣ CÓDIGO FINAL CORRETO DO style.css
+Agora abra style.css
+Apague tudo
+Cole exatamente isto:
+
 body{
     margin:0;
     font-family: Arial, sans-serif;
@@ -57,10 +112,6 @@ input,textarea,select{
     width:100%;
 }
 
-textarea{
-    min-height:120px;
-}
-
 button{
     background:#e67e22;
     color:white;
@@ -73,20 +124,3 @@ button{
 button:hover{
     background:#d35400;
 }
-
-.card{
-    padding:15px;
-    border-radius:10px;
-    color:white;
-    font-weight:bold;
-    text-align:center;
-}
-
-.normal{ background:#27ae60; }
-.risco{ background:#f39c12; }
-.desnutrido{ background:#c0392b; }
-.nrs{ background:#8e44ad; }
-.media{ background:#2980b9; }
-.alerta{ background:#e74c3c; margin-bottom:10px; }
-.meta-ok{ background:#27ae60; }
-.meta-alerta{ background:#c0392b; }
