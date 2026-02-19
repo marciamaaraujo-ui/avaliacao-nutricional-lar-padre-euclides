@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel Institucional - ILPI</title>
 <link rel="stylesheet" href="style.css">
+
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 </head>
 
 <body>
@@ -25,55 +31,49 @@
 
 <h1>Painel Institucional</h1>
 
-<!-- INDICADORES -->
 <div class="grid">
   <div class="card normal">
-    % Normal<br>
-    <span id="normalPct">0%</span>
+    % Normal<br><span id="normalPct">0%</span>
   </div>
 
   <div class="card risco">
-    % Risco<br>
-    <span id="riscoPct">0%</span>
+    % Risco<br><span id="riscoPct">0%</span>
   </div>
 
   <div class="card desnutrido">
-    % Desnutrição<br>
-    <span id="desnutPct">0%</span>
+    % Desnutrição<br><span id="desnutPct">0%</span>
   </div>
 </div>
 
-<!-- SCORE -->
 <h2>Score Institucional</h2>
 <div id="scoreInstitucional" class="card media"></div>
 
-<!-- META -->
 <h2>Meta Institucional (&lt; 15% desnutrição)</h2>
 <div id="metaStatus" class="card"></div>
 
-<!-- GRÁFICO -->
 <h2>Distribuição Atual</h2>
 <canvas id="graficoPizza" height="120"></canvas>
 
 <hr>
 
-<!-- RANKING -->
-<h2>Ranking de Prioridade</h2>
+<h2>Ranking de Prioridade Clínica</h2>
 <ul id="ranking"></ul>
 
 <hr>
 
-<!-- HISTÓRICO INDIVIDUAL -->
 <h2>Histórico Individual</h2>
 <select id="selectResidente" onchange="mostrarHistorico()"></select>
 <canvas id="graficoIndividual" height="120"></canvas>
+
+<br><br>
+
+<button onclick="exportarExcel()">Exportar Excel com Estatísticas</button>
 
 </div>
 
 <script>
 
 const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-
 let chartIndividual = null;
 
 function iniciar(){
@@ -108,6 +108,7 @@ function calcularScore(normalPct, riscoPct, desnutPct){
   const score = (desnutPct*3 + riscoPct*2 + normalPct*1)/6;
 
   const div = document.getElementById("scoreInstitucional");
+
   div.innerHTML = "Score Institucional: " + score.toFixed(1);
 
   if(score < 30){
@@ -159,7 +160,7 @@ function gerarRanking(){
 
   lista.slice(0,5).forEach(r=>{
     const li=document.createElement("li");
-    li.innerText = r.nome + " — Score: " + r.score.toFixed(1);
+    li.innerText = r.nome + " — ICN: " + r.score.toFixed(1);
     ul.appendChild(li);
   });
 }
@@ -205,6 +206,96 @@ function mostrarHistorico(){
       }]
     }
   });
+}
+
+/* =========================
+   EXPORTAÇÃO COMPLETA
+========================= */
+
+function exportarExcel(){
+
+  if(dados.length===0){
+    alert("Não há dados para exportar.");
+    return;
+  }
+
+  /* ABA 1 – Dados Brutos */
+
+  const dadosFormatados = dados.map(r=>{
+    const dataObj = new Date(r.data);
+    return {
+      Nome: r.nome,
+      Data: r.data,
+      Mes: dataObj.getMonth()+1,
+      Ano: dataObj.getFullYear(),
+      Score_ICN: r.score,
+      Classificacao: r.classificacao
+    };
+  });
+
+  const wsDados = XLSX.utils.json_to_sheet(dadosFormatados);
+
+  /* Estatísticas */
+
+  const total = dados.length;
+  const scores = dados.map(r=>r.score);
+
+  const media = scores.reduce((a,b)=>a+b,0)/total;
+  const max = Math.max(...scores);
+  const min = Math.min(...scores);
+
+  const desnut = dados.filter(r=>r.classificacao==="Desnutrição").length;
+  const risco = dados.filter(r=>r.classificacao==="Risco").length;
+  const normal = dados.filter(r=>r.classificacao==="Normal").length;
+
+  const pctDesnut = (desnut/total)*100;
+
+  const estatisticas = [
+    {Indicador:"Total de Avaliações", Valor: total},
+    {Indicador:"Média ICN", Valor: media.toFixed(2)},
+    {Indicador:"ICN Máximo", Valor: max.toFixed(2)},
+    {Indicador:"ICN Mínimo", Valor: min.toFixed(2)},
+    {Indicador:"% Desnutrição", Valor: pctDesnut.toFixed(2)+"%"},
+    {Indicador:"Total Normal", Valor: normal},
+    {Indicador:"Total Risco", Valor: risco},
+    {Indicador:"Total Desnutrição", Valor: desnut}
+  ];
+
+  const wsEstat = XLSX.utils.json_to_sheet(estatisticas);
+
+  /* Média Mensal */
+
+  const meses = {};
+
+  dados.forEach(r=>{
+    const d = new Date(r.data);
+    const chave = d.getFullYear()+"-"+(d.getMonth()+1);
+
+    if(!meses[chave]) meses[chave]=[];
+    meses[chave].push(r.score);
+  });
+
+  const mediaMensal = [];
+
+  Object.keys(meses).forEach(m=>{
+    const lista = meses[m];
+    const mediaMes = lista.reduce((a,b)=>a+b,0)/lista.length;
+    mediaMensal.push({
+      Mes: m,
+      Media_ICN: mediaMes.toFixed(2)
+    });
+  });
+
+  const wsMediaMensal = XLSX.utils.json_to_sheet(mediaMensal);
+
+  /* Criar Workbook */
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, wsDados, "Dados_Brutos");
+  XLSX.utils.book_append_sheet(wb, wsEstat, "Estatisticas_Gerais");
+  XLSX.utils.book_append_sheet(wb, wsMediaMensal, "Media_Mensal");
+
+  XLSX.writeFile(wb, "Relatorio_Estatistico_ILPI.xlsx");
 }
 
 iniciar();
