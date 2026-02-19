@@ -15,6 +15,7 @@
         <div class="links">
             <a href="index.html">Ficha Clínica</a>
             <a href="dashboard.html">Dashboard</a>
+            <a href="metodologia.html">Metodologia</a>
         </div>
     </div>
 </div>
@@ -23,34 +24,19 @@
 
 <h1>Ficha Nutricional ILPI</h1>
 
-<h2>Identificação</h2>
-
 <div class="grid">
-
     <div>
-        <label>Nome do Residente</label>
+        <label>Nome</label>
         <input type="text" id="nome">
     </div>
 
     <div>
-        <label>Data da Avaliação</label>
+        <label>Data</label>
         <input type="date" id="data">
     </div>
 
     <div>
-        <label>Idade</label>
-        <input type="number" id="idade">
-    </div>
-
-</div>
-
-
-<h2>Antropometria</h2>
-
-<div class="grid">
-
-    <div>
-        <label>Peso Atual (kg)</label>
+        <label>Peso (kg)</label>
         <input type="number" id="peso" step="0.1">
     </div>
 
@@ -60,8 +46,13 @@
     </div>
 
     <div>
-        <label>Peso Habitual (kg)</label>
-        <input type="number" id="pesoHab" step="0.1">
+        <label>MNA (0–30)</label>
+        <input type="number" id="mnaTotal">
+    </div>
+
+    <div>
+        <label>NRS (0–7)</label>
+        <input type="number" id="nrsTotal">
     </div>
 
     <div>
@@ -75,79 +66,87 @@
     </div>
 
     <div>
-        <label>% Perda de Peso</label>
-        <input type="text" id="perda" readonly>
+        <label>ICN (0–100)</label>
+        <input type="text" id="icnScore" readonly>
     </div>
+
+    <div>
+        <label>Classificação ICN</label>
+        <input type="text" id="icnClass" readonly>
+    </div>
+</div>
+
+<button onclick="salvar()">Salvar Avaliação</button>
 
 </div>
 
+<script>
 
-<h2>MNA</h2>
+function calcularIMC(){
+    const p=parseFloat(document.getElementById("peso").value);
+    const a=parseFloat(document.getElementById("altura").value);
 
-<div class="grid">
+    if(p && a){
+        const imc=(p/(a*a)).toFixed(2);
+        document.getElementById("imc").value=imc;
 
-    <div>
-        <label>Pontuação Triagem (0–14)</label>
-        <input type="number" id="mnaTriagem">
-    </div>
+        let classe="";
+        if(imc<22) classe="Baixo Peso";
+        else if(imc<=27) classe="Eutrofia";
+        else classe="Sobrepeso";
 
-    <div>
-        <label>Pontuação Avaliação Global (0–16)</label>
-        <input type="number" id="mnaGlobal">
-    </div>
+        document.getElementById("classImc").value=classe;
+    }
+}
 
-    <div>
-        <label>Total MNA</label>
-        <input type="text" id="mnaTotal" readonly>
-    </div>
+function calcularICN(){
 
-    <div>
-        <label>Classificação MNA</label>
-        <input type="text" id="mnaClass" readonly>
-    </div>
+    calcularIMC();
 
-</div>
+    const mna=parseFloat(document.getElementById("mnaTotal").value)||0;
+    const nrs=parseFloat(document.getElementById("nrsTotal").value)||0;
+    const classImc=document.getElementById("classImc").value;
 
+    const riscoMNA=((30-mna)/30)*100;
+    const riscoNRS=(nrs/7)*100;
 
-<h2>NRS 2002</h2>
+    let riscoIMC=10;
+    if(classImc==="Baixo Peso") riscoIMC=80;
+    if(classImc==="Sobrepeso") riscoIMC=20;
 
-<div class="grid">
+    const icn=(riscoMNA*0.5)+(riscoNRS*0.3)+(riscoIMC*0.2);
 
-    <div>
-        <label>Estado Nutricional (0–3)</label>
-        <input type="number" id="nrsNutri">
-    </div>
+    document.getElementById("icnScore").value=icn.toFixed(1);
 
-    <div>
-        <label>Gravidade da Doença (0–3)</label>
-        <input type="number" id="nrsGrav">
-    </div>
+    let classFinal="";
+    if(icn<30) classFinal="Normal";
+    else if(icn<60) classFinal="Risco";
+    else classFinal="Desnutrição";
 
-    <div>
-        <label>Total NRS</label>
-        <input type="text" id="nrsTotal" readonly>
-    </div>
+    document.getElementById("icnClass").value=classFinal;
 
-    <div>
-        <label>Classificação NRS</label>
-        <input type="text" id="nrsClass" readonly>
-    </div>
+    return {icn, classFinal};
+}
 
-</div>
+function salvar(){
 
+    const resultado=calcularICN();
 
-<h2>Parecer Clínico</h2>
+    const registro={
+        nome:document.getElementById("nome").value,
+        data:document.getElementById("data").value,
+        score:resultado.icn,
+        classificacao:resultado.classFinal
+    };
 
-<div>
-    <label>Diagnóstico Nutricional</label>
-    <textarea id="parecer"></textarea>
-</div>
+    const dados=JSON.parse(localStorage.getItem("avaliacoes"))||[];
+    dados.push(registro);
+    localStorage.setItem("avaliacoes",JSON.stringify(dados));
 
-<br>
+    alert("Avaliação salva com sucesso!");
+}
 
-<button>Salvar Avaliação</button>
-
-</div>
+</script>
 
 </body>
 </html>
