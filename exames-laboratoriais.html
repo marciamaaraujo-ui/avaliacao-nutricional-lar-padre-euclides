@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Médico - ILPI</title>
+<title>Exames Laboratoriais - ILPI</title>
 <link rel="stylesheet" href="style.css">
 <script src="app.js"></script>
 </head>
@@ -15,7 +15,7 @@
     <img src="logo.png" class="logo">
     <div class="links">
       <a href="ficha-completa.html">Ficha</a>
-      <a href="exames.html">Exames</a>
+      <a href="exames-laboratoriais.html">Exames</a>
       <a href="dashboard.html">Dashboard</a>
       <a href="relatorio.html">Direção</a>
     </div>
@@ -24,7 +24,18 @@
 
 <div class="container">
 
-<h1>Painel Médico Integrado</h1>
+<h1>Painel de Exames Laboratoriais</h1>
+
+<h2>Seleção do Residente</h2>
+
+<div class="grid">
+
+<div>
+<label>Nome do Residente</label>
+<input type="text" id="nomeResidente">
+</div>
+
+</div>
 
 <h2>Inflamação</h2>
 
@@ -38,6 +49,11 @@
 <div>
 <label>PCR (mg/L)</label>
 <input type="number" step="0.1" id="pcr">
+</div>
+
+<div>
+<label>Índice Inflamatório (PCR/Albumina)</label>
+<input type="text" id="indiceInflamatorio" readonly>
 </div>
 
 </div>
@@ -64,10 +80,21 @@
 </select>
 </div>
 
+<div>
+<label>TFGe (mL/min)</label>
+<input type="text" id="tfge" readonly>
 </div>
 
-<br>
-<button onclick="integrarExames()">Integrar ao Diagnóstico Nutricional</button>
+<div>
+<label>Classificação Renal</label>
+<input type="text" id="riscoRenal" readonly>
+</div>
+
+</div>
+
+<br><br>
+
+<button onclick="integrarExames()">Integrar ao Diagnóstico</button>
 
 </div>
 
@@ -75,100 +102,127 @@
 
 function integrarExames(){
 
-    const registros = obterRegistros();
+    const residente = nomeResidente.value.trim();
 
-    if(registros.length===0){
-        alert("Nenhuma ficha encontrada.");
+    if(!residente){
+        alert("Informe o nome do residente.");
         return;
     }
 
-    const ultimo = registros[registros.length-1];
+    const banco = obterBanco();
 
-    if(!ultimo.icn){
-        alert("ICN não encontrado na ficha.");
+    if(!banco[residente]){
+        alert("Residente não encontrado no sistema.");
         return;
     }
 
-    const albumina = Number(albumina.value) || 0;
-    const pcr = Number(pcr.value) || 0;
-    const creat = Number(creatinina.value) || 0;
-    const idade = Number(idadeMed.value) || 0;
-    const sexo = sexoMed.value;
+    const historico = banco[residente];
+    const ultimo = historico[historico.length - 1];
 
-    /* ===== ÍNDICE INFLAMATÓRIO ===== */
+    const albuminaVal = Number(albumina.value);
+    const pcrVal = Number(pcr.value);
+    const creatVal = Number(creatinina.value);
+    const idadeVal = Number(idadeMed.value);
+    const sexoVal = sexoMed.value;
+
+    if(isNaN(albuminaVal) && isNaN(pcrVal) && isNaN(creatVal)){
+        alert("Preencha pelo menos um exame.");
+        return;
+    }
+
+    /* =========================
+       ÍNDICE INFLAMATÓRIO
+    ========================= */
 
     let ratio = 0;
-    if(albumina>0){
-        ratio = pcr / albumina;
+
+    if(albuminaVal > 0){
+        ratio = pcrVal / albuminaVal;
+        indiceInflamatorio.value = ratio.toFixed(2);
+        ultimo.indiceInflamatorio = Number(ratio.toFixed(2));
+    } else {
+        indiceInflamatorio.value = "—";
     }
 
-    ultimo.indiceInflamatorio = Number(ratio.toFixed(2));
-
-    /* ===== SCORE BIO ===== */
+    /* =========================
+       SCORE BIOQUÍMICO
+    ========================= */
 
     let scoreBio = 0;
 
-    if(albumina>0 && albumina < 3.5) scoreBio += 2;
-    if(pcr > 5) scoreBio += 2;
+    if(albuminaVal > 0 && albuminaVal < 3.5) scoreBio += 2;
+    if(pcrVal > 5) scoreBio += 2;
 
     ultimo.scoreBio = scoreBio;
 
-    /* ===== TFGe CKD-EPI ===== */
+    /* =========================
+       TFGe (CKD-EPI)
+    ========================= */
 
-    let tfge = 0;
-    let riscoRenal = "Não avaliado";
+    let tfgeCalc = 0;
+    let risco = "Não avaliado";
 
-    if(creat>0 && idade>0){
+    if(creatVal > 0 && idadeVal > 0){
 
-        let k = (sexo==="Feminino") ? 0.7 : 0.9;
-        let a = (sexo==="Feminino") ? -0.329 : -0.411;
+        if(creatVal < 0.3){
+            alert("Creatinina inválida.");
+            return;
+        }
 
-        tfge = 141 *
-            Math.min(creat/k,1)**a *
-            Math.max(creat/k,1)**-1.209 *
-            (0.993**idade) *
-            (sexo==="Feminino"?1.018:1);
+        let k = (sexoVal === "Feminino") ? 0.7 : 0.9;
+        let a = (sexoVal === "Feminino") ? -0.329 : -0.411;
 
-        tfge = Number(tfge.toFixed(1));
+        tfgeCalc = 141 *
+            Math.min(creatVal/k,1)**a *
+            Math.max(creatVal/k,1)**-1.209 *
+            (0.993**idadeVal) *
+            (sexoVal === "Feminino" ? 1.018 : 1);
 
-        if(tfge >= 90) riscoRenal="Preservada";
-        else if(tfge >=60) riscoRenal="Leve redução";
-        else if(tfge >=30) riscoRenal="Moderada";
-        else riscoRenal="Grave";
+        tfgeCalc = Number(tfgeCalc.toFixed(1));
+
+        if(tfgeCalc >= 90) risco = "Função Preservada";
+        else if(tfgeCalc >= 60) risco = "Leve redução";
+        else if(tfgeCalc >= 30) risco = "Redução Moderada";
+        else risco = "Redução Grave";
+
+        tfge.value = tfgeCalc;
+        riscoRenal.value = risco;
+
+        ultimo.tfge = tfgeCalc;
+        ultimo.riscoRenal = risco;
     }
 
-    ultimo.tfge = tfge;
-    ultimo.riscoRenal = riscoRenal;
+    /* =========================
+       SCORE FINAL INTEGRADO
+    ========================= */
 
-    /* ===== SCORE FINAL INTEGRADO ===== */
+    const scoreFinal = ultimo.icn + scoreBio;
 
-    const scoreFinal = Number(ultimo.icn) + scoreBio;
+    ultimo.classificacao = classificarICN(scoreFinal);
 
-    if(scoreFinal >= 6) ultimo.classificacao = "Alto Risco Clínico";
-    else if(scoreFinal >= 3) ultimo.classificacao = "Risco Moderado";
-    else ultimo.classificacao = "Baixo Risco";
+    /* =========================
+       PARECER CLÍNICO
+    ========================= */
 
-    /* ===== PARECER CLÍNICO ===== */
+    let parecer = "Avaliação integrada: ";
 
-    let parecer = "Diagnóstico integrado: ";
-
-    if(scoreBio>0){
-        parecer += "Evidência de inflamação clínica. ";
+    if(scoreBio > 0){
+        parecer += "Presença de inflamação clínica. ";
     }
 
-    if(riscoRenal==="Moderada" || riscoRenal==="Grave"){
+    if(risco === "Redução Moderada" || risco === "Redução Grave"){
         parecer += "Comprometimento renal relevante. ";
     }
 
-    if(scoreFinal<3){
+    if(scoreFinal < 3){
         parecer += "Quadro clínico estável.";
     }
 
     ultimo.parecerClinico = parecer;
 
-    localStorage.setItem("avaliacoes", JSON.stringify(registros));
+    salvarBanco(banco);
 
-    alert("Diagnóstico atualizado com integração bioquímica.");
+    alert("Exames integrados com sucesso ao residente.");
 
 }
 
