@@ -9,36 +9,72 @@
 
 <body>
 
-<!-- NAVBAR -->
+<!-- =========================
+     NAVBAR
+========================= -->
 <div class="navbar">
-    <img src="logo.png" class="logo">
-    <div class="links">
-        <a href="index.html">Ficha Clínica</a>
-        <a href="dashboard.html">Dashboard</a>
+    <div class="navbar-inner">
+        <img src="logo.png" class="logo">
+        <div class="links">
+            <a href="index.html">Ficha Clínica</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
     </div>
 </div>
 
-<!-- CONTEÚDO -->
+
+<!-- =========================
+     CONTEÚDO PRINCIPAL
+========================= -->
 <div class="container">
 
 <h1>Ficha Nutricional ILPI</h1>
 
+<!-- IDENTIFICAÇÃO -->
 <div class="grid">
-    <input type="text" placeholder="Nome do Residente">
-    <input type="date">
-    <input type="number" placeholder="Idade">
+    <input type="text" id="nome" placeholder="Nome do Residente">
+    <input type="date" id="data">
+    <input type="number" id="idade" placeholder="Idade">
 </div>
+
 
 <h2>Antropometria</h2>
 
 <div class="grid">
-    <input type="number" placeholder="Peso (kg)">
-    <input type="number" placeholder="Altura (m)" step="0.01">
-    <input type="number" placeholder="Peso habitual (kg)">
-    <input type="text" placeholder="IMC" readonly>
-    <input type="text" placeholder="Classificação IMC" readonly>
-    <input type="text" placeholder="% Perda de Peso" readonly>
+    <input type="number" id="peso" placeholder="Peso (kg)" step="0.1">
+    <input type="number" id="altura" placeholder="Altura (m)" step="0.01">
+    <input type="number" id="pesoHab" placeholder="Peso habitual (kg)" step="0.1">
+    <input type="text" id="imc" placeholder="IMC" readonly>
+    <input type="text" id="classImc" placeholder="Classificação IMC" readonly>
+    <input type="text" id="perda" placeholder="% Perda de Peso" readonly>
 </div>
+
+
+<h2>MNA</h2>
+
+<div class="grid">
+    <input type="number" id="mnaTriagem" placeholder="Triagem (0-14)">
+    <input type="number" id="mnaGlobal" placeholder="Avaliação Global (0-16)">
+    <input type="text" id="mnaTotal" placeholder="Total MNA" readonly>
+    <input type="text" id="mnaClass" placeholder="Classificação MNA" readonly>
+</div>
+
+
+<h2>NRS 2002</h2>
+
+<div class="grid">
+    <input type="number" id="nrsNutri" placeholder="Estado Nutricional (0-3)">
+    <input type="number" id="nrsGrav" placeholder="Gravidade da Doença (0-3)">
+    <input type="text" id="nrsTotal" placeholder="Total NRS" readonly>
+    <input type="text" id="nrsClass" placeholder="Classificação NRS" readonly>
+</div>
+
+
+<h2>Parecer Clínico</h2>
+
+<textarea id="parecer" placeholder="Parecer automático ou manual"></textarea>
+
+<br>
 
 <button>Salvar Avaliação</button>
 
