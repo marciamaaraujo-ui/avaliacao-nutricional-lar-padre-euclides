@@ -8,6 +8,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
+<script src="app.js"></script>
 </head>
 
 <body>
@@ -34,7 +35,7 @@
 
 <div>
 <label>Setor</label>
-<select>
+<select id="setor">
 <option>Suíte</option>
 <option>Enfermaria</option>
 </select>
@@ -52,12 +53,12 @@
 
 <div>
 <label>Data de Admissão</label>
-<input type="date">
+<input type="date" id="dataAdmissao">
 </div>
 
 <div>
 <label>Data de Nascimento</label>
-<input type="date" id="dataNascimento" onchange="calcularIdade()">
+<input type="date" id="dataNascimento" onchange="calcularIdadeLocal()">
 </div>
 
 <div>
@@ -67,7 +68,7 @@
 
 <div>
 <label>Gênero</label>
-<select>
+<select id="genero">
 <option>Feminino</option>
 <option>Masculino</option>
 </select>
@@ -91,7 +92,7 @@
 
 <div>
 <label>Peso Habitual (kg)</label>
-<input type="number" step="0.1">
+<input type="number" step="0.1" id="pesoHabitual">
 </div>
 
 <div>
@@ -112,12 +113,12 @@
 
 <div>
 <label>MNA (0–14)</label>
-<input type="number" id="mna" min="0" max="14">
+<input type="number" id="mna" min="0" max="14" oninput="calcularICNLocal()">
 </div>
 
 <div>
-<label>NRS 2002</label>
-<input type="number" id="nrs" min="0" max="7">
+<label>NRS 2002 (0–7)</label>
+<input type="number" id="nrs" min="0" max="7" oninput="calcularICNLocal()">
 </div>
 
 <div>
@@ -134,85 +135,81 @@
 
 <br><br>
 
-<button onclick="salvarAvaliacao()">Salvar e Integrar ao Dashboard</button>
+<button onclick="salvarAvaliacao()">Salvar e Integrar ao Sistema</button>
 <button onclick="gerarPDF()">Gerar PDF Institucional</button>
 
 </div>
 
 <script>
 
-function calcularIdade(){
-  const nasc=new Date(document.getElementById("dataNascimento").value);
-  const hoje=new Date();
-  let idade=hoje.getFullYear()-nasc.getFullYear();
-  if(hoje.getMonth()<nasc.getMonth() ||
-    (hoje.getMonth()==nasc.getMonth() && hoje.getDate()<nasc.getDate())){
-      idade--;
-  }
-  document.getElementById("idade").value=idade+" anos";
+/* ===== IDADE ===== */
+
+function calcularIdadeLocal(){
+  const idadeNum = calcularIdade(document.getElementById("dataNascimento").value);
+  document.getElementById("idade").value = idadeNum;
 }
+
+/* ===== ANTROPOMETRIA ===== */
 
 function calculosAntropometricos(){
 
-  const p=parseFloat(document.getElementById("peso").value)||0;
-  const a=parseFloat(document.getElementById("altura").value)||0;
+  const p = parseFloat(document.getElementById("peso").value)||0;
+  const a = parseFloat(document.getElementById("altura").value)||0;
 
   if(p>0 && a>0){
-    const imcVal=(p/(a*a)).toFixed(2);
-    document.getElementById("imc").value=imcVal;
 
-    let classe="";
-    if(imcVal<22) classe="Desnutrição";
-    else if(imcVal<=27) classe="Normal";
-    else classe="Risco";
+    const imcVal = p/(a*a);
+    document.getElementById("imc").value = imcVal.toFixed(2);
 
-    document.getElementById("classImc").value=classe;
+    document.getElementById("classImc").value = classificarIMCIdoso(imcVal);
 
-    calcularICN();
+    calcularICNLocal();
   }
 }
 
-function calcularICN(){
+/* ===== ICN ===== */
 
-  const mna=parseFloat(document.getElementById("mna").value)||0;
-  const nrs=parseFloat(document.getElementById("nrs").value)||0;
-  const imc=parseFloat(document.getElementById("imc").value)||0;
+function calcularICNLocal(){
 
-  let imcScore=0;
+  const mna = parseFloat(document.getElementById("mna").value)||0;
+  const nrs = parseFloat(document.getElementById("nrs").value)||0;
+  const imc = parseFloat(document.getElementById("imc").value)||0;
 
-  if(imc<22) imcScore=2;
-  else if(imc<=27) imcScore=1;
-  else imcScore=0;
+  const icnVal = calcularICN(mna,nrs,imc);
 
-  const icn=(mna*0.4)+(nrs*0.4)+(imcScore*2);
-
-  document.getElementById("icn").value=icn.toFixed(2);
-
-  let classFinal="Normal";
-  if(icn>=4) classFinal="Desnutrição";
-  else if(icn>=2) classFinal="Risco";
-
-  document.getElementById("classificacaoFinal").value=classFinal;
+  document.getElementById("icn").value = icnVal.toFixed(2);
+  document.getElementById("classificacaoFinal").value = classificarICN(icnVal);
 }
 
-document.getElementById("mna").addEventListener("input",calcularICN);
-document.getElementById("nrs").addEventListener("input",calcularICN);
+/* ===== SALVAR ===== */
 
 function salvarAvaliacao(){
 
+  if(!nome.value || !dataAvaliacao.value){
+    alert("Preencha Nome e Data.");
+    return;
+  }
+
   const registro={
-    nome:document.getElementById("nome").value,
-    data:document.getElementById("dataAvaliacao").value,
-    score:parseFloat(document.getElementById("icn").value)||0,
-    classificacao:document.getElementById("classificacaoFinal").value
+    nome: nome.value,
+    data: dataAvaliacao.value,
+    idade: Number(idade.value)||0,
+    imc: Number(imc.value)||0,
+    icn: Number(icn.value)||0,
+    classificacao: classificacaoFinal.value,
+    scoreBio:0,
+    indiceInflamatorio:0,
+    tfge:0,
+    riscoRenal:"",
+    parecerClinico:""
   };
 
-  const lista=JSON.parse(localStorage.getItem("avaliacoes"))||[];
-  lista.push(registro);
-  localStorage.setItem("avaliacoes",JSON.stringify(lista));
+  salvarRegistro(registro);
 
-  alert("Avaliação salva com sucesso e integrada ao Dashboard.");
+  alert("Avaliação salva com sucesso e integrada ao sistema.");
 }
+
+/* ===== PDF ===== */
 
 function gerarPDF(){
 
