@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ficha Clínica Completa - ILPI</title>
 <link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
 </head>
 
 <body>
@@ -25,15 +28,13 @@
 
 <h1>Ficha Clínica Completa ILPI</h1>
 
-<!-- ================= IDENTIFICAÇÃO ================= -->
-
 <h2>Identificação</h2>
 
 <div class="grid">
 
 <div>
 <label>Setor</label>
-<select id="setor">
+<select>
 <option>Suíte</option>
 <option>Enfermaria</option>
 </select>
@@ -51,7 +52,7 @@
 
 <div>
 <label>Data de Admissão</label>
-<input type="date" id="dataAdmissao">
+<input type="date">
 </div>
 
 <div>
@@ -74,127 +75,6 @@
 
 </div>
 
-<!-- ================= COMORBIDADES ================= -->
-
-<h2>Comorbidades</h2>
-
-<p><strong>Metabólicas</strong></p>
-<input type="checkbox"> DM I
-<input type="checkbox"> DM II
-<input type="checkbox"> Dislipidemia
-
-<p><strong>Cardiovasculares</strong></p>
-<input type="checkbox"> Infarto
-<input type="checkbox"> AVC
-<input type="checkbox"> Insuficiência Cardíaca
-
-<p><strong>Degenerativas</strong></p>
-<input type="checkbox"> Osteoartrite
-<input type="checkbox"> Artrose
-<input type="checkbox"> Osteoporose
-
-<p><strong>Neurológicas</strong></p>
-<input type="checkbox"> Alzheimer
-<input type="checkbox"> Parkinson
-<input type="checkbox"> Outras Demências
-<input type="text" placeholder="Especificar">
-
-<p><strong>Respiratórias Crônicas</strong></p>
-<input type="checkbox"> DPOC
-<input type="checkbox"> Enfisema
-
-<p><strong>Transtornos Mentais</strong></p>
-<input type="checkbox"> Depressão
-<input type="checkbox"> Ansiedade
-<input type="checkbox"> Bipolaridade
-<input type="text" placeholder="Detalhes">
-
-<br><br>
-
-Obesidade
-<input type="checkbox">
-
-<br><br>
-
-Doença Renal Crônica (DRC)
-<input type="text" placeholder="Detalhes">
-
-<br><br>
-
-Doença Hepática
-<input type="text" placeholder="Tipo">
-
-<br><br>
-
-Câncer
-<input type="text" placeholder="Tipo e observações">
-
-<!-- ================= MEDICAMENTOS ================= -->
-
-<h2>Medicamentos</h2>
-
-<textarea placeholder="Medicamento - Dosagem - Frequência"></textarea>
-
-<!-- ================= FUNÇÃO GI ================= -->
-
-<h2>Função Gastrointestinal</h2>
-
-Alteração Mastigação/Deglutição:
-<input type="text">
-
-<br><br>
-
-H.U. Escala:
-<input type="text">
-Cor:
-<input type="text">
-Frequência:
-<input type="text">
-Dor:
-<input type="checkbox">
-Odor:
-<input type="checkbox">
-
-<br><br>
-
-H.I. Escala Bristol:
-<select>
-<option>1</option>
-<option>2</option>
-<option>3</option>
-<option>4</option>
-<option>5</option>
-<option>6</option>
-<option>7</option>
-</select>
-
-Frequência:
-<input type="text">
-
-<!-- ================= CONDIÇÃO FUNCIONAL ================= -->
-
-<h2>Condição Funcional Atual</h2>
-
-<select>
-<option>Acamado</option>
-<option>Ativo no leito</option>
-<option>Deambula com auxílio</option>
-<option>Deambula sem dificuldades</option>
-<option>Cadeira de rodas</option>
-</select>
-
-<br><br>
-
-Aceitação da dieta:
-<input type="text">
-
-<br><br>
-
-Ingestão hídrica (L/dia):
-<input type="number" step="0.1">
-
-<!-- ================= ANTROPOMETRIA ================= -->
-
 <h2>Antropometria</h2>
 
 <div class="grid">
@@ -215,21 +95,6 @@ Ingestão hídrica (L/dia):
 </div>
 
 <div>
-<label>CP (cm)</label>
-<input type="number" step="0.1">
-</div>
-
-<div>
-<label>AJ (cm)</label>
-<input type="number" step="0.1" id="aj" oninput="calculosAntropometricos()">
-</div>
-
-<div>
-<label>Altura Estimada (m)</label>
-<input type="text" id="alturaEstimada" readonly>
-</div>
-
-<div>
 <label>IMC (kg/m²)</label>
 <input type="text" id="imc" readonly>
 </div>
@@ -241,69 +106,43 @@ Ingestão hídrica (L/dia):
 
 </div>
 
-<!-- ================= METAS NUTRICIONAIS ================= -->
-
-<h2>Metas Nutricionais</h2>
+<h2>Triagem Nutricional</h2>
 
 <div class="grid">
 
 <div>
-<label>Fator Calórico (kcal/kg)</label>
-<input type="number" id="fCal" oninput="calcularMetas()">
+<label>MNA (0–14)</label>
+<input type="number" id="mna" min="0" max="14">
 </div>
 
 <div>
-<label>Meta Calórica (kcal/dia)</label>
-<input type="text" id="metaCal" readonly>
+<label>NRS 2002</label>
+<input type="number" id="nrs" min="0" max="7">
 </div>
 
 <div>
-<label>Fator Proteico (g/kg)</label>
-<input type="number" id="fProt" oninput="calcularMetas()">
+<label>ICN</label>
+<input type="text" id="icn" readonly>
 </div>
 
 <div>
-<label>Meta Proteica (g/dia)</label>
-<input type="text" id="metaProt" readonly>
-</div>
-
-<div>
-<label>Fator Hídrico (mL/kg)</label>
-<input type="number" id="fHid" oninput="calcularMetas()">
-</div>
-
-<div>
-<label>Meta Hídrica (L/dia)</label>
-<input type="text" id="metaHid" readonly>
-</div>
-
-<div>
-<label>Ref. Hídrica 30 mL/kg (L)</label>
-<input type="text" id="ref30" readonly>
-</div>
-
-<div>
-<label>Ref. Hídrica 35 mL/kg (L)</label>
-<input type="text" id="ref35" readonly>
+<label>Classificação Final</label>
+<input type="text" id="classificacaoFinal" readonly>
 </div>
 
 </div>
 
-<h2>Anotações / Considerações</h2>
-<textarea></textarea>
+<br><br>
 
-<h2>Diagnóstico Nutricional</h2>
-<textarea></textarea>
-
-<h2>Plano Nutricional</h2>
-<textarea></textarea>
+<button onclick="salvarAvaliacao()">Salvar e Integrar ao Dashboard</button>
+<button onclick="gerarPDF()">Gerar PDF Institucional</button>
 
 </div>
 
 <script>
 
 function calcularIdade(){
-  const nasc=new Date(dataNascimento.value);
+  const nasc=new Date(document.getElementById("dataNascimento").value);
   const hoje=new Date();
   let idade=hoje.getFullYear()-nasc.getFullYear();
   if(hoje.getMonth()<nasc.getMonth() ||
@@ -315,43 +154,79 @@ function calcularIdade(){
 
 function calculosAntropometricos(){
 
-  const p=parseFloat(peso.value)||0;
-  const a=parseFloat(altura.value)||0;
-  const ajVal=parseFloat(aj.value)||0;
-
-  if(ajVal>0){
-    const alturaEst=(ajVal*2.02/100).toFixed(2);
-    alturaEstimada.value=alturaEst;
-  }
+  const p=parseFloat(document.getElementById("peso").value)||0;
+  const a=parseFloat(document.getElementById("altura").value)||0;
 
   if(p>0 && a>0){
     const imcVal=(p/(a*a)).toFixed(2);
-    imc.value=imcVal;
+    document.getElementById("imc").value=imcVal;
 
     let classe="";
-    if(imcVal<22) classe="Baixo Peso";
-    else if(imcVal<=27) classe="Eutrofia";
-    else classe="Sobrepeso";
+    if(imcVal<22) classe="Desnutrição";
+    else if(imcVal<=27) classe="Normal";
+    else classe="Risco";
 
-    classImc.value=classe;
+    document.getElementById("classImc").value=classe;
+
+    calcularICN();
   }
 }
 
-function calcularMetas(){
+function calcularICN(){
 
-  const p=parseFloat(peso.value)||0;
-  const fC=parseFloat(fCal.value)||0;
-  const fP=parseFloat(fProt.value)||0;
-  const fH=parseFloat(fHid.value)||0;
+  const mna=parseFloat(document.getElementById("mna").value)||0;
+  const nrs=parseFloat(document.getElementById("nrs").value)||0;
+  const imc=parseFloat(document.getElementById("imc").value)||0;
 
-  if(p>0){
-    metaCal.value=(p*fC).toFixed(0)+" kcal";
-    metaProt.value=(p*fP).toFixed(1)+" g";
-    metaHid.value=((p*fH)/1000).toFixed(2)+" L";
+  let imcScore=0;
 
-    ref30.value=((p*30)/1000).toFixed(2)+" L";
-    ref35.value=((p*35)/1000).toFixed(2)+" L";
-  }
+  if(imc<22) imcScore=2;
+  else if(imc<=27) imcScore=1;
+  else imcScore=0;
+
+  const icn=(mna*0.4)+(nrs*0.4)+(imcScore*2);
+
+  document.getElementById("icn").value=icn.toFixed(2);
+
+  let classFinal="Normal";
+  if(icn>=4) classFinal="Desnutrição";
+  else if(icn>=2) classFinal="Risco";
+
+  document.getElementById("classificacaoFinal").value=classFinal;
+}
+
+document.getElementById("mna").addEventListener("input",calcularICN);
+document.getElementById("nrs").addEventListener("input",calcularICN);
+
+function salvarAvaliacao(){
+
+  const registro={
+    nome:document.getElementById("nome").value,
+    data:document.getElementById("dataAvaliacao").value,
+    score:parseFloat(document.getElementById("icn").value)||0,
+    classificacao:document.getElementById("classificacaoFinal").value
+  };
+
+  const lista=JSON.parse(localStorage.getItem("avaliacoes"))||[];
+  lista.push(registro);
+  localStorage.setItem("avaliacoes",JSON.stringify(lista));
+
+  alert("Avaliação salva com sucesso e integrada ao Dashboard.");
+}
+
+function gerarPDF(){
+
+  html2canvas(document.querySelector(".container")).then(canvas=>{
+
+    const imgData=canvas.toDataURL("image/png");
+    const pdf=new jspdf.jsPDF("p","mm","a4");
+
+    const largura=210;
+    const altura=(canvas.height*largura)/canvas.width;
+
+    pdf.addImage(imgData,"PNG",0,0,largura,altura);
+    pdf.save("Ficha_Clinica_ILPI.pdf");
+  });
 }
 
 </script>
