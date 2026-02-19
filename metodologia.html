@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metodologia - Índice Composto Nutricional</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <img src="logo.png" class="logo">
+        <div class="links">
+            <a href="index.html">Ficha Clínica</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="metodologia.html">Metodologia</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+<h1>Metodologia do Sistema de Avaliação Nutricional</h1>
+
+<h2>1. Fundamentação Técnica</h2>
+
+<p>
+O sistema utiliza três instrumentos validados internacionalmente para avaliação do risco nutricional em idosos institucionalizados:
+</p>
+
+<ul>
+<li><strong>MNA (Mini Nutritional Assessment – 30 pontos)</strong></li>
+<li><strong>NRS 2002 (Nutritional Risk Screening)</strong></li>
+<li><strong>IMC com classificação específica para idosos</strong></li>
+</ul>
+
+<hr>
+
+<h2>2. Mini Nutritional Assessment (MNA)</h2>
+
+<p>
+Escala de 0 a 30 pontos:
+</p>
+
+<ul>
+<li>24–30 → Estado nutricional normal</li>
+<li>17–23,5 → Risco de desnutrição</li>
+<li>&lt; 17 → Desnutrição estabelecida</li>
+</ul>
+
+<p>
+No sistema, o MNA é convertido em percentual de risco:
+</p>
+
+<pre>
+Risco_MNA = (30 - MNA) / 30 × 100
+</pre>
+
+<hr>
+
+<h2>3. NRS 2002</h2>
+
+<p>
+Escala de 0 a 7 pontos, considerando:
+</p>
+
+<ul>
+<li>Estado nutricional</li>
+<li>Gravidade da doença</li>
+<li>Idade ≥ 70 anos</li>
+</ul>
+
+<p>
+Conversão para percentual:
+</p>
+
+<pre>
+Risco_NRS = (NRS / 7) × 100
+</pre>
+
+<hr>
+
+<h2>4. IMC para Idosos</h2>
+
+<p>
+Classificação segundo critérios geriátricos:
+</p>
+
+<ul>
+<li>&lt; 22 kg/m² → Baixo peso</li>
+<li>22–27 kg/m² → Eutrofia</li>
+<li>&gt; 27 kg/m² → Sobrepeso</li>
+</ul>
+
+<p>
+Pontuação de risco atribuída:
+</p>
+
+<ul>
+<li>Baixo peso → 80 pontos</li>
+<li>Sobrepeso → 20 pontos</li>
+<li>Eutrofia → 10 pontos</li>
+</ul>
+
+<hr>
+
+<h2>5. Índice Composto Nutricional (ICN)</h2>
+
+<p>
+Modelo ponderado:
+</p>
+
+<pre>
+ICN = (Risco_MNA × 0.5) +
+      (Risco_NRS × 0.3) +
+      (Risco_IMC × 0.2)
+</pre>
+
+<p>
+Resultado final: 0 a 100
+</p>
+
+<hr>
+
+<h2>6. Classificação do ICN</h2>
+
+<ul>
+<li>&lt; 30 → Baixo Risco</li>
+<li>30–60 → Risco Moderado</li>
+<li>&gt; 60 → Alto Risco</li>
+</ul>
+
+<hr>
+
+<h2>7. Aplicação Institucional</h2>
+
+<p>
+O ICN permite:
+</p>
+
+<ul>
+<li>Monitoramento longitudinal</li>
+<li>Priorização clínica</li>
+<li>Detecção precoce de piora nutricional</li>
+<li>Planejamento estratégico institucional</li>
+<li>Relatórios executivos para gestão</li>
+</ul>
+
+<hr>
+
+<h2>8. Indicador Institucional</h2>
+
+<p>
+O sistema também calcula:
+</p>
+
+<ul>
+<li>Score de risco institucional ponderado</li>
+<li>Tendência mensal por regressão linear</li>
+<li>Projeção de desnutrição futura</li>
+</ul>
+
+<hr>
+
+<p>
+Sistema desenvolvido para uso clínico e gestão nutricional em ILPI.
+</p>
+
+</div>
+
+</body>
+</html>
