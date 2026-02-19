@@ -1,11 +1,16 @@
 /* =========================
-   RESET BÁSICO
+   RESET
 ========================= */
 
 body{
     margin:0;
     font-family: Arial, sans-serif;
     background:#f4f6f9;
+    color:#333;
+}
+
+h1,h2{
+    margin-top:0;
 }
 
 
@@ -74,13 +79,26 @@ body{
 .grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:15px;
-    margin-bottom:20px;
+    gap:20px;
+    margin-bottom:25px;
 }
 
 
 /* =========================
-   INPUTS E BOTÕES
+   LABELS
+========================= */
+
+label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:6px;
+    font-size:14px;
+    color:#333;
+}
+
+
+/* =========================
+   INPUTS
 ========================= */
 
 input, textarea, select{
@@ -89,21 +107,34 @@ input, textarea, select{
     border-radius:6px;
     width:100%;
     font-size:14px;
+    box-sizing:border-box;
+}
+
+input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-color:#2c3e50;
 }
 
 textarea{
     min-height:120px;
+    resize:vertical;
 }
+
+
+/* =========================
+   BOTÕES
+========================= */
 
 button{
     background:#e67e22;
     color:white;
     border:none;
-    padding:10px 20px;
+    padding:12px 22px;
     border-radius:6px;
     cursor:pointer;
     font-weight:bold;
     transition:0.2s;
+    font-size:14px;
 }
 
 button:hover{
@@ -116,12 +147,12 @@ button:hover{
 ========================= */
 
 .card{
-    padding:18px;
+    padding:20px;
     border-radius:12px;
     color:white;
     font-weight:bold;
     text-align:center;
-    font-size:15px;
+    font-size:16px;
 }
 
 .normal{ background:#27ae60; }
@@ -152,6 +183,10 @@ button:hover{
     .container{
         margin:100px 15px 30px 15px;
         padding:20px;
+    }
+
+    .grid{
+        gap:15px;
     }
 
 }
