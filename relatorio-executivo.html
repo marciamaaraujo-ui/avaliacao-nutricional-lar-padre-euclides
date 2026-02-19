@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Direção - ILPI</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
+</head>
+
+<body>
+
+<script>
+/* =========================
+   LOGIN SIMPLES DIRETORIA
+========================= */
+
+const senha = prompt("Acesso restrito - Digite a senha da Direção:");
+
+if(senha !== "direcao123"){
+  alert("Acesso negado.");
+  window.location.href = "dashboard.html";
+}
+</script>
+
+<div class="navbar">
+  <div class="navbar-inner">
+    <img src="logo.png" class="logo">
+    <div class="links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="relatorio-executivo.html">Painel Direção</a>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="areaRelatorio">
+
+<h1>Painel Executivo Institucional</h1>
+
+<div class="grid">
+  <div class="card media">
+    Total Avaliações<br>
+    <span id="total"></span>
+  </div>
+
+  <div class="card desnutrido">
+    % Desnutrição Atual<br>
+    <span id="desnutAtual"></span>
+  </div>
+
+  <div class="card risco">
+    Variação Mensal<br>
+    <span id="variacaoMensal"></span>
+  </div>
+
+  <div class="card normal">
+    Projeção Próximo Mês<br>
+    <span id="projecao"></span>
+  </div>
+</div>
+
+<h2>Tendência ICN Médio</h2>
+<canvas id="graficoTendencia" height="120"></canvas>
+
+<h2>Parecer Técnico Automatizado</h2>
+<div id="parecer" style="background:#f4f6f9; padding:20px; border-radius:10px;"></div>
+
+<br><br>
+<button onclick="gerarPDF()">Gerar PDF Executivo Formal</button>
+
+</div>
+
+<script>
+
+const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+
+function iniciar(){
+
+  const total = dados.length;
+  document.getElementById("total").innerText = total;
+
+  if(total===0) return;
+
+  const meses = {};
+
+  dados.forEach(r=>{
+    const d = new Date(r.data);
+    const chave = d.getFullYear()+"-"+(d.getMonth()+1);
+    if(!meses[chave]) meses[chave]=[];
+    meses[chave].push(r.score);
+  });
+
+  const mesesOrdenados = Object.keys(meses).sort();
+
+  const medias = mesesOrdenados.map(m=>{
+    const lista = meses[m];
+    return lista.reduce((a,b)=>a+b,0)/lista.length;
+  });
+
+  /* Comparação mês atual x anterior */
+
+  let variacao = 0;
+  let desnutAtual = 0;
+
+  if(mesesOrdenados.length >= 2){
+
+    const ultimo = medias[medias.length-1];
+    const anterior = medias[medias.length-2];
+
+    variacao = ultimo - anterior;
+
+    document.getElementById("variacaoMensal").innerText =
+      variacao > 0 ? "+"+variacao.toFixed(2) : variacao.toFixed(2);
+  }
+
+  /* % Desnutrição atual */
+
+  const ultimoMes = mesesOrdenados[mesesOrdenados.length-1];
+  const registrosUltimoMes = dados.filter(r=>{
+    const d=new Date(r.data);
+    return (d.getFullYear()+"-"+(d.getMonth()+1))===ultimoMes;
+  });
+
+  const desnut = registrosUltimoMes.filter(r=>r.classificacao==="Desnutrição").length;
+  desnutAtual = (desnut/registrosUltimoMes.length)*100;
+
+  document.getElementById("desnutAtual").innerText = desnutAtual.toFixed(1)+"%";
+
+  /* Projeção simples linear */
+
+  let projecao = medias[medias.length-1];
+
+  if(medias.length>=2){
+    const slope = medias[medias.length-1] - medias[medias.length-2];
+    projecao = medias[medias.length-1] + slope;
+  }
+
+  document.getElementById("projecao").innerText = projecao.toFixed(2);
+
+  gerarGrafico(mesesOrdenados, medias);
+  gerarParecer(desnutAtual, variacao, projecao);
+}
+
+function gerarGrafico(labels, dadosMedia){
+
+  new Chart(document.getElementById("graficoTendencia"),{
+    type:"line",
+    data:{
+      labels:labels,
+      datasets:[{
+        label:"ICN Médio",
+        data:dadosMedia,
+        borderColor:"#2c3e50",
+        fill:false,
+        tension:0.3
+      }]
+    }
+  });
+}
+
+function gerarParecer(desnutAtual, variacao, projecao){
+
+  let texto="";
+
+  if(desnutAtual < 15){
+    texto += "A instituição apresenta controle adequado do risco nutricional, ";
+  } else {
+    texto += "Observa-se percentual elevado de desnutrição institucional, ";
+  }
+
+  if(variacao > 0){
+    texto += "com tendência de agravamento no último período analisado. ";
+  } else {
+    texto += "com tendência de estabilização ou melhora no último período. ";
+  }
+
+  if(projecao > 4){
+    texto += "A projeção indica necessidade de intervenção nutricional imediata.";
+  } else {
+    texto += "A projeção sugere manutenção das estratégias atuais.";
+  }
+
+  document.getElementById("parecer").innerText = texto;
+}
+
+function gerarPDF(){
+
+  html2canvas(document.getElementById("areaRelatorio")).then(canvas=>{
+
+    const imgData=canvas.toDataURL("image/png");
+    const pdf=new jspdf.jsPDF("p","mm","a4");
+
+    const largura=210;
+    const altura=(canvas.height*largura)/canvas.width;
+
+    pdf.addImage(imgData,"PNG",0,0,largura,altura);
+    pdf.save("Relatorio_Executivo_Direcao_ILPI.pdf");
+  });
+}
+
+iniciar();
+
+</script>
+
+</body>
+</html>
