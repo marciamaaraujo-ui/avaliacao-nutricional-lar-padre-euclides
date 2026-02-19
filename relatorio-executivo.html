@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Relatório Executivo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório Executivo - ILPI</title>
 <link rel="stylesheet" href="style.css">
 <script src="app.js"></script>
 </head>
@@ -10,62 +11,85 @@
 <body>
 
 <script>
-const senha=prompt("Senha Direção:");
-if(senha!=="direcao123"){
-    alert("Acesso negado");
-    window.location.href="dashboard.html";
+const senha = prompt("Acesso Direção - Digite a senha:");
+
+if(senha !== "direcao123"){
+    alert("Acesso negado.");
+    window.location.href = "dashboard.html";
 }
 </script>
 
 <div class="navbar">
-<div class="navbar-inner">
-<img src="logo.png" class="logo">
-<div class="links">
-<a href="dashboard.html">Dashboard</a>
-</div>
-</div>
+  <div class="navbar-inner">
+    <img src="logo.png" class="logo">
+    <div class="links">
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+  </div>
 </div>
 
 <div class="container">
 
 <h1>Relatório Executivo Institucional</h1>
 
-<div id="conteudo"></div>
+<div id="relatorioConteudo"></div>
 
 </div>
 
 <script>
 
-const dados = obterRegistros();
+const bancoExec = obterBanco();
 
-let total = dados.length;
-let alto = dados.filter(r=>r.classificacao==="Alto Risco Clínico").length;
-let moderado = dados.filter(r=>r.classificacao==="Risco Moderado").length;
-let baixo = dados.filter(r=>r.classificacao==="Baixo Risco").length;
+let totalAvaliacoes = 0;
+let altoRisco = 0;
+let moderadoRisco = 0;
+let baixoRisco = 0;
 
-let pctAlto = total>0 ? (alto/total)*100 : 0;
+Object.keys(bancoExec).forEach(nome => {
+    bancoExec[nome].forEach(reg => {
 
-let metaStatus = pctAlto < 15 ? "Meta institucional atingida (<15%)."
-               : "Meta institucional NÃO atingida.";
+        totalAvaliacoes++;
 
-let tendencia = "Estável";
+        if(reg.classificacao === "Alto Risco Clínico") altoRisco++;
+        else if(reg.classificacao === "Risco Moderado") moderadoRisco++;
+        else baixoRisco++;
 
-if(total>=2){
-    const ultimo = dados[dados.length-1].icn;
-    const anterior = dados[dados.length-2].icn;
+    });
+});
 
-    if(ultimo>anterior) tendencia="Piora clínica recente.";
-    if(ultimo<anterior) tendencia="Melhora clínica recente.";
+let pctAlto = totalAvaliacoes > 0 ? (altoRisco/totalAvaliacoes)*100 : 0;
+
+let metaStatus = pctAlto < 15 
+    ? "Meta institucional atingida (<15% Alto Risco)." 
+    : "Meta institucional NÃO atingida.";
+
+let tendenciaInstitucional = "Estável";
+
+if(totalAvaliacoes >= 2){
+
+    const todosICN = [];
+
+    Object.keys(bancoExec).forEach(nome=>{
+        bancoExec[nome].forEach(reg=>{
+            todosICN.push(reg.icn);
+        });
+    });
+
+    const ultimo = todosICN[todosICN.length-1];
+    const anterior = todosICN[todosICN.length-2];
+
+    if(ultimo > anterior) tendenciaInstitucional = "Tendência de piora institucional.";
+    if(ultimo < anterior) tendenciaInstitucional = "Tendência de melhora institucional.";
 }
 
-document.getElementById("conteudo").innerHTML = `
-<p><strong>Total de Avaliações:</strong> ${total}</p>
-<p><strong>Alto Risco:</strong> ${alto}</p>
-<p><strong>Risco Moderado:</strong> ${moderado}</p>
-<p><strong>Baixo Risco:</strong> ${baixo}</p>
+document.getElementById("relatorioConteudo").innerHTML = `
+<p><strong>Total de Avaliações:</strong> ${totalAvaliacoes}</p>
+<p><strong>Alto Risco Clínico:</strong> ${altoRisco}</p>
+<p><strong>Risco Moderado:</strong> ${moderadoRisco}</p>
+<p><strong>Baixo Risco:</strong> ${baixoRisco}</p>
 <p><strong>% Alto Risco:</strong> ${pctAlto.toFixed(1)}%</p>
 <p><strong>Meta Institucional:</strong> ${metaStatus}</p>
-<p><strong>Tendência:</strong> ${tendencia}</p>
+<p><strong>Tendência Institucional:</strong> ${tendenciaInstitucional}</p>
 `;
 
 </script>
