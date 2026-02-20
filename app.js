@@ -1,22 +1,35 @@
-/* BANCO DE DADOS */
-function obterBanco() { return JSON.parse(localStorage.getItem("bancoILPI")) || {}; }
-function salvarBanco(banco) { localStorage.setItem("bancoILPI", JSON.stringify(banco)); }
+/* ==========================================================================
+   BANCO DE DADOS (localStorage)
+   ========================================================================== */
+function obterBanco() { 
+    return JSON.parse(localStorage.getItem("bancoILPI")) || {}; 
+}
+
+function salvarBanco(banco) { 
+    localStorage.setItem("bancoILPI", JSON.stringify(banco)); 
+}
 
 function salvarAvaliacao(nome, avaliacao) {
     const banco = obterBanco();
-    if (!banco[nome]) banco[nome] = { avaliacoes: [], exames: [] };
+    if (!banco[nome]) {
+        banco[nome] = { perfil: {}, avaliacoes: [], exames: [], comorbidades: [] };
+    }
     banco[nome].avaliacoes.push(avaliacao);
     salvarBanco(banco);
 }
 
 function salvarExame(nome, exame) {
     const banco = obterBanco();
-    if (!banco[nome]) banco[nome] = { avaliacoes: [], exames: [] };
+    if (!banco[nome]) {
+        banco[nome] = { perfil: {}, avaliacoes: [], exames: [], comorbidades: [] };
+    }
     banco[nome].exames.push(exame);
     salvarBanco(banco);
 }
 
-/* FÓRMULAS */
+/* ==========================================================================
+   FÓRMULAS NUTRICIONAIS
+   ========================================================================== */
 function calcularIdade(data) {
     if (!data) return 0;
     const nasc = new Date(data);
@@ -53,11 +66,16 @@ function classificarIMC(imc) {
 
 function calcularSomaMNA() {
     const ids = ["mna_a","mna_b","mna_c","mna_d","mna_e","mna_f","mna_g","mna_h","mna_i","mna_j","mna_k","mna_l","mna_m","mna_n","mna_o","mna_p","mna_q","mna_r"];
-    return ids.reduce((soma, id) => soma + (parseFloat(document.getElementById(id).value) || 0), 0);
+    return ids.reduce((soma, id) => {
+        const el = document.getElementById(id);
+        return soma + (el ? parseFloat(el.value) || 0 : 0);
+    }, 0);
 }
 
 function calcularSomaNRS(idade) {
-    const total = (parseFloat(document.getElementById("nrs_status").value) || 0) + (parseFloat(document.getElementById("nrs_gravidade").value) || 0);
+    const status = parseFloat(document.getElementById("nrs_status").value) || 0;
+    const gravidade = parseFloat(document.getElementById("nrs_gravidade").value) || 0;
+    const total = status + gravidade;
     return idade >= 70 ? total + 1 : total;
 }
 
@@ -80,4 +98,56 @@ function gerarParecerPES(sIcn, imc, cpAdj, sexo, mna, nrs) {
     return `${P}, ${E}, ${S} (S). Conduta: Suporte Nutricional conforme protocolo do Lar.`;
 }
 
-function getNum(id) { return parseFloat(document.getElementById(id).value.replace(',', '.')) || 0; }
+/* ==========================================================================
+   EXPORTAÇÃO PARA PLANILHA (CSV) - VERSÃO OTIMIZADA
+   ========================================================================== */
+function exportarParaCSV() {
+    const banco = obterBanco();
+    // Cabeçalho atualizado para incluir Peso e Altura
+    let csv = "\uFEFFNome;Sexo;Nascimento;Data Ultima Aval;Peso;Altura;IMC;MNA;NRS;ICN;Status;Parecer PES;Comorbidades\n";
+    
+    Object.keys(banco).sort().forEach(nome => {
+        const p = banco[nome].perfil || {};
+        const avaliacoes = banco[nome].avaliacoes || [];
+        const a = avaliacoes.length > 0 ? avaliacoes[avaliacoes.length - 1] : {}; 
+        const c = (banco[nome].comorbidades || []).join(" | "); 
+        
+        // Limpeza de caracteres que quebram o CSV (ponto e vírgula e quebras de linha)
+        const parecerLimpo = (a.parecer || "").replace(/(\r\n|\n|\r|;)/gm, " ");
+        const comorbLimpas = c.replace(/;/g, ",");
+
+        // Montagem da linha
+        csv += `${nome};` +
+               `${p.sexo || ""};` +
+               `${p.nasc || ""};` +
+               `${a.data || ""};` +
+               `${a.peso || ""};` +
+               `${a.altura || ""};` +
+               `${a.imc || ""};` +
+               `${a.mna || ""};` +
+               `${a.nrs || ""};` +
+               `${a.icn || ""};` +
+               `${a.classIcn || ""};` +
+               `"${parecerLimpo}";` +
+               `"${comorbLimpas}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    const dataHoje = new Date().toISOString().slice(0,10);
+    link.href = url;
+    link.setAttribute("download", `Relatorio_Geral_Nutricao_${dataHoje}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+/* UTILS */
+function getNum(id) { 
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    return parseFloat(el.value.replace(',', '.')) || 0; 
+}
