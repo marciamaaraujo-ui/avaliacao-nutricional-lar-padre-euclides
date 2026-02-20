@@ -1,7 +1,7 @@
 :root {
     --primary-color: #27ae60;
     --secondary-color: #2980b9;
-    --bg-input: #f0f4f2;
+    --bg-input: #f0f4f2; /* Cor de destaque para saber onde preencher */
     --text-color: #2c3e50;
     --border-color: #dcdde1;
 }
@@ -10,7 +10,7 @@ body {
     font-family: 'Segoe UI', system-ui, sans-serif;
     background-color: #f4f7f6;
     color: var(--text-color);
-    padding: 60px 40px;
+    padding: 40px;
 }
 
 .container {
@@ -25,49 +25,48 @@ body {
 header {
     text-align: center;
     border-bottom: 3px solid var(--primary-color);
-    margin-bottom: 60px;
-    padding-bottom: 30px;
+    margin-bottom: 50px;
+    padding-bottom: 20px;
 }
 
 section {
-    margin-bottom: 80px;
-    padding: 30px;
-    background: #ffffff;
+    margin-bottom: 60px;
+    padding: 25px;
+    background: #fff;
     border: 1px solid #f0f0f0;
     border-radius: 15px;
 }
 
 section h3 {
     color: var(--primary-color);
-    margin-bottom: 35px;
-    font-size: 1.3rem;
+    margin-bottom: 30px;
     border-left: 6px solid var(--primary-color);
-    padding-left: 20px;
+    padding-left: 15px;
     text-transform: uppercase;
 }
 
+/* GRID DE CAMPOS */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 45px;
-    margin-bottom: 30px;
+    gap: 40px; /* Espaço amplo para não colar */
+    margin-bottom: 20px;
 }
 
 label {
     display: block;
     font-weight: 700;
-    margin-bottom: 18px;
-    font-size: 1rem;
+    margin-bottom: 12px;
     color: #34495e;
 }
 
 input, select, textarea {
     width: 100%;
-    padding: 16px;
+    padding: 14px;
     border: 2px solid var(--border-color);
     border-radius: 10px;
     background-color: var(--bg-input);
-    font-size: 1.05rem;
+    font-size: 1rem;
     transition: all 0.3s ease;
 }
 
@@ -75,42 +74,55 @@ input:focus, select:focus, textarea:focus {
     background-color: #ffffff;
     border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 6px 15px rgba(39, 174, 96, 0.12);
 }
 
 input[readonly] {
     background-color: #f8f9fa;
     border-style: dashed;
-    cursor: default;
 }
+
+/* ESTILO PARA LINHAS DE EXAMES (Garante que nada se misture) */
+.exam-row {
+    display: grid;
+    grid-template-columns: 2.5fr 1.5fr 2fr;
+    gap: 25px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+}
+
+.cat-header {
+    background: var(--secondary-color);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 30px;
+    font-weight: bold;
+}
+
+.ref-text { font-size: 0.85rem; color: #7f8c8d; font-style: italic; }
 
 .btn-save {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 22px;
+    padding: 20px;
     border-radius: 12px;
     width: 100%;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 50px;
-    box-shadow: 0 5px 20px rgba(39, 174, 96, 0.4);
+    margin-top: 40px;
 }
 
 .navbar {
     display: flex;
     align-items: center;
     background: #fff;
-    padding: 20px 40px;
-    border-radius: 15px;
-    margin-bottom: 50px;
+    padding: 15px 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-.navbar a {
-    text-decoration: none;
-    color: var(--text-color);
-    font-weight: 700;
-    margin-right: 40px;
-}
+.navbar a { text-decoration: none; color: var(--text-color); font-weight: 700; margin-right: 30px; }
