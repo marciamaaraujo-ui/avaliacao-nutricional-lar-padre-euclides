@@ -2,34 +2,49 @@
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
-    <title>Ficha Clínica</title>
+    <title>Relatório Individual - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body onload="inicializarFicha()">
-
-    <div class="navbar">
-        <img src="logo.png" height="60" style="margin-right: 30px;">
-        <a href="index.html">Nova Avaliação</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="ficha-completa.html">Ficha Clínica</a>
-    </div>
+    <div class="navbar no-print">
+        </div>
 
     <div class="container">
         <header>
-            <h1>Prontuário de Evolução Nutricional</h1>
-            <p>Consulta detalhada de diagnósticos e condutas anteriores</p>
+            <img src="logo.png" style="height: 60px; margin-bottom: 10px;">
+            <h1>Relatório Nutricional Individual</h1>
+            <p id="dataRelatorio" style="font-weight: bold;"></p>
         </header>
 
-        <section style="background: var(--bg-input); padding: 40px; border-radius: 15px;">
-            <label>Pesquisar Residente</label>
-            <select id="selRes" onchange="carregarFicha()">
-                <option value="">-- Selecionar para abrir o prontuário --</option>
+        <section class="no-print">
+            <label>Selecione o Residente para Gerar o Relatório:</label>
+            <select id="selRes" onchange="gerarFichaCompleta()">
+                <option value="">-- Escolher Residente --</option>
             </select>
         </section>
 
-        <div id="areaFicha" style="display:none; margin-top: 50px;">
-            <h2 id="nomeFicha" style="color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 40px;">-</h2>
-            <div id="listaEvolucao"></div>
+        <div id="conteudoRelatorio" style="display:none;">
+            <section>
+                <h3>1. Dados de Identificação</h3>
+                <div id="dadosId" class="grid"></div>
+            </section>
+
+            <section>
+                <h3>2. Última Avaliação e Diagnóstico PES</h3>
+                <div id="dadosNutri"></div>
+            </section>
+
+            <section>
+                <h3>3. Quadro Clínico e Comorbidades</h3>
+                <div id="dadosClinicos" style="line-height: 1.6;"></div>
+            </section>
+
+            <section>
+                <h3>4. Últimos Resultados Laboratoriais</h3>
+                <div id="dadosExames"></div>
+            </section>
+
+            <button class="btn-save no-print" onclick="window.print()">🖨️ IMPRIMIR RELATÓRIO INDIVIDUAL</button>
         </div>
     </div>
 
@@ -39,31 +54,47 @@
             const b = obterBanco();
             const s = document.getElementById("selRes");
             Object.keys(b).sort().forEach(n => { s.innerHTML += `<option value="${n}">${n}</option>`; });
+            document.getElementById("dataRelatorio").innerText = "Gerado em: " + new Date().toLocaleDateString();
         }
 
-        function carregarFicha() {
+        function gerarFichaCompleta() {
             const n = document.getElementById("selRes").value;
-            const area = document.getElementById("areaFicha");
-            if(!n) { area.style.display = "none"; return; }
-            
-            area.style.display = "block";
-            document.getElementById("nomeFicha").innerText = "Residente: " + n;
-            
-            const avais = obterBanco()[n].avaliacoes;
-            const lista = document.getElementById("listaEvolucao");
-            lista.innerHTML = "";
+            if(!n) return;
+            document.getElementById("conteudoRelatorio").style.display = "block";
+            const res = obterBanco()[n];
 
-            [...avais].reverse().forEach(a => {
-                lista.innerHTML += `
-                    <div style="margin-bottom:40px; padding:30px; border:1px solid #ddd; border-radius:12px; background: #fff;">
-                        <p style="color:#666; font-size:0.9rem; margin-bottom: 10px;">Data da Avaliação: ${a.data}</p>
-                        <p><strong>Diagnóstico ICN:</strong> <span style="font-weight:bold;">${a.classIcn}</span> (Escore: ${a.icn})</p>
-                        <div style="background:#f9f9f9; padding:20px; border-left:6px solid var(--primary-color); margin-top:20px;">
-                            <strong>Parecer Técnico (PES):</strong><br>
-                            <span style="font-style:italic; line-height: 1.6;">${a.parecer}</span>
-                        </div>
-                    </div>`;
-            });
+            // 1. Identificação
+            document.getElementById("dadosId").innerHTML = `
+                <p><strong>Nome:</strong> ${n}</p>
+                <p><strong>Sexo:</strong> ${res.perfil.sexo}</p>
+                <p><strong>Nascimento:</strong> ${new Date(res.perfil.nasc).toLocaleDateString()}</p>
+            `;
+
+            // 2. Nutrição (Última)
+            const uA = res.avaliacoes.slice(-1)[0];
+            document.getElementById("dadosNutri").innerHTML = `
+                <p><strong>Status ICN:</strong> ${uA.classIcn}</p>
+                <div style="background:#f9f9f9; padding:15px; border-left:5px solid var(--primary-color); margin-top:10px;">
+                    <strong>Parecer Técnico (PES):</strong><br>${uA.parecer}
+                </div>
+            `;
+
+            // 3. Comorbidades
+            const com = res.comorbidades || [];
+            document.getElementById("dadosClinicos").innerHTML = com.length > 0 ? 
+                "<strong>Condições Diagnosticadas:</strong> " + com.join(", ") : 
+                "Nenhuma comorbidade registrada.";
+
+            // 4. Exames (Último)
+            const uE = res.exames.slice(-1)[0];
+            if(uE) {
+                document.getElementById("dadosExames").innerHTML = `
+                    <p><strong>Data da Coleta:</strong> ${uE.data}</p>
+                    <p>Albumina/PCR: ${uE.alb_pcr || '--'} | Glicemia: ${uE.glic || '--'} | Vit D: ${uE.vitd || '--'}</p>
+                `;
+            } else {
+                document.getElementById("dadosExames").innerHTML = "Nenhum exame laboratoriais registado.";
+            }
         }
     </script>
 </body>
