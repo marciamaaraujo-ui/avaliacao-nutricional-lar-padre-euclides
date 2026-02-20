@@ -2,60 +2,130 @@
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
-    <title>Exames - Lar Padre Euclides</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exames Laboratoriais - Painel Nutricional</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body onload="carregar()">
-    <div class="navbar"><div class="nav-container"><img src="logo.png" class="nav-logo">
-        <div class="nav-links"><a href="index.html" class="nav-link home-btn">🏠 Início</a><a href="exames-laboratoriais.html" class="nav-link">🧪 Exames</a><a href="ficha-completa.html" class="nav-link">📂 Ficha</a></div>
-    </div></div>
+<body onload="carregarResidentes()">
+
+    <div class="navbar">
+        <div class="nav-container">
+            <img src="logo.png" alt="Logo" class="nav-logo">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Nova Avaliação</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="ficha-completa.html" class="nav-link">Ficha Clínica</a>
+                <a href="exames-laboratoriais.html" class="nav-link home-btn">Exames</a>
+            </div>
+        </div>
+    </div>
 
     <div class="container">
-        <header><h1>Prontuário Laboratorial</h1><p id="perfilNome" style="color:var(--secondary-color); font-weight:bold;"></p></header>
-        <div class="grid">
-            <div><label>Residente</label><select id="selRes" onchange="ref()"><option value="">-- Escolher --</option></select></div>
-            <div><label>Data</label><input type="date" id="data"></div>
-        </div>
+        <header>
+            <h1>Registo de Exames Laboratoriais</h1>
+            <p>Insira os resultados bioquímicos para monitorização clínica</p>
+        </header>
 
-        <form id="fEx">
-            <div class="cat-header">Hemograma e Metabolismo</div>
-            <div class="exam-row"><div>Hemoglobina (g/dL)</div><input type="text" id="hgb"><span class="ref-text" id="r_hgb">--</span></div>
-            <div class="exam-row"><div>Glicemia / HbA1c</div><input type="text" id="gli"><span class="ref-text">70-99 | <6.5%</span></div>
-            
-            <div class="cat-header">Proteínas e Renal</div>
-            <div class="exam-row"><div>Albumina / PCR</div><input type="text" id="alb"><span class="ref-text">> 3.5 | < 0.5</span></div>
-            <div class="exam-row"><div>Ureia / Creatinina</div><input type="text" id="ren"><span class="ref-text" id="r_cre">--</span></div>
+        <section>
+            <h3>1. Selecionar Residente</h3>
+            <div class="grid">
+                <div>
+                    <label>Residente</label>
+                    <select id="selectResidente">
+                        <option value="">Selecione um residente...</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Data da Colheita</label>
+                    <input type="date" id="dataExame">
+                </div>
+            </div>
+        </section>
 
-            <div class="cat-header">Perfil Lipídico e Vitaminas</div>
-            <div class="exam-row"><div>Colesterol T / HDL / LDL</div><input type="text" id="lip"><span class="ref-text">CT < 190 | HDL > 40</span></div>
-            <div class="exam-row"><div>Vit D / B12 / Folato</div><input type="text" id="vit"><span class="ref-text">D > 30ng | B12 > 200pg</span></div>
+        <section>
+            <h3>2. Bioquímica e Hematologia</h3>
+            <div class="grid">
+                <div>
+                    <label>Glicémia (mg/dL)</label>
+                    <input type="number" id="glicemia" step="0.1" placeholder="Ref: 70-99">
+                </div>
+                <div>
+                    <label>Albumina (g/dL)</label>
+                    <input type="number" id="albumina" step="0.1" placeholder="Ref: 3.5-5.0">
+                </div>
+                <div>
+                    <label>Hemoglobina (g/dL)</label>
+                    <input type="number" id="hemoglobina" step="0.1">
+                </div>
+                <div>
+                    <label>Colesterol Total (mg/dL)</label>
+                    <input type="number" id="col_total" step="0.1">
+                </div>
+                <div>
+                    <label>Creatinina (mg/dL)</label>
+                    <input type="number" id="creatinina" step="0.01">
+                </div>
+                <div>
+                    <label>Ureia (mg/dL)</label>
+                    <input type="number" id="ureia" step="0.1">
+                </div>
+            </div>
             
-            <div class="cat-header">Minerais e Outros</div>
-            <div class="exam-row"><div>Eletrólitos / Zinco</div><input type="text" id="min"><span>Na, K, P, Ca, Mg, Zn</span></div>
-            <div class="exam-row"><div>TGO / TGP / TSH</div><input type="text" id="out"><span>Função Hepática/Tireoide</span></div>
-            <div class="exam-row"><div>EAS (Urina Tipo 1)</div><input type="text" id="eas"><span>Densit./pH/Sedim.</span></div>
-        </form>
-        <button class="btn-save" onclick="salvarExameBtn()">💾 GUARDAR EXAMES</button>
+            <div style="margin-top: 20px;">
+                <label>Notas Adicionais / Outros Exames</label>
+                <textarea id="notasExames" rows="3" placeholder="Ex: Vitaminas, eletrólitos ou observações..."></textarea>
+            </div>
+
+            <button class="btn-save" onclick="guardarExames()">💾 Guardar Resultados</button>
+        </section>
     </div>
+
     <script src="app.js"></script>
     <script>
-        function carregar() { const b = obterBanco(); const s = document.getElementById("selRes"); Object.keys(b).sort().forEach(n => s.innerHTML += `<option value="${n}">${n}</option>`); }
-        function ref() {
-            const n = document.getElementById("selRes").value; if(!n) return;
-            const p = obterBanco()[n].perfil;
-            document.getElementById("perfilNome").innerText = `Paciente: ${n} | Sexo: ${p.sexo}`;
-            if(p.sexo === 'M') {
-                document.getElementById("r_hgb").innerText = "Ref: 13.5-17.5 g/dL";
-                document.getElementById("r_cre").innerText = "Ref: 0.7-1.3 mg/dL";
-            } else {
-                document.getElementById("r_hgb").innerText = "Ref: 12.0-15.5 g/dL";
-                document.getElementById("r_cre").innerText = "Ref: 0.6-1.1 mg/dL";
-            }
+        // Preenche o Select com os nomes que já existem no banco
+        function carregarResidentes() {
+            const banco = obterBanco();
+            const select = document.getElementById("selectResidente");
+            
+            // Limpa opções anteriores (exceto a primeira)
+            select.innerHTML = '<option value="">Selecione um residente...</option>';
+            
+            Object.keys(banco).sort().forEach(nome => {
+                const option = document.createElement("option");
+                option.value = nome;
+                option.textContent = nome;
+                select.appendChild(option);
+            });
         }
-        function salvarExameBtn() {
-            const n = document.getElementById("selRes").value; const d = { data: document.getElementById("data").value };
-            document.querySelectorAll("#fEx input").forEach(i => d[i.id] = i.value);
-            salvarExame(n, d); alert("Exames guardados!");
+
+        function guardarExames() {
+            const nome = document.getElementById("selectResidente").value;
+            const data = document.getElementById("dataExame").value;
+
+            if (!nome || !data) {
+                alert("Por favor, selecione o residente e a data do exame.");
+                return;
+            }
+
+            // Captura os dados usando a função getNum do app.js
+            const exame = {
+                data: new Date(data).toLocaleDateString('pt-PT'),
+                glicemia: getNum("glicemia"),
+                albumina: getNum("albumina"),
+                hemoglobina: getNum("hemoglobina"),
+                col_total: getNum("col_total"),
+                creatinina: getNum("creatinina"),
+                ureia: getNum("ureia"),
+                notas: document.getElementById("notasExames").value
+            };
+
+            // Salva no banco unificado (função do app.js)
+            salvarExame(nome, exame);
+
+            alert("Exames de " + nome + " guardados com sucesso!");
+            
+            // Limpa o formulário ou redireciona
+            window.location.href = "dashboard.html";
         }
     </script>
 </body>
