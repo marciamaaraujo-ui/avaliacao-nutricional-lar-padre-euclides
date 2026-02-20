@@ -1,81 +1,62 @@
-!DOCTYPE html>
+Aqui está o código completo para o dashboard.html. Ele foi atualizado para ler o "Banco Central" (bancoILPI) e exibir as três classificações em colunas separadas (MNA, NRS e ICN), permitindo uma visão rápida do risco de cada residente.
+
+O código está limpo e pronto para substituição:
+
+HTML
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .navbar-brand img {
-            height: 50px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        /* ... outros estilos do dashboard ... */
-        .container-dash { max-width: 1000px; margin: auto; }
-        .stats-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .card { background: #fff; padding: 20px; border-radius: 8px; border-top: 4px solid #27ae60; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
-        .card h4 { margin: 0; color: #7f8c8d; font-size: 0.9rem; }
-        .card p { margin: 10px 0 0; font-size: 1.8rem; font-weight: bold; color: #2c3e50; }
-        
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; margin-top: 10px;}
-        th { background-color: #27ae60; color: white; padding: 15px; text-align: left; }
-        td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
-        tr:hover { background-color: #f1f9f4; }
-        
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        .badge-risco { background: #f8d7da; color: #721c24; }
-        .badge-normal { background: #d4edda; color: #155724; }
-        
-        .btn-excluir { background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
-        .btn-export { background: #1f8b4c; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 15px; float: right;}
-        .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    </style>
 </head>
 <body onload="renderizarDashboard()">
 
     <div class="navbar">
-        <a href="index.html" class="navbar-brand">
-            <img src="logo.png" alt="Lar Padre Euclides">
-        </a>
+        <img src="logo.png" alt="Lar Padre Euclides" style="height:50px; margin-right:20px;">
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="ficha-completa.html">Ficha Clínica</a>
+        <a href="exames-laboratoriais.html">Exames</a>
     </div>
 
-    <div class="container container-dash">
+    <div class="container" style="max-width: 1100px;">
         <header>
-            <h1>Painel de Controle</h1>
-            <h2>Gestão Nutricional - Lar Padre Euclides</h2>
+            <h1>Painel de Controle Nutricional</h1>
+            <p>Visão Geral e Estatísticas do Lar Padre Euclides</p>
         </header>
 
-        <div class="stats-cards">
-            <div class="card">
-                <h4>Total de Avaliações</h4>
-                <p id="statTotal">0</p>
+        <div class="grid">
+            <div style="background: #fff; padding: 20px; border-radius: 8px; border-top: 4px solid var(--primary-color); text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h4 style="margin:0; color: #7f8c8d; font-size: 0.9rem;">Residentes Avaliados</h4>
+                <p id="statTotal" style="margin:10px 0 0; font-size: 1.8rem; font-weight: bold;">0</p>
             </div>
-            <div class="card" style="border-top-color: #e67e22;">
-                <h4>Em Risco (MNA)</h4>
-                <p id="statRisco">0</p>
+            <div style="background: #fff; padding: 20px; border-radius: 8px; border-top: 4px solid #e67e22; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h4 style="margin:0; color: #7f8c8d; font-size: 0.9rem;">Alto Risco (ICN)</h4>
+                <p id="statRisco" style="margin:10px 0 0; font-size: 1.8rem; font-weight: bold; color: #e67e22;">0</p>
             </div>
-            <div class="card" style="border-top-color: #2980b9;">
-                <h4>Média IMC</h4>
-                <p id="statImc">0</p>
+            <div style="background: #fff; padding: 20px; border-radius: 8px; border-top: 4px solid var(--secondary-color); text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h4 style="margin:0; color: #7f8c8d; font-size: 0.9rem;">Média de IMC</h4>
+                <p id="statImc" style="margin:10px 0 0; font-size: 1.8rem; font-weight: bold;">0</p>
             </div>
         </div>
 
         <section>
-            <div class="header-dash">
-                <h3>Residentes Avaliados</h3>
-                <button class="btn-export" onclick="exportarParaExcel()">📥 Exportar para Excel</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>Histórico de Residentes</h3>
+                <button class="btn-save" onclick="exportarExcel()" style="width: auto; padding: 10px 20px; margin: 0;">📥 Exportar CSV (Excel)</button>
             </div>
-            <table>
+            
+            <table style="width: 100%; border-collapse: collapse; background: white;">
                 <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Residente</th>
-                        <th>IMC</th>
-                        <th>Status MNA</th>
-                        <th>Ações</th>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 12px; border-bottom: 2px solid var(--primary-color); text-align: left;">Residente</th>
+                        <th style="padding: 12px; border-bottom: 2px solid var(--primary-color); text-align: left;">Data</th>
+                        <th style="padding: 12px; border-bottom: 2px solid var(--primary-color); text-align: left;">MNA</th>
+                        <th style="padding: 12px; border-bottom: 2px solid var(--primary-color); text-align: left;">NRS-2002</th>
+                        <th style="padding: 12px; border-bottom: 2px solid var(--primary-color); text-align: left;">ICN (Risco)</th>
+                        <th style="padding: 12px; border-bottom: 2px solid var(--primary-color); text-align: left;">Ações</th>
                     </tr>
                 </thead>
                 <tbody id="corpoTabela"></tbody>
@@ -85,48 +66,40 @@
 
     <script src="app.js"></script>
     <script>
-        // ... scripts do dashboard (sem alterações) ...
         function renderizarDashboard() {
-            const banco = obterBanco(); // Função do app.js
+            const banco = obterBanco();
             const corpoTabela = document.getElementById("corpoTabela");
             corpoTabela.innerHTML = "";
 
-            let totalRisco = 0;
+            let totalResidentes = 0;
+            let totalAltoRisco = 0;
             let somaImc = 0;
-            let totalAvaliacoes = 0;
 
-            Object.keys(banco).forEach(nome => {
-                const residente = banco[nome];
-                if(residente.avaliacoes.length > 0) {
-                    const ultimaAval = residente.avaliacoes[residente.avaliacoes.length - 1];
-                    totalAvaliacoes++;
+            Object.keys(banco).sort().forEach(nome => {
+                const avaliacoes = banco[nome].avaliacoes;
+                if (avaliacoes.length > 0) {
+                    totalResidentes++;
+                    const ultima = avaliacoes[avaliacoes.length - 1];
+                    
+                    // Extrair dados para estatísticas
+                    const imc = parseFloat(ultima.imc) || 0;
+                    somaImc += imc;
+                    if (ultima.classIcn === "Alto Risco Clínico") totalAltoRisco++;
 
-                    // Lógica de risco (exemplo: MNA < 24 ou NRS >= 3)
-                    const mna = parseFloat(ultimaAval.mna) || 0;
-                    const nrs = parseFloat(ultimaAval.nrs) || 0;
-                    let statusMna = "Estado Normal";
-                    let classeBadge = "badge-normal";
-
-                    if (mna < 17) {
-                         statusMna = "Desnutrição";
-                         classeBadge = "badge-risco";
-                         totalRisco++;
-                    } else if (mna < 24) {
-                        statusMna = "Risco de Desnutrição";
-                        classeBadge = "badge-risco";
-                        totalRisco++;
-                    }
-
-                    somaImc += parseFloat(ultimaAval.imc) || 0;
+                    // Definir cores para os status
+                    const corIcn = ultima.classIcn === "Baixo Risco" ? "#27ae60" : (ultima.classIcn === "Risco Moderado" ? "#f39c12" : "#e74c3c");
 
                     let linha = `
                         <tr>
-                            <td>${ultimaAval.data}</td>
-                            <td><strong>${nome}</strong></td>
-                            <td>${ultimaAval.imc || '-'}</td>
-                            <td><span class="badge ${classeBadge}">${statusMna}</span></td>
-                            <td>
-                                <button class="btn-excluir" onclick="removerResidente('${nome}')">Excluir</button>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee;"><strong>${nome}</strong></td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee;">${ultima.data}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.85rem;">${ultima.mna} pts</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.85rem;">${ultima.nrs} pts</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                                <span style="color: ${corIcn}; font-weight: bold;">${ultima.classIcn}</span>
+                            </td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                                <button onclick="remover('${nome}')" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.8rem;">Excluir</button>
                             </td>
                         </tr>
                     `;
@@ -134,14 +107,14 @@
                 }
             });
 
-            document.getElementById("statTotal").innerText = totalAvaliacoes;
-            document.getElementById("statRisco").innerText = totalRisco;
-            const media = totalAvaliacoes > 0 ? (somaImc / totalAvaliacoes).toFixed(1) : 0;
-            document.getElementById("statImc").innerText = media;
+            // Atualizar Cartões
+            document.getElementById("statTotal").innerText = totalResidentes;
+            document.getElementById("statRisco").innerText = totalAltoRisco;
+            document.getElementById("statImc").innerText = totalResidentes > 0 ? (somaImc / totalResidentes).toFixed(1) : "0";
         }
 
-        function removerResidente(nome) {
-            if (confirm(`Excluir TODO o histórico de ${nome}?`)) {
+        function remover(nome) {
+            if (confirm(`Deseja apagar permanentemente todo o histórico de ${nome}?`)) {
                 const banco = obterBanco();
                 delete banco[nome];
                 salvarBanco(banco);
@@ -149,22 +122,19 @@
             }
         }
 
-        function exportarParaExcel() {
+        function exportarExcel() {
             const banco = obterBanco();
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "Data;Nome;IMC;MNA;NRS;Parecer\n";
-
+            let csv = "data:text/csv;charset=utf-8,\uFEFFResidente;Data;IMC;ICN;Status\n";
+            
             Object.keys(banco).forEach(nome => {
-                banco[nome].avaliacoes.forEach(aval => {
-                    let linha = `${aval.data};${nome};${aval.imc};${aval.mna};${aval.nrs};${aval.parecer.replace(/(\r\n|\n|\r)/gm, " ")}`;
-                    csvContent += linha + "\n";
+                banco[nome].avaliacoes.forEach(a => {
+                    csv += `${nome};${a.data};${a.imc};${a.icn};${a.classIcn}\n`;
                 });
             });
 
-            const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "avaliacoes_nutricionais_lar.csv");
+            link.setAttribute("href", encodeURI(csv));
+            link.setAttribute("download", "relatorio_nutricional_lar.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
