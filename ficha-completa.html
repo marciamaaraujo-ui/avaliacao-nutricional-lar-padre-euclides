@@ -2,96 +2,45 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Ficha Clínica Integrada - Lar Padre Euclides</title>
+    <title>Ficha Clínica - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .navbar-brand img {
-            height: 50px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        .valor-ficha { font-weight: bold; color: var(--primary-color); font-size: 1.1rem; margin-top: 5px; }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .data-table th { background: #f4f7f6; padding: 10px; text-align: left; border-bottom: 2px solid var(--primary-color); }
-        .data-table td { padding: 10px; border-bottom: 1px solid #eee; }
-    </style>
 </head>
 <body onload="inicializarFicha()">
 
     <div class="navbar">
-        <a href="index.html" class="navbar-brand">
-            <img src="logo.png" alt="Lar Padre Euclides">
-        </a>
+        <img src="logo.png" height="40" style="margin-right:20px;">
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="ficha-completa.html">Ficha Clínica</a>
-        <a href="metodologia.html">Metodologia</a>
     </div>
 
     <div class="container">
         <header>
             <h1>Ficha Clínica Integrada</h1>
-            <h2>Histórico e Evolução do Residente</h2>
+            <h2>Evolução Nutricional e Bioquímica</h2>
         </header>
 
-        <section style="background: #f8f9fa; border: 1px solid var(--primary-color);">
-            <label>Selecione o Residente para consulta:</label>
-            <select id="selectResidente" onchange="carregarDadosResidente()" style="margin-top:10px; font-weight:bold;">
-                <option value="">-- Escolha um nome --</option>
+        <section>
+            <label>Pesquisar Residente:</label>
+            <select id="selectResidente" onchange="carregarResidente()">
+                <option value="">-- Selecionar para Visualização --</option>
             </select>
         </section>
 
-        <div id="conteudoFicha" style="display:none;">
+        <div id="dadosFicha" style="display:none;">
             <section>
-                <h3>Informações Gerais</h3>
-                <div class="grid">
-                    <div><label>Nome:</label> <p id="d_nome" class="valor-ficha">-</p></div>
-                    <div><label>Idade na última avaliação:</label> <p id="d_idade" class="valor-ficha">-</p></div>
-                </div>
+                <h3>Histórico de Avaliações (PES)</h3>
+                <div id="historicoAvaliacoes"></div>
             </section>
-
-            <section>
-                <h3>Evolução Antropométrica e ICN</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Peso</th>
-                            <th>IMC</th>
-                            <th>ICN</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historicoCorpo"></tbody>
-                </table>
-            </section>
-
-            <section>
-                <h3>Última Conduta Nutricional</h3>
-                <div id="d_parecer" style="padding:15px; background:#fff; border:1px solid #eee; font-style:italic; border-radius:8px;">
-                    -
-                </div>
-            </section>
-
-            <div class="actions">
-                <button class="btn-pdf" onclick="window.print()">🖨️ Imprimir Ficha de Evolução</button>
-            </div>
-        </div>
-        
-        <div id="mensagemVazio" style="text-align:center; padding:50px; color:#999;">
-            Selecione um residente acima para carregar o prontuário.
         </div>
     </div>
 
     <script src="app.js"></script>
     <script>
-        // ... scripts da ficha clínica (sem alterações) ...
         function inicializarFicha() {
             const banco = obterBanco();
             const select = document.getElementById("selectResidente");
-            const nomes = Object.keys(banco);
-
-            nomes.sort().forEach(nome => {
+            Object.keys(banco).sort().forEach(nome => {
                 let opt = document.createElement("option");
                 opt.value = nome;
                 opt.textContent = nome;
@@ -99,47 +48,25 @@
             });
         }
 
-        function carregarDadosResidente() {
-            const nomeSelecionado = document.getElementById("selectResidente").value;
-            const display = document.getElementById("conteudoFicha");
-            const msg = document.getElementById("mensagemVazio");
-
-            if (!nomeSelecionado) {
-                display.style.display = "none";
-                msg.style.display = "block";
-                return;
-            }
-
-            display.style.display = "block";
-            msg.style.display = "none";
-
+        function carregarResidente() {
+            const nome = document.getElementById("selectResidente").value;
+            if(!nome) return;
+            document.getElementById("dadosFicha").style.display = "block";
+            
             const banco = obterBanco();
-            const residente = banco[nomeSelecionado];
-            const historico = residente.avaliacoes;
-            const ultima = historico[historico.length - 1];
+            const avais = banco[nome].avaliacoes;
+            const container = document.getElementById("historicoAvaliacoes");
+            container.innerHTML = "";
 
-            // Preenche cabeçalho
-            document.getElementById("d_nome").innerText = nomeSelecionado;
-            document.getElementById("d_idade").innerText = ultima.idade || "Não informada";
-            document.getElementById("d_parecer").innerText = ultima.parecer || "Nenhuma observação registrada.";
-
-            // Preenche Tabela de Evolução
-            const corpo = document.getElementById("historicoCorpo");
-            corpo.innerHTML = "";
-
-            // Faz uma cópia do histórico para não inverter o array original no banco
-            [...historico].reverse().forEach(av => {
-                const status = classificarICN(av.icn);
-                const corBadge = status === "Baixo Risco" ? "badge-normal" : "badge-risco";
-                
-                corpo.innerHTML += `
-                    <tr>
-                        <td>${av.data}</td>
-                        <td>${av.peso} kg</td>
-                        <td>${av.imc}</td>
-                        <td><strong>${av.icn}</strong></td>
-                        <td><span class="badge ${corBadge}">${status}</span></td>
-                    </tr>
+            avais.reverse().forEach(a => {
+                container.innerHTML += `
+                    <div style="padding:15px; border:1px solid #eee; margin-bottom:15px; border-radius:8px;">
+                        <p><strong>Data:</strong> ${a.data}</p>
+                        <p><strong>ICN:</strong> ${a.icn} (${a.classIcn})</p>
+                        <p style="background:#f9f9f9; padding:10px; border-left:4px solid var(--primary-color); font-style:italic;">
+                            ${a.parecer}
+                        </p>
+                    </div>
                 `;
             });
         }
