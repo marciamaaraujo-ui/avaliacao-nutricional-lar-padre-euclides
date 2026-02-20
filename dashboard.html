@@ -1,51 +1,56 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body onload="renderizarDashboard()">
 
     <div class="navbar">
-        <img src="logo.png" alt="Logo" style="height:50px; margin-right:20px;">
+        <img src="logo.png" alt="Logo" style="height: 60px; margin-right: 30px;">
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="ficha-completa.html">Ficha Clínica</a>
         <a href="exames-laboratoriais.html">Exames</a>
     </div>
 
-    <div class="container" style="max-width: 1100px;">
+    <div class="container" style="max-width: 1200px;">
         <header>
             <h1>Painel de Controle Nutricional</h1>
-            <p>Estatísticas e Monitoramento de Residentes</p>
+            <p>Monitoramento em tempo real dos residentes</p>
         </header>
 
         <div class="grid">
-            <div style="background: #fff; padding: 20px; border-radius: 8px; border-top: 4px solid var(--primary-color); text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h4>Residentes Avaliados</h4>
-                <p id="statTotal" style="font-size: 1.8rem; font-weight: bold; margin: 10px 0;">0</p>
+            <div style="background: #fff; padding: 30px; border-radius: 15px; border-top: 5px solid var(--primary-color); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <label>Total de Residentes</label>
+                <p id="statTotal" style="font-size: 2.5rem; font-weight: bold; margin: 0;">0</p>
             </div>
-            <div style="background: #fff; padding: 20px; border-radius: 8px; border-top: 4px solid #e67e22; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h4>Alto Risco (ICN)</h4>
-                <p id="statRisco" style="font-size: 1.8rem; font-weight: bold; color: #e67e22; margin: 10px 0;">0</p>
+            <div style="background: #fff; padding: 30px; border-radius: 15px; border-top: 5px solid #e67e22; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <label>Alto Risco (ICN)</label>
+                <p id="statRisco" style="font-size: 2.5rem; font-weight: bold; color: #e67e22; margin: 0;">0</p>
+            </div>
+            <div style="background: #fff; padding: 30px; border-radius: 15px; border-top: 5px solid var(--secondary-color); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <label>Média IMC do Lar</label>
+                <p id="statImc" style="font-size: 2.5rem; font-weight: bold; margin: 0;">0</p>
             </div>
         </div>
 
-        <section>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3>Lista de Acompanhamento</h3>
-                <button class="btn-save" onclick="exportarExcel()" style="width: auto; padding: 10px 20px; margin:0;">📥 Exportar Excel</button>
+        <section style="margin-top: 50px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h3>Lista de Acompanhamento Ativo</h3>
+                <button class="btn-save" onclick="exportarExcel()" style="width: auto; padding: 12px 25px; margin: 0; font-size: 1rem;">📥 Exportar para Excel</button>
             </div>
             
-            <table style="width: 100%; border-collapse: collapse;">
+            <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden;">
                 <thead>
-                    <tr style="background: #f8f9fa;">
-                        <th style="padding:12px; border-bottom:2px solid var(--primary-color);">Residente</th>
-                        <th style="padding:12px; border-bottom:2px solid var(--primary-color);">MNA</th>
-                        <th style="padding:12px; border-bottom:2px solid var(--primary-color);">NRS-2002</th>
-                        <th style="padding:12px; border-bottom:2px solid var(--primary-color);">ICN (Risco)</th>
-                        <th style="padding:12px; border-bottom:2px solid var(--primary-color);">Ação</th>
+                    <tr style="background: #f8f9fa; text-align: left;">
+                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Residente</th>
+                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Data Aval.</th>
+                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">MNA</th>
+                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">NRS-2002</th>
+                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Status ICN</th>
                     </tr>
                 </thead>
                 <tbody id="corpoTabela"></tbody>
@@ -59,40 +64,46 @@
             const banco = obterBanco();
             const corpo = document.getElementById("corpoTabela");
             corpo.innerHTML = "";
-            let totalRes = 0, totalRisco = 0;
+            let totalRes = 0, totalRisco = 0, somaImc = 0;
 
             Object.keys(banco).sort().forEach(nome => {
                 const avais = banco[nome].avaliacoes;
                 if(avais.length > 0) {
                     totalRes++;
                     const u = avais[avais.length - 1];
+                    somaImc += parseFloat(u.imc) || 0;
                     if(u.classIcn === "Alto Risco Clínico") totalRisco++;
 
+                    const corStatus = u.classIcn === "Baixo Risco" ? "#27ae60" : (u.classIcn === "Risco Moderado" ? "#f39c12" : "#e74c3c");
+
                     corpo.innerHTML += `
-                        <tr>
-                            <td style="padding:12px; border-bottom:1px solid #eee;"><strong>${nome}</strong></td>
-                            <td style="padding:12px; border-bottom:1px solid #eee;">${classificarMNA(u.mna)}</td>
-                            <td style="padding:12px; border-bottom:1px solid #eee;">${classificarNRS(u.nrs)}</td>
-                            <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:${u.classIcn.includes('Alto') ? 'red' : 'green'}">
-                                ${u.classIcn}
-                            </td>
-                            <td style="padding:12px; border-bottom:1px solid #eee;">
-                                <button onclick="remover('${nome}')" style="color:red; background:none; border:none; cursor:pointer;">Excluir</button>
-                            </td>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 20px;"><strong>${nome}</strong></td>
+                            <td style="padding: 20px;">${u.data}</td>
+                            <td style="padding: 20px;">${classificarMNA(u.mna)}</td>
+                            <td style="padding: 20px;">${classificarNRS(u.nrs)}</td>
+                            <td style="padding: 20px; font-weight: bold; color: ${corStatus}">${u.classIcn}</td>
                         </tr>`;
                 }
             });
+
             document.getElementById("statTotal").innerText = totalRes;
             document.getElementById("statRisco").innerText = totalRisco;
+            document.getElementById("statImc").innerText = totalRes > 0 ? (somaImc / totalRes).toFixed(1) : "0";
         }
 
-        function remover(n) { if(confirm("Apagar histórico de " + n + "?")) { const b = obterBanco(); delete b[n]; salvarBanco(b); renderizarDashboard(); } }
-        
         function exportarExcel() {
             const b = obterBanco();
             let csv = "data:text/csv;charset=utf-8,\uFEFFResidente;Data;IMC;ICN;Status\n";
-            Object.keys(b).forEach(n => { b[n].avaliacoes.forEach(a => { csv += `${n};${a.data};${a.imc};${a.icn};${a.classIcn}\n`; }); });
-            window.location.href = encodeURI(csv);
+            Object.keys(b).forEach(n => { b[n].avaliacoes.forEach(a => { 
+                csv += `${n};${a.data};${a.imc};${a.icn};${a.classIcn}\n`; 
+            }); });
+            const encodedUri = encodeURI(csv);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "relatorio_lar_padre_euclides.csv");
+            document.body.appendChild(link);
+            link.click();
         }
     </script>
 </body>
