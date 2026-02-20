@@ -1,79 +1,130 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Painel Médico</title>
-<link rel="stylesheet" href="style.css">
-<script src="app.js"></script>
+    <meta charset="UTF-8">
+    <title>Exames Laboratoriais - Lar Padre Euclides</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .exam-grid { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .header-exam { font-weight: bold; background: #f8f9fa; padding: 10px; border-radius: 4px; }
+        .ref-value { font-size: 0.8rem; color: #666; font-style: italic; }
+        .category-title { background: var(--secondary-color); color: white; padding: 8px 15px; border-radius: 4px; margin-top: 20px; }
+    </style>
 </head>
-<body>
+<body onload="carregarResidentes()">
 
-<div class="navbar">
-    <div class="navbar-inner">
-        <a href="index.html">Home</a>
-        <a href="ficha-completa.html">Ficha</a>
-        <a href="exames-laboratoriais.html">Exames</a>
+    <div class="navbar">
+        <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
-        <a href="relatorio-executivo.html">Relatório</a>
-        <a href="metodologia.html">Metodologia</a>
+        <a href="exames-laboratoriais.html">Exames</a>
+        <a href="ficha-completa.html">Ficha Clínica</a>
     </div>
-</div>
 
-<div class="container">
-<h2>Painel Médico - Exames Laboratoriais</h2>
+    <div class="container">
+        <header>
+            <h1>Registro de Exames Laboratoriais</h1>
+            <h2>Prontuário Bioquímico - Lar Padre Euclides</h2>
+        </header>
 
-<div class="grid">
+        <section style="background: #eef9f1;">
+            <label>Selecione o Residente:</label>
+            <select id="selectResidenteExame" style="font-weight:bold; margin-top:10px;">
+                <option value="">-- Selecionar --</option>
+            </select>
+            <label style="margin-top:10px;">Data da Coleta:</label>
+            <input type="date" id="dataExame">
+        </section>
 
-<div>
-<label>Nome do Residente</label>
-<input type="text" id="nomeExame">
-</div>
+        <div class="exam-grid header-exam">
+            <div>Exame</div>
+            <div>Resultado</div>
+            <div>Valor de Referência (Idoso)</div>
+        </div>
 
-<div>
-<label>Albumina (g/dL)</label>
-<input type="number" step="0.1" id="albumina">
-</div>
+        <form id="formExames">
+            <div class="category-title">Hemograma Completo</div>
+            <div class="exam-grid"><div>Eritrócitos</div><input type="text" id="eritrocitos"> <div class="ref-value">M: 4.5-5.9 | F: 4.0-5.2 mi/mm³</div></div>
+            <div class="exam-grid"><div>Hemoglobina</div><input type="text" id="hemoglobina"> <div class="ref-value">M: 13.5-17.5 | F: 12.0-15.5 g/dL</div></div>
+            <div class="exam-grid"><div>Hematócrito</div><input type="text" id="hematocrito"> <div class="ref-value">M: 41-50% | F: 36-44%</div></div>
+            <div class="exam-grid"><div>VCM / HCM</div><input type="text" id="vcm_hcm"> <div class="ref-value">VCM: 80-100 fl | HCM: 27-32 pg</div></div>
+            <div class="exam-grid"><div>Leucócitos</div><input type="text" id="leucocitos"> <div class="ref-value">4.000 - 11.000 /mm³</div></div>
+            <div class="exam-grid"><div>Plaquetas</div><input type="text" id="plaquetas"> <div class="ref-value">150.000 - 450.000 /mm³</div></div>
 
-<div>
-<label>PCR (mg/L)</label>
-<input type="number" step="0.1" id="pcr">
-</div>
+            <div class="category-title">Proteínas e Inflamação</div>
+            <div class="exam-grid"><div>Albumina Sérica</div><input type="text" id="albumina"> <div class="ref-value">3.5 - 5.0 g/dL (Sinal de desnutrição se < 3.5)</div></div>
+            <div class="exam-grid"><div>PCR (Proteína C Reativa)</div><input type="text" id="pcr"> <div class="ref-value">< 0.5 mg/dL (Marcador inflamatório)</div></div>
+            <div class="exam-grid"><div>Proteínas Totais</div><input type="text" id="prot_totais"> <div class="ref-value">6.0 - 8.0 g/dL</div></div>
+            <div class="exam-grid"><div>Globulina</div><input type="text" id="globulina"> <div class="ref-value">2.0 - 3.5 g/dL</div></div>
 
-<div>
-<label>Creatinina (mg/dL)</label>
-<input type="number" step="0.01" id="creatinina">
-</div>
+            <div class="category-title">Metabolismo Glicídico</div>
+            <div class="exam-grid"><div>Glicemia de Jejum</div><input type="text" id="glicemia"> <div class="ref-value">70 - 99 mg/dL</div></div>
+            <div class="exam-grid"><div>HbA1c (Glicada)</div><input type="text" id="hba1c"> <div class="ref-value">Risco: 5.7% - 6.4% | Diabetes: > 6.5%</div></div>
 
-</div>
+            <div class="category-title">Função Renal</div>
+            <div class="exam-grid"><div>Ureia</div><input type="text" id="ureia"> <div class="ref-value">15 - 45 mg/dL</div></div>
+            <div class="exam-grid"><div>Creatinina</div><input type="text" id="creatinina"> <div class="ref-value">M: 0.7-1.3 | F: 0.6-1.1 mg/dL</div></div>
 
-<br>
-<button onclick="salvarExames()">Salvar Exame</button>
+            <div class="category-title">Lipograma</div>
+            <div class="exam-grid"><div>Colesterol Total</div><input type="text" id="col_total"> <div class="ref-value">< 190 mg/dL</div></div>
+            <div class="exam-grid"><div>HDL (Bom)</div><input type="text" id="hdl"> <div class="ref-value">> 40 mg/dL</div></div>
+            <div class="exam-grid"><div>LDL (Mau)</div><input type="text" id="ldl"> <div class="ref-value">< 130 mg/dL</div></div>
+            <div class="exam-grid"><div>VLDL / Triglicerídeos</div><input type="text" id="triglic"> <div class="ref-value">< 150 mg/dL</div></div>
 
-</div>
+            <div class="category-title">Micronutrientes</div>
+            <div class="exam-grid"><div>Vitamina D (25-OH)</div><input type="text" id="vit_d"> <div class="ref-value">Suficiente: > 30 ng/mL (Idosos)</div></div>
+            <div class="exam-grid"><div>Vitamina B12</div><input type="text" id="vit_b12"> <div class="ref-value">200 - 900 pg/mL</div></div>
+            <div class="exam-grid"><div>Ácido Fólico</div><input type="text" id="folico"> <div class="ref-value">3.0 - 17.0 ng/mL</div></div>
+            <div class="exam-grid"><div>Ferritina / Ferro Sérico</div><input type="text" id="ferro"> <div class="ref-value">Ferritina: 20-250 ng/mL | Ferro: 60-170 mcg/dL</div></div>
+            <div class="exam-grid"><div>Eletrólitos (Na, K, P, Ca, Mg, Zn)</div><input type="text" id="eletrolitos"> <div class="ref-value">Sódio: 135-145 | Potássio: 3.5-5.0 mEq/L</div></div>
 
-<script>
+            <div class="category-title">Hepatograma e Tireoide</div>
+            <div class="exam-grid"><div>TGO (AST) / TGP (ALT)</div><input type="text" id="tgo_tgp"> <div class="ref-value">TGO: < 37 | TGP: < 41 U/L</div></div>
+            <div class="exam-grid"><div>TSH (Tireoide)</div><input type="text" id="tsh"> <div class="ref-value">0.4 - 4.5 mIU/L</div></div>
 
-function salvarExames(){
+            <div class="category-title">EAS (Urina Tipo 1)</div>
+            <div class="exam-grid"><div>Densidade / pH / Outros</div><input type="text" id="eas"> <div class="ref-value">pH: 5.0-7.0 | Ausência de Proteínas/Glicose</div></div>
+        </form>
 
-    const nome = document.getElementById("nomeExame").value;
-    const albumina = parseFloat(document.getElementById("albumina").value)||0;
-    const pcr = parseFloat(document.getElementById("pcr").value)||0;
-    const creatinina = parseFloat(document.getElementById("creatinina").value)||0;
+        <div class="actions">
+            <button class="btn-save" onclick="processarExame()">💾 Salvar Exames no Prontuário</button>
+        </div>
+    </div>
 
-    const indiceInflamatorio = albumina>0 ? (pcr/albumina).toFixed(2) : 0;
+    <script src="app.js"></script>
+    <script>
+        function carregarResidentes() {
+            const banco = obterBanco();
+            const select = document.getElementById("selectResidenteExame");
+            Object.keys(banco).sort().forEach(nome => {
+                let opt = document.createElement("option");
+                opt.value = nome;
+                opt.textContent = nome;
+                select.appendChild(opt);
+            });
+        }
 
-    salvarExame(nome,{
-        data:new Date().toISOString(),
-        albumina:albumina,
-        pcr:pcr,
-        creatinina:creatinina,
-        indiceInflamatorio:indiceInflamatorio
-    });
+        function processarExame() {
+            const nome = document.getElementById("selectResidenteExame").value;
+            if (!nome) return alert("Selecione um residente!");
 
-    alert("Exame salvo.");
-}
+            // Mapeia todos os inputs do form
+            const inputs = document.querySelectorAll('#formExames input');
+            let dadosExame = {
+                dataColeta: document.getElementById("dataExame").value || new Date().toLocaleDateString()
+            };
 
-</script>
+            inputs.forEach(input => {
+                dadosExame[input.id] = input.value;
+            });
 
+            // Chama sua função do app.js
+            salvarExame(nome, dadosExame);
+
+            alert("Exames de " + nome + " registrados com sucesso!");
+            if(confirm("Deseja ir para a Ficha Clínica ver o histórico?")) {
+                window.location.href = "ficha-completa.html";
+            }
+        }
+    </script>
 </body>
 </html>
