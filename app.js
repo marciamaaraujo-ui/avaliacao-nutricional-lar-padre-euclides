@@ -1,5 +1,5 @@
 /* =========================
-   STORAGE ESTRUTURADO
+   BANCO CENTRAL
 ========================= */
 
 function obterBanco(){
@@ -58,4 +58,42 @@ function classificarICN(icn){
     if(icn >= 6) return "Alto Risco Clínico";
     if(icn >= 3) return "Risco Moderado";
     return "Baixo Risco";
+}
+
+/* =========================
+   SALVAR AVALIAÇÃO
+========================= */
+
+function salvarAvaliacao(nome,avaliacao){
+
+    const banco = obterBanco();
+
+    if(!banco[nome]){
+        banco[nome] = {
+            avaliacoes: [],
+            exames: []
+        };
+    }
+
+    banco[nome].avaliacoes.push(avaliacao);
+    salvarBanco(banco);
+}
+
+/* =========================
+   SALVAR EXAME
+========================= */
+
+function salvarExame(nome,exame){
+
+    const banco = obterBanco();
+
+    if(!banco[nome]){
+        banco[nome] = {
+            avaliacoes: [],
+            exames: []
+        };
+    }
+
+    banco[nome].exames.push(exame);
+    salvarBanco(banco);
 }
