@@ -1,208 +1,98 @@
+/* =========================
+   VARIÁVEIS GLOBAIS
+========================= */
+:root {
+    --primary-color: #27ae60;    /* Verde Oficial */
+    --secondary-color: #2980b9;  /* Azul Exames */
+    --bg-input: #f0f4f2;         /* Cor de destaque para preenchimento */
+    --text-color: #2c3e50;
+}
+
 body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
     color: var(--text-color);
-    line-height: 1.6;
     padding: 20px;
 }
 
-/* ============================================================
-   NAVEGAÇÃO (NAVBAR)
-   ============================================================ */
-.navbar {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    margin-bottom: 30px;
-}
-
-.navbar a {
-    text-decoration: none;
-    color: var(--text-color);
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: color 0.3s;
-}
-
-.navbar a:hover {
-    color: var(--primary-color);
-}
-
-/* ============================================================
-   CONTAINER E CABEÇALHO
-   ============================================================ */
 .container {
-    max-width: 950px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 35px;
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid var(--primary-color);
-}
-
-header h1 {
-    font-size: 1.8rem;
-    color: var(--primary-color);
-    text-transform: uppercase;
-    margin-bottom: 5px;
-}
-
-header h2 {
-    font-size: 1.1rem;
-    color: #7f8c8d;
-    font-weight: 400;
-}
-
-/* ============================================================
-   SEÇÕES E FORMULÁRIOS
-   ============================================================ */
-section {
-    margin-bottom: 25px;
-    padding: 20px;
-    border: 1px solid #edf2f7;
-    border-radius: 8px;
-}
-
-section h3 {
-    margin-bottom: 15px;
-    font-size: 1rem;
-    border-left: 4px solid var(--primary-color);
-    padding-left: 10px;
-    color: var(--text-color);
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #555;
-}
-
-input, textarea, select {
+/* =========================
+   CAMPOS DE PREENCHIMENTO (CORRIGIDO)
+========================= */
+input, select, textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color);
+    padding: 12px;
+    margin-top: 5px;
+    border: 2px solid #dcdde1; /* Borda mais visível */
     border-radius: 6px;
+    background-color: var(--bg-input); /* AGORA VISÍVEL DE IMEDIATO */
     font-size: 1rem;
+    transition: all 0.3s ease;
 }
 
-input:focus {
-    outline: none;
+/* Efeito quando clica para digitar */
+input:focus, select:focus, textarea:focus {
+    background-color: #ffffff;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+    outline: none;
+    box-shadow: 0 0 8px rgba(39, 174, 96, 0.2);
 }
 
-/* Campos de Resultado (Somente Leitura) */
+/* Campos que são apenas leitura (resultados) */
 input[readonly] {
-    background-color: #f8f9fa;
-    color: var(--primary-color);
-    font-weight: bold;
-    border-color: #e2e8f0;
+    background-color: #e9ecef;
+    color: #495057;
+    cursor: not-allowed;
+    border-style: dashed;
 }
 
-/* ============================================================
-   BOTÕES E AÇÕES
-   ============================================================ */
-.actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-button, .btn {
-    flex: 1;
-    padding: 15px;
+/* =========================
+   BOTÃO DE SALVAR (CORRIGIDO)
+========================= */
+.btn-save {
+    background-color: var(--primary-color); /* COR VERDE FIXA AGORA */
+    color: white;
     border: none;
+    padding: 18px;
     border-radius: 8px;
+    width: 100%;
+    font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: transform 0.2s, background 0.3s;
-    text-align: center;
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-button:active { transform: scale(0.98); }
-
-.btn-save { background: var(--primary-color); color: white; }
-.btn-save:hover { background: #219150; }
-
-.btn-pdf { background: var(--secondary-color); color: white; }
-.btn-pdf:hover { background: #1f6391; }
-
-.btn-delete { background: var(--danger-color); color: white; padding: 5px 10px; font-size: 0.8rem; }
-
-/* ============================================================
-   TABELAS E DASHBOARD
-   ============================================================ */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+/* Efeito ao passar o mouse (fica um pouco mais escuro) */
+.btn-save:hover {
+    background-color: #219150;
+    transform: translateY(-2px);
 }
 
-th {
-    background: #f8f9fa;
-    padding: 12px;
-    text-align: left;
-    font-size: 0.9rem;
-    border-bottom: 2px solid var(--primary-color);
+/* Efeito ao clicar */
+.btn-save:active {
+    transform: translateY(0);
 }
 
-td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9rem;
-}
+/* GRID E LAYOUT */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+header { text-align: center; border-bottom: 3px solid var(--primary-color); margin-bottom: 25px; padding-bottom: 10px; }
+section { margin-bottom: 30px; }
+h3 { color: var(--primary-color); margin-bottom: 15px; }
 
-tr:hover { background: #f1f9f4; }
-
-/* Badges de Status */
-.badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: bold;
-}
-
-.badge-normal { background: #d4edda; color: #155724; }
-.badge-risco { background: #f8d7da; color: #721c24; }
-.badge-alerta { background: #fff3cd; color: #856404; }
-
-/* ============================================================
-   ESTILOS DE IMPRESSÃO (PDF/RELATÓRIO)
-   ============================================================ */
-@media print {
-    body { background: white; padding: 0; }
-    .navbar, .actions, .btn-delete, .btn-print { display: none !important; }
-    .container { 
-        box-shadow: none; 
-        border: none; 
-        max-width: 100%; 
-        padding: 0;
-    }
-    section { border: 1px solid #000; break-inside: avoid; }
-}
-
-/* Responsividade para Celulares */
-@media (max-width: 600px) {
-    .grid { grid-template-columns: 1fr; }
-    .actions { flex-direction: column; }
-    .navbar { flex-wrap: wrap; }
-}
+/* NAVBAR */
+.navbar { display: flex; align-items: center; background: #fff; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.navbar a { text-decoration: none; color: var(--text-color); font-weight: bold; margin-right: 20px; font-size: 0.9rem; }
+.navbar a:hover { color: var(--primary-color); }
