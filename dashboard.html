@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Lar Padre Euclides</title>
+    <title>Dashboard - Painel Nutricional</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body onload="renderizarDashboard()">
@@ -18,13 +18,13 @@
 
     <div class="container" style="max-width: 1200px;">
         <header>
-            <h1>Painel de Controle Nutricional</h1>
-            <p>Monitoramento em tempo real dos residentes</p>
+            <h1>Painel de Controlo Nutricional</h1>
+            <p>Monitorização e estatísticas dos residentes</p>
         </header>
 
         <div class="grid">
             <div style="background: #fff; padding: 30px; border-radius: 15px; border-top: 5px solid var(--primary-color); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                <label>Total de Residentes</label>
+                <label>Residentes Avaliados</label>
                 <p id="statTotal" style="font-size: 2.5rem; font-weight: bold; margin: 0;">0</p>
             </div>
             <div style="background: #fff; padding: 30px; border-radius: 15px; border-top: 5px solid #e67e22; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
@@ -32,24 +32,24 @@
                 <p id="statRisco" style="font-size: 2.5rem; font-weight: bold; color: #e67e22; margin: 0;">0</p>
             </div>
             <div style="background: #fff; padding: 30px; border-radius: 15px; border-top: 5px solid var(--secondary-color); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                <label>Média IMC do Lar</label>
+                <label>Média IMC</label>
                 <p id="statImc" style="font-size: 2.5rem; font-weight: bold; margin: 0;">0</p>
             </div>
         </div>
 
         <section style="margin-top: 50px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h3>Lista de Acompanhamento Ativo</h3>
-                <button class="btn-save" onclick="exportarExcel()" style="width: auto; padding: 12px 25px; margin: 0; font-size: 1rem;">📥 Exportar para Excel</button>
+                <h3>Histórico de Acompanhamento</h3>
+                <button class="btn-save" onclick="exportarExcel()" style="width: auto; padding: 12px 25px; margin: 0; font-size: 1rem;">📥 Exportar CSV</button>
             </div>
             
             <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden;">
                 <thead>
                     <tr style="background: #f8f9fa; text-align: left;">
                         <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Residente</th>
-                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Data Aval.</th>
-                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">MNA</th>
-                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">NRS-2002</th>
+                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Data</th>
+                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">MNA (0-30)</th>
+                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">NRS (0-7)</th>
                         <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Status ICN</th>
                     </tr>
                 </thead>
@@ -80,8 +80,8 @@
                         <tr style="border-bottom: 1px solid #eee;">
                             <td style="padding: 20px;"><strong>${nome}</strong></td>
                             <td style="padding: 20px;">${u.data}</td>
-                            <td style="padding: 20px;">${classificarMNA(u.mna)}</td>
-                            <td style="padding: 20px;">${classificarNRS(u.nrs)}</td>
+                            <td style="padding: 20px;">${u.mna || '-'} pts</td>
+                            <td style="padding: 20px;">${u.nrs || '-'} pts</td>
                             <td style="padding: 20px; font-weight: bold; color: ${corStatus}">${u.classIcn}</td>
                         </tr>`;
                 }
@@ -98,12 +98,7 @@
             Object.keys(b).forEach(n => { b[n].avaliacoes.forEach(a => { 
                 csv += `${n};${a.data};${a.imc};${a.icn};${a.classIcn}\n`; 
             }); });
-            const encodedUri = encodeURI(csv);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "relatorio_lar_padre_euclides.csv");
-            document.body.appendChild(link);
-            link.click();
+            window.location.href = encodeURI(csv);
         }
     </script>
 </body>
