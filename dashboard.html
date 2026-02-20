@@ -1,62 +1,134 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Dashboard Epidemiológico</title>
-<link rel="stylesheet" href="style.css">
-<script src="app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Lar Padre Euclides</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Estilos específicos para a tabela do Dashboard */
+        .container-dash { max-width: 1000px; margin: auto; }
+        .stats-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; border-top: 4px solid #27ae60; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
+        .card h4 { margin: 0; color: #7f8c8d; font-size: 0.9rem; }
+        .card p { margin: 10px 0 0; font-size: 1.8rem; font-weight: bold; color: #2c3e50; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th { background-color: #27ae60; color: white; padding: 15px; text-align: left; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+        tr:hover { background-color: #f1f9f4; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .badge-risco { background: #f8d7da; color: #721c24; }
+        .badge-normal { background: #d4edda; color: #155724; }
+        
+        .btn-excluir { background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .btn-excluir:hover { background: #c0392b; }
+        
+        .nav-link { display: inline-block; margin-bottom: 20px; color: #27ae60; text-decoration: none; font-weight: bold; }
+    </style>
 </head>
-<body>
+<body onload="renderizarDashboard()">
 
-<div class="navbar">
-    <div class="navbar-inner">
-        <a href="index.html">Home</a>
-        <a href="ficha-completa.html">Ficha</a>
-        <a href="exames-laboratoriais.html">Exames</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="relatorio-executivo.html">Relatório</a>
-        <a href="metodologia.html">Metodologia</a>
+    <div class="container container-dash">
+        <header>
+            <h1>Painel de Controle</h1>
+            <h2>Gestão Nutricional - Lar Padre Euclides</h2>
+        </header>
+
+        <a href="index.html" class="nav-link">← Voltar para Nova Avaliação</a>
+
+        <div class="stats-cards">
+            <div class="card">
+                <h4>Total de Avaliações</h4>
+                <p id="statTotal">0</p>
+            </div>
+            <div class="card" style="border-top-color: #e67e22;">
+                <h4>Em Risco (MNA)</h4>
+                <p id="statRisco">0</p>
+            </div>
+            <div class="card" style="border-top-color: #2980b9;">
+                <h4>Média IMC</h4>
+                <p id="statImc">0</p>
+            </div>
+        </div>
+
+        <section>
+            <h3>Residentes Avaliados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Residente</th>
+                        <th>IMC</th>
+                        <th>Status MNA</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela">
+                    </tbody>
+            </table>
+        </section>
     </div>
-</div>
 
-<div class="container">
-<h2>Painel Epidemiológico</h2>
+    <script>
+        // Função para carregar e exibir os dados
+        function renderizarDashboard() {
+            const lista = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+            const corpoTabela = document.getElementById("corpoTabela");
+            corpoTabela.innerHTML = "";
 
-<div id="resultado"></div>
+            let totalRisco = 0;
+            let somaImc = 0;
 
-</div>
+            if (lista.length === 0) {
+                corpoTabela.innerHTML = "<tr><td colspan='5' style='text-align:center'>Nenhum registro encontrado.</td></tr>";
+            }
 
-<script>
+            lista.forEach((item, index) => {
+                // Cálculos para os cards
+                if (item.mnaClass && item.mnaClass.includes("Risco")) totalRisco++;
+                somaImc += parseFloat(item.imc) || 0;
 
-function gerarDashboard(){
+                // Definir cor do badge
+                const classeBadge = (item.mnaClass === "Estado Normal") ? "badge-normal" : "badge-risco";
 
-    const banco = obterBanco();
-    let total = 0;
-    let altoRisco = 0;
+                let linha = `
+                    <tr>
+                        <td>${formatarData(item.data)}</td>
+                        <td><strong>${item.nome}</strong></td>
+                        <td>${item.imc || '-'}</td>
+                        <td><span class="badge ${classeBadge}">${item.mnaClass || 'N/A'}</span></td>
+                        <td>
+                            <button class="btn-excluir" onclick="removerItem(${index})">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+                corpoTabela.innerHTML += linha;
+            });
 
-    for(let nome in banco){
+            // Atualizar Cards
+            document.getElementById("statTotal").innerText = lista.length;
+            document.getElementById("statRisco").innerText = totalRisco;
+            const media = lista.length > 0 ? (somaImc / lista.length).toFixed(1) : 0;
+            document.getElementById("statImc").innerText = media;
+        }
 
-        const avals = banco[nome].avaliacoes;
-        if(avals.length>0){
+        function formatarData(dataISO) {
+            if(!dataISO) return "-";
+            const partes = dataISO.split("-");
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
 
-            const ultima = avals[avals.length-1];
-            total++;
-
-            if(ultima.icn >= 6){
-                altoRisco++;
+        function removerItem(index) {
+            if (confirm("Tem certeza que deseja excluir esta avaliação permanentemente?")) {
+                let lista = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+                lista.splice(index, 1);
+                localStorage.setItem("avaliacoes", JSON.stringify(lista));
+                renderizarDashboard(); // Recarrega a tabela
             }
         }
-    }
-
-    document.getElementById("resultado").innerHTML = `
-        <p>Total Residentes Avaliados: ${total}</p>
-        <p>Alto Risco Clínico: ${altoRisco}</p>
-    `;
-}
-
-gerarDashboard();
-
-</script>
-
+    </script>
 </body>
 </html>
