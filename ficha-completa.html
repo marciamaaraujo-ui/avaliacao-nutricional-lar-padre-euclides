@@ -1,81 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Ficha Clínica</title>
-<link rel="stylesheet" href="style.css">
-<script src="app.js"></script>
+    <meta charset="UTF-8">
+    <title>Ficha Clínica Integrada - Lar Padre Euclides</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js"></script>
+    <style>
+        /* Estilos específicos para a Ficha Clínica */
+        .status-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+        .icn-alerta { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .icn-bom { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+    </style>
 </head>
 <body>
 
-<div class="navbar">
+<div class="main-nav">
     <div class="navbar-inner">
-        <a href="index.html">Home</a>
-        <a href="ficha-completa.html">Ficha</a>
+        <a href="index.html">Calculadora</a>
+        <a href="ficha-completa.html">Ficha Clínica</a>
         <a href="exames-laboratoriais.html">Exames</a>
         <a href="dashboard.html">Dashboard</a>
-        <a href="relatorio-executivo.html">Relatório</a>
         <a href="metodologia.html">Metodologia</a>
     </div>
 </div>
 
 <div class="container">
-<h2>Ficha Clínica Integrada</h2>
+    <header>
+        <h1>Ficha Clínica Integrada</h1>
+        <p>Monitoramento Nutricional de Residentes</p>
+    </header>
 
-<div class="grid">
-<div>
-<label>Nome</label>
-<input type="text" id="nome">
-</div>
+    <section>
+        <h3>Entrada de Dados</h3>
+        <div class="grid">
+            <div>
+                <label>Nome do Residente</label>
+                <input type="text" id="nome" placeholder="Nome completo">
+            </div>
+            <div>
+                <label>Data da Avaliação</label>
+                <input type="date" id="data">
+            </div>
+            <div>
+                <label>Peso (kg)</label>
+                <input type="number" step="0.1" id="peso" oninput="atualizarICN()">
+            </div>
+            <div>
+                <label>Altura (m)</label>
+                <input type="number" step="0.01" id="altura" oninput="atualizarICN()">
+            </div>
+            <div>
+                <label>Score MNA</label>
+                <input type="number" id="mna" placeholder="0 a 30" oninput="atualizarICN()">
+            </div>
+            <div>
+                <label>Score NRS</label>
+                <input type="number" id="nrs" placeholder="0 a 7" oninput="atualizarICN()">
+            </div>
+        </div>
+    </section>
 
-<div>
-<label>Altura (m)</label>
-<input type="number" step="0.01" id="altura">
-</div>
+    <section>
+        <h3>Indicadores Gerados</h3>
+        <div class="grid-results full">
+            <div>
+                <label>IMC Calculado</label>
+                <input type="text" id="imc_result" readonly>
+            </div>
+            <div>
+                <label>Conclusão Nutricional (ICN)</label>
+                <input type="text" id="icn_result" readonly>
+            </div>
+        </div>
+        <div id="boxStatus" class="status-box">
+            Aguardando dados para análise...
+        </div>
+    </section>
 
-<div>
-<label>Peso (kg)</label>
-<input type="number" step="0.1" id="peso">
-</div>
-
-<div>
-<label>MNA</label>
-<input type="number" id="mna">
-</div>
-
-<div>
-<label>NRS</label>
-<input type="number" id="nrs">
-</div>
-</div>
-
-<br>
-<button onclick="salvar()">Salvar</button>
-
+    <div class="actions">
+        <button class="btn-save" onclick="salvarFicha()">💾 Salvar na Base de Dados</button>
+    </div>
 </div>
 
 <script>
-
-function salvar(){
-
-    const nome = document.getElementById("nome").value;
-    const altura = parseFloat(document.getElementById("altura").value)||0;
-    const peso = parseFloat(document.getElementById("peso").value)||0;
-    const mna = parseFloat(document.getElementById("mna").value)||0;
-    const nrs = parseFloat(document.getElementById("nrs").value)||0;
-
-    const imc = peso/(altura*altura);
-    const icn = calcularICN(mna,nrs,imc);
-
-    salvarAvaliacao(nome,{
-        data:new Date().toISOString(),
-        imc:imc,
-        icn:icn
-    });
-
-    alert("Avaliação salva.");
+// Função para calcular o Índice de Conclusão Nutricional (Lógica para o TCC)
+function calcularICN(mna, nrs, imc) {
+    // Critério: Se MNA < 17 ou NRS >= 3 ou IMC < 22 (idoso baixo peso)
+    if (mna < 17 || nrs >= 3 || imc < 22) {
+        return "ALTO RISCO / DESNUTRIDO";
+    } else if (mna < 24 || nrs >= 1) {
+        return "RISCO MODERADO";
+    } else {
+        return "ESTADO NORMAL";
+    }
 }
 
+function atualizarICN() {
+    const peso = parseFloat(document.getElementById("peso").value) || 0;
+    const altura = parseFloat(document.getElementById("altura").value) || 0;
+    const mna = parseFloat(document.getElementById("mna").value) || 0;
+    const nrs = parseFloat(document.getElementById("nrs").value) || 0;
+    const boxStatus = document.getElementById("boxStatus");
+
+    if (peso > 0 && altura > 0) {
+        const imc = peso / (altura * altura);
+        document.getElementById("imc_result").value = imc.toFixed(2);
+        
+        const icn = calcularICN(mna, nrs, imc);
+        document.getElementById("icn_result").value = icn;
+
+        // Estilização visual do resultado
+        if (icn.includes("ALTO")) {
+            boxStatus.innerText = "🚨 Alerta: Intervenção imediata sugerida.";
+            boxStatus.className = "status-box icn-alerta";
+        } else if (icn.includes("MODERADO")) {
+            boxStatus.innerText = "⚠️ Atenção: Monitoramento quinzenal necessário.";
+            boxStatus.className = "status-box";
+        } else {
+            boxStatus.innerText = "✅ Estabilidade: Manter conduta atual.";
+            boxStatus.className = "status-box icn-bom";
+        }
+    }
+}
+
+function salvarFicha() {
+    const nome = document.getElementById("nome").value;
+    const data = document.getElementById("data").value;
+    const imc = document.getElementById("imc_result").value;
+    const icn = document.getElementById("icn_result").value;
+
+    if (!nome || !data) {
+        alert("Por favor, preencha pelo menos Nome e Data.");
+        return;
+    }
+
+    const novaAvaliacao = {
+        nome: nome,
+        data: data,
+        imc: imc,
+        mnaTotal: document.getElementById("mna").value,
+        nrsTotal: document.getElementById("nrs").value,
+        mnaClass: icn, // Salvamos o ICN como a classificação principal
+        parecer: "Ficha clínica integrada realizada em " + data
+    };
+
+    // Padrão de salvamento que usamos no sistema todo
+    let lista = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+    lista.push(novaAvaliacao);
+    localStorage.setItem("avaliacoes", JSON.stringify(lista));
+
+    alert("Avaliação salva com sucesso! Você pode visualizá-la no Dashboard.");
+}
 </script>
 
 </body>
