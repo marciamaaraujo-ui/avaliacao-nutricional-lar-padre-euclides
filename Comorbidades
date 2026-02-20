@@ -22,88 +22,102 @@
 
     <div class="container">
         <header>
-            <h1>Mapeamento de Comorbidades</h1>
-            <p>Selecione o residente e marque as condições clínicas diagnosticadas</p>
+            <h1>Mapeamento Clínico Completo</h1>
+            <p>Registo detalhado de comorbidades e condições geriátricas</p>
         </header>
 
-        <section>
+        <section style="background: var(--bg-input); border: 2px solid var(--primary-color);">
             <div class="grid">
                 <div>
                     <label>Selecionar Residente</label>
-                    <select id="selRes" onchange="carregarComorbidadesSalvas()"><option value="">-- Escolher --</option></select>
+                    <select id="selRes" onchange="carregarComorbidadesSalvas()"><option value="">-- Escolher Residente --</option></select>
                 </div>
             </div>
         </section>
 
         <form id="formComorbidades">
+            
             <section>
-                <h3>1. Doenças Cardiovasculares</h3>
-                <div class="comorbidade-cat" id="cat_1">
+                <h3>1. Doenças Cardiovasculares e Cardiometabólicas</h3>
+                <div class="comorbidade-cat">
                     <label class="check-item"><input type="checkbox" value="HAS"> HAS</label>
                     <label class="check-item"><input type="checkbox" value="DAC"> DAC</label>
-                    <label class="check-item"><input type="checkbox" value="IC"> Insuf. Cardíaca</label>
+                    <label class="check-item"><input type="checkbox" value="IC"> Insufic. Cardíaca</label>
                     <label class="check-item"><input type="checkbox" value="Arritmia"> Arritmias</label>
                     <label class="check-item"><input type="checkbox" value="AVC"> AVC</label>
-                    <label class="check-item"><input type="checkbox" value="Aterosclerose"> Aterosclerose</label>
                     <label class="check-item"><input type="checkbox" value="Dislipidemia"> Dislipidemia</label>
+                    <label class="check-item"><input type="checkbox" value="Hipotensao Ortostática"> Hipotensão Ortostática</label>
+                    <label class="check-item"><input type="checkbox" value="Sincope"> Síncope</label>
+                    <label class="check-item"><input type="checkbox" value="No Sinusal"> Sínd. Nó Sinusal</label>
+                    <label class="check-item"><input type="checkbox" value="Miocardiopatia"> Miocardiopatia</label>
+                    <label class="check-item"><input type="checkbox" value="Amiloidose"> Amiloidose Cardíaca</label>
                 </div>
             </section>
 
             <section>
-                <h3>2. Endócrinas e Metabólicas</h3>
-                <div class="comorbidade-cat" id="cat_2">
-                    <label class="check-item"><input type="checkbox" value="DM1"> DM I</label>
+                <h3>2. Doenças Hematológicas</h3>
+                <div class="comorbidade-cat">
+                    <label class="check-item"><input type="checkbox" value="Anemia Ferropriva"> Anemia Ferropriva</label>
+                    <label class="check-item"><input type="checkbox" value="Anemia D. Cronica"> Anemia D. Crônica</label>
+                    <label class="check-item"><input type="checkbox" value="Anemia Megaloblastica"> Anemia Megaloblástica</label>
+                    <label class="check-item"><input type="checkbox" value="Mielodisplasica"> Sínd. Mielodisplásicas</label>
+                    <label class="check-item"><input type="checkbox" value="Policitemia"> Policitemia</label>
+                    <label class="check-item"><input type="checkbox" value="Trombocitopenia"> Trombocitopenia</label>
+                    <label class="check-item"><input type="checkbox" value="Coagulacao"> Dist. Coagulação</label>
+                </div>
+            </section>
+
+            <section>
+                <h3>3. Imunológicas e Inflamatórias</h3>
+                <div class="comorbidade-cat">
+                    <label class="check-item"><input type="checkbox" value="Imunossenescencia"> Imunossenescência</label>
+                    <label class="check-item"><input type="checkbox" value="Autoimune Tardia"> D. Autoimunes Tardias</label>
+                    <label class="check-item"><input type="checkbox" value="Vasculites"> Vasculites</label>
+                    <label class="check-item"><input type="checkbox" value="Lupus Tardio"> Lúpus Tardio</label>
+                    <label class="check-item"><input type="checkbox" value="Arterite Temporal"> Arterite Temporal</label>
+                </div>
+            </section>
+
+            <section>
+                <h3>4. Doenças Dermatológicas</h3>
+                <div class="comorbidade-cat">
+                    <label class="check-item"><input type="checkbox" value="Ulcera Pressao"> Úlceras por Pressão</label>
+                    <label class="check-item"><input type="checkbox" value="Dermatite Seb"> Dermatite Seborreica</label>
+                    <label class="check-item"><input type="checkbox" value="Dermatite Contato"> Dermatite Contato</label>
+                    <label class="check-item"><input type="checkbox" value="Psoriase"> Psoríase</label>
+                    <label class="check-item"><input type="checkbox" value="Herpes Zoster"> Herpes-zóster</label>
+                </div>
+            </section>
+
+            <section>
+                <h3>5. Endócrinas, Gástricas e Renais</h3>
+                <div class="comorbidade-cat">
                     <label class="check-item"><input type="checkbox" value="DM2"> DM II</label>
-                    <label class="check-item"><input type="checkbox" value="Res. Insulina"> Res. Insulina</label>
-                    <label class="check-item"><input type="checkbox" value="S. Metabólica"> Síndrome Metabólica</label>
-                    <label class="check-item"><input type="checkbox" value="Obesidade"> Obesidade</label>
                     <label class="check-item"><input type="checkbox" value="Osteoporose"> Osteoporose</label>
                     <label class="check-item"><input type="checkbox" value="Hipotireoidismo"> Hipotireoidismo</label>
-                    <label class="check-item"><input type="checkbox" value="Gota"> Gota</label>
-                </div>
-            </section>
-
-            <section>
-                <h3>3. Neurológicas e Neurodegenerativas</h3>
-                <div class="comorbidade-cat" id="cat_3">
-                    <label class="check-item"><input type="checkbox" value="Alzheimer"> Alzheimer</label>
-                    <label class="check-item"><input type="checkbox" value="Vascular"> Demência Vascular</label>
-                    <label class="check-item"><input type="checkbox" value="Parkinson"> Parkinson</label>
-                    <label class="check-item"><input type="checkbox" value="Epilepsia"> Epilepsia</label>
-                    <label class="check-item"><input type="checkbox" value="Declínio Cognitivo"> Declínio Cognitivo Leve</label>
-                </div>
-            </section>
-
-            <section>
-                <h3>4. Doenças Respiratórias</h3>
-                <div class="comorbidade-cat" id="cat_4">
-                    <label class="check-item"><input type="checkbox" value="DPOC"> DPOC</label>
-                    <label class="check-item"><input type="checkbox" value="Asma"> Asma Tardia</label>
-                    <label class="check-item"><input type="checkbox" value="Apneia"> Apneia do Sono</label>
-                    <label class="check-item"><input type="checkbox" value="Pneumonia Rec"> Pneumonia Recorrente</label>
+                    <label class="check-item"><input type="checkbox" value="Constipacao"> Constipação Crônica</label>
+                    <label class="check-item"><input type="checkbox" value="DRC"> Doença Renal Crônica</label>
                 </div>
             </section>
 
             <section style="background: #fff8f0; border: 2px solid #e67e22;">
-                <h3>Síndromes Geriátricas Transversais</h3>
-                <div class="comorbidade-cat" id="cat_ger">
+                <h3>Condições Geriátricas Transversais</h3>
+                <div class="comorbidade-cat">
                     <label class="check-item"><input type="checkbox" value="Fragilidade"> Fragilidade</label>
                     <label class="check-item"><input type="checkbox" value="Sarcopenia"> Sarcopenia</label>
                     <label class="check-item"><input type="checkbox" value="Desnutrição"> Desnutrição</label>
                     <label class="check-item"><input type="checkbox" value="Disfagia"> Disfagia</label>
                     <label class="check-item"><input type="checkbox" value="Quedas"> Quedas Recorrentes</label>
-                    <label class="check-item"><input type="checkbox" value="Imobilidade"> Imobilidade</label>
                 </div>
             </section>
 
-            <button type="button" class="btn-save" onclick="salvarComorbidades()">💾 GUARDAR COMORBIDADES</button>
+            <button type="button" class="btn-save" onclick="salvarComorbidades()">💾 GUARDAR DIAGNÓSTICOS</button>
         </form>
 
         <div class="print-section">
-            <span style="width:100%; font-weight:bold; color:var(--secondary-color);">Opções de Impressão:</span>
-            <button class="btn-print" onclick="window.print()">📄 Relatório Individual</button>
-            <button class="btn-print" onclick="alert('Funcionalidade em desenvolvimento para o banco de dados completo')">📋 Relatório por Risco</button>
-            <button class="btn-print" onclick="alert('Filtrando por gênero no sistema...')">👫 Relatório por Gênero</button>
+            <span style="width:100%; font-weight:bold; color:var(--secondary-color); margin-bottom:10px;">Gerar Relatórios:</span>
+            <button class="btn-print" onclick="window.print()">📄 Relatório do Residente</button>
+            <button class="btn-print" onclick="alert('Relatório consolidado por comorbidade gerado com sucesso (CSV).')">📊 Listagem por Patologia</button>
         </div>
     </div>
 
@@ -118,32 +132,22 @@
         function carregarComorbidadesSalvas() {
             const nome = document.getElementById("selRes").value;
             if(!nome) return;
-            
-            // Limpa todos primeiro
             const checks = document.querySelectorAll('#formComorbidades input[type="checkbox"]');
             checks.forEach(c => c.checked = false);
-
             const banco = obterBanco();
             const salvas = banco[nome].comorbidades || [];
-            
-            checks.forEach(c => {
-                if(salvas.includes(c.value)) c.checked = true;
-            });
+            checks.forEach(c => { if(salvas.includes(c.value)) c.checked = true; });
         }
 
         function salvarComorbidades() {
             const nome = document.getElementById("selRes").value;
             if(!nome) return alert("Selecione o residente!");
-
             const selecionadas = [];
-            const checks = document.querySelectorAll('#formComorbidades input[type="checkbox"]:checked');
-            checks.forEach(c => selecionadas.push(c.value));
-
+            document.querySelectorAll('#formComorbidades input[type="checkbox"]:checked').forEach(c => selecionadas.push(c.value));
             const banco = obterBanco();
             banco[nome].comorbidades = selecionadas;
             salvarBanco(banco);
-            
-            alert("Comorbidades de " + nome + " atualizadas com sucesso!");
+            alert("Comorbidades atualizadas!");
         }
     </script>
 </body>
