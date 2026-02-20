@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
 <body>
 
     <div class="navbar">
-        <img src="logo.png" alt="Lar Padre Euclides" class="nav-logo" style="height: 50px; margin-right: 20px;">
+        <img src="logo.png" alt="Lar Padre Euclides" class="nav-logo" style="height: 60px; margin-right: 30px;">
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="ficha-completa.html">Ficha Clínica</a>
@@ -18,17 +18,18 @@
 
     <div class="container">
         <header>
-            <h1>Avaliação Nutricional</h1>
-            <h2>Triagem Integrada e Diagnóstico PES</h2>
+            <h1>Avaliação Nutricional Integrada</h1>
+            <p>Protocolos MNA, NRS-2002 e Diagnóstico PES</p>
         </header>
 
         <form id="formAvaliacao">
+            
             <section>
                 <h3>1. Identificação do Residente</h3>
                 <div class="grid">
                     <div>
                         <label>Nome Completo</label>
-                        <input type="text" id="nome" placeholder="Nome do paciente" required>
+                        <input type="text" id="nome" placeholder="Digite o nome" required>
                     </div>
                     <div>
                         <label>Sexo</label>
@@ -47,7 +48,7 @@
                     </div>
                     <div>
                         <label>Idade Atual</label>
-                        <input type="text" id="idade_display" readonly>
+                        <input type="text" id="idade_display" readonly placeholder="Calculada">
                         <input type="hidden" id="idade_val">
                     </div>
                 </div>
@@ -66,18 +67,27 @@
                     </div>
                     <div>
                         <label>Alt. do Joelho (cm)</label>
-                        <input type="number" step="0.1" id="altJoelho" placeholder="Chumlea" oninput="executarCalculos()">
+                        <input type="number" step="0.1" id="altJoelho" placeholder="Estimativa Chumlea" oninput="executarCalculos()">
                     </div>
                 </div>
-                <div class="grid" style="margin-top:10px;">
-                    <div><label>IMC</label><input type="text" id="imc" readonly></div>
-                    <div><label>Classificação IMC</label><input type="text" id="classImc" readonly></div>
-                    <div><label>Alt. Estimada</label><input type="text" id="altEstimada" readonly></div>
+                <div class="grid" style="margin-top: 20px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+                    <div>
+                        <label>IMC Calculado</label>
+                        <input type="text" id="imc" readonly>
+                    </div>
+                    <div>
+                        <label>Classificação (Lipschitz)</label>
+                        <input type="text" id="classImc" readonly>
+                    </div>
+                    <div>
+                        <label>Altura Estimada</label>
+                        <input type="text" id="altEstimada" readonly>
+                    </div>
                 </div>
             </section>
 
             <section>
-                <h3>3. Circunferências Ajustadas (Massa Muscular)</h3>
+                <h3>3. Circunferências e Massa Muscular (Ajustada)</h3>
                 <div class="grid">
                     <div>
                         <label>Circ. Braço (cm)</label>
@@ -88,50 +98,69 @@
                         <input type="number" step="0.1" id="circPanturrilha" oninput="executarCalculos()">
                     </div>
                 </div>
-                <div class="grid" style="margin-top:10px;">
-                    <div><label>CB Ajustada</label><input type="text" id="cbAjustada" readonly></div>
-                    <div><label>CP Ajustada</label><input type="text" id="cpAjustada" readonly></div>
+                <div class="grid" style="margin-top: 10px;">
+                    <div>
+                        <label>CB Ajustada (Gordura)</label>
+                        <input type="text" id="cbAjustada" readonly>
+                    </div>
+                    <div>
+                        <label>CP Ajustada (Reserva)</label>
+                        <input type="text" id="cpAjustada" readonly>
+                    </div>
                 </div>
             </section>
 
             <section>
-                <h3>4. Resultados MNA e NRS-2002</h3>
+                <h3>4. Rastreio de Risco (MNA & NRS-2002)</h3>
                 <div class="grid">
                     <div>
-                        <label>Score MNA (0-30)</label>
+                        <label>Pontos MNA (0-30)</label>
                         <input type="number" step="0.5" id="mna" oninput="executarCalculos()">
-                        <input type="text" id="statusMna" readonly style="margin-top:5px; color: #2980b9; font-weight: bold;">
+                        <input type="text" id="statusMna" readonly style="margin-top: 10px; color: #2980b9; font-weight: bold; border: none; background: transparent;">
                     </div>
                     <div>
-                        <label>Score NRS (0-7)</label>
+                        <label>Pontos NRS-2002 (0-7)</label>
                         <input type="number" id="nrs" oninput="executarCalculos()">
-                        <input type="text" id="statusNrs" readonly style="margin-top:5px; color: #2980b9; font-weight: bold;">
+                        <input type="text" id="statusNrs" readonly style="margin-top: 10px; color: #2980b9; font-weight: bold; border: none; background: transparent;">
                     </div>
                 </div>
-                <div class="grid" style="margin-top:20px; border-top: 1px solid #eee; padding-top: 15px;">
-                    <div><label>ICN Final</label><input type="text" id="icn" readonly></div>
-                    <div><label>Classificação ICN</label><input type="text" id="classIcn" readonly></div>
+                <div class="grid" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--primary-color);">
+                    <div>
+                        <label>ICN (Índice de Conclusão)</label>
+                        <input type="text" id="icn" readonly style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color);">
+                    </div>
+                    <div>
+                        <label>Status de Risco Final</label>
+                        <input type="text" id="classIcn" readonly style="font-size: 1.2rem; font-weight: bold;">
+                    </div>
                 </div>
             </section>
 
             <section>
                 <h3>5. Diagnóstico Nutricional (Modelo PES)</h3>
-                <textarea id="parecer" rows="6" placeholder="Diagnóstico gerado automaticamente..."></textarea>
+                <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">Gerado automaticamente com base nos dados acima.</p>
+                <textarea id="parecer" rows="6" placeholder="O diagnóstico aparecerá aqui..."></textarea>
             </section>
 
-            <button type="button" class="btn-save" onclick="processarSalvamento()">💾 Salvar Avaliação Completa</button>
+            <button type="button" class="btn-save" onclick="processarSalvamento()">
+                💾 SALVAR AVALIAÇÃO NO PRONTUÁRIO
+            </button>
+
         </form>
     </div>
 
     <script src="app.js"></script>
     <script>
+        // Atualiza a idade quando a data de nascimento muda
         function atualizarIdade() {
-            const idade = calcularIdade(document.getElementById("dataNasc").value);
+            const data = document.getElementById("dataNasc").value;
+            const idade = calcularIdade(data);
             document.getElementById("idade_display").value = idade + " anos";
             document.getElementById("idade_val").value = idade;
             executarCalculos();
         }
 
+        // Executa toda a lógica de cálculos e automação de texto
         function executarCalculos() {
             const peso = getNum("peso");
             let altura = getNum("altura");
@@ -141,6 +170,7 @@
             const mna = getNum("mna");
             const nrs = getNum("nrs");
 
+            // Estimativa de altura por Knee Height (Chumlea)
             if (altura === 0 && aj > 0 && idade > 0) {
                 altura = estimarAltura(aj, idade, sexo);
                 document.getElementById("altEstimada").value = altura.toFixed(2) + " m";
@@ -153,37 +183,52 @@
                 document.getElementById("imc").value = imcVal.toFixed(2);
                 document.getElementById("classImc").value = classificarIMC(imcVal);
 
+                // Ajustes de Circunferência (Prado et al. 2022)
                 const cpAdj = ajustarCP(getNum("circPanturrilha"), imcVal);
                 const cbAdj = ajustarCB(getNum("circBraco"), imcVal, sexo);
                 document.getElementById("cpAjustada").value = cpAdj.toFixed(1) + " cm";
                 document.getElementById("cbAjustada").value = cbAdj.toFixed(1) + " cm";
 
+                // Classificações de Risco Individuais
                 const sMna = classificarMNA(mna);
                 const sNrs = classificarNRS(nrs);
-                document.getElementById("statusMna").value = sMna;
-                document.getElementById("statusNrs").value = sNrs;
+                document.getElementById("statusMna").value = "MNA: " + sMna;
+                document.getElementById("statusNrs").value = "NRS: " + sNrs;
 
+                // Cálculo do Índice de Conclusão Nutricional (ICN)
                 const icnVal = calcularICN(mna, nrs, imcVal);
                 const sIcn = classificarICN(icnVal);
                 document.getElementById("icn").value = icnVal.toFixed(1);
                 document.getElementById("classIcn").value = sIcn;
 
+                // Cor de destaque para o Risco Final
+                document.getElementById("classIcn").style.color = (sIcn === "Alto Risco Clínico") ? "red" : "green";
+
+                // Geração Automática do Parecer PES
                 document.getElementById("parecer").value = gerarParecerPES(sMna, sNrs, sIcn, imcVal, cpAdj, sexo);
             }
         }
 
+        // Salva os dados no LocalStorage
         function processarSalvamento() {
             const nome = document.getElementById("nome").value;
-            if (!nome) return alert("Insira o nome do residente!");
-            const aval = {
+            if (!nome) {
+                alert("Por favor, preencha o nome do residente antes de salvar.");
+                return;
+            }
+
+            const avaliacao = {
                 data: new Date().toISOString().split('T')[0],
+                dataAdmissao: document.getElementById("dataAdmissao").value,
                 nome: nome,
+                imc: document.getElementById("imc").value,
                 icn: document.getElementById("icn").value,
                 classIcn: document.getElementById("classIcn").value,
                 parecer: document.getElementById("parecer").value
             };
-            salvarAvaliacao(nome, aval);
-            alert("Avaliação salva com sucesso!");
+
+            salvarAvaliacao(nome, avaliacao);
+            alert("Avaliação de " + nome + " guardada com sucesso!");
         }
     </script>
 </body>
