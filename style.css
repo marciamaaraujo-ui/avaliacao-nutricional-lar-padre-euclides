@@ -1,201 +1,208 @@
-/* --- Reset e Configurações Globais --- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f0f4f8; /* Azul acinzentado suave */
-    color: #333;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     line-height: 1.6;
     padding: 20px;
 }
 
-/* --- Container Principal --- */
-.container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+/* ============================================================
+   NAVEGAÇÃO (NAVBAR)
+   ============================================================ */
+.navbar {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
 }
 
-/* --- Cabeçalho --- */
+.navbar a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.navbar a:hover {
+    color: var(--primary-color);
+}
+
+/* ============================================================
+   CONTAINER E CABEÇALHO
+   ============================================================ */
+.container {
+    max-width: 950px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
 header {
     text-align: center;
     margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 3px solid #27ae60; /* Verde Saúde */
+    padding-bottom: 15px;
+    border-bottom: 3px solid var(--primary-color);
 }
 
 header h1 {
-    color: #27ae60;
-    font-size: 28px;
+    font-size: 1.8rem;
+    color: var(--primary-color);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    margin-bottom: 5px;
 }
 
 header h2 {
+    font-size: 1.1rem;
     color: #7f8c8d;
-    font-size: 18px;
     font-weight: 400;
 }
 
-/* --- Seções do Formulário --- */
+/* ============================================================
+   SEÇÕES E FORMULÁRIOS
+   ============================================================ */
 section {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     padding: 20px;
-    border: 1px solid #e1e8ed;
+    border: 1px solid #edf2f7;
     border-radius: 8px;
-    background-color: #fff;
 }
 
-h3 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #2c3e50;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
+section h3 {
+    margin-bottom: 15px;
+    font-size: 1rem;
+    border-left: 4px solid var(--primary-color);
+    padding-left: 10px;
+    color: var(--text-color);
 }
 
-h3::before {
-    content: "";
-    display: inline-block;
-    width: 5px;
-    height: 20px;
-    background-color: #27ae60;
-    margin-right: 10px;
-    border-radius: 2px;
-}
-
-/* --- Grids e Layout --- */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
-    margin-bottom: 15px;
 }
 
 label {
     display: block;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #555;
     margin-bottom: 5px;
+    color: #555;
 }
 
-/* --- Campos de Entrada --- */
 input, textarea, select {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ced4da;
+    padding: 10px;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-input:focus, textarea:focus {
+input:focus {
     outline: none;
-    border-color: #27ae60;
+    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
 }
 
 /* Campos de Resultado (Somente Leitura) */
 input[readonly] {
     background-color: #f8f9fa;
-    border-color: #dee2e6;
-    color: #27ae60; /* Destaque para o resultado */
+    color: var(--primary-color);
     font-weight: bold;
-    cursor: default;
+    border-color: #e2e8f0;
 }
 
-/* --- Bloco de Resultados Destacado --- */
-.grid-results {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 6px;
-    margin-top: 10px;
-    border: 1px dashed #cbd5e0;
-}
-
-.grid-results div {
-    display: flex;
-    flex-direction: column;
-}
-
-/* --- Ações e Botões --- */
+/* ============================================================
+   BOTÕES E AÇÕES
+   ============================================================ */
 .actions {
     display: flex;
     gap: 15px;
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
-button {
+button, .btn {
     flex: 1;
-    padding: 15px 20px;
+    padding: 15px;
     border: none;
     border-radius: 8px;
-    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    transition: transform 0.2s, background 0.3s;
+    text-align: center;
 }
 
-.btn-save {
-    background-color: #27ae60;
-    color: white;
+button:active { transform: scale(0.98); }
+
+.btn-save { background: var(--primary-color); color: white; }
+.btn-save:hover { background: #219150; }
+
+.btn-pdf { background: var(--secondary-color); color: white; }
+.btn-pdf:hover { background: #1f6391; }
+
+.btn-delete { background: var(--danger-color); color: white; padding: 5px 10px; font-size: 0.8rem; }
+
+/* ============================================================
+   TABELAS E DASHBOARD
+   ============================================================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
 
-.btn-save:hover {
-    background-color: #219150;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+th {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-size: 0.9rem;
+    border-bottom: 2px solid var(--primary-color);
 }
 
-.btn-pdf {
-    background-color: #2980b9;
-    color: white;
+td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
 }
 
-.btn-pdf:hover {
-    background-color: #1f6391;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(41, 128, 185, 0.3);
+tr:hover { background: #f1f9f4; }
+
+/* Badges de Status */
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
 }
 
-/* --- Responsividade --- */
+.badge-normal { background: #d4edda; color: #155724; }
+.badge-risco { background: #f8d7da; color: #721c24; }
+.badge-alerta { background: #fff3cd; color: #856404; }
+
+/* ============================================================
+   ESTILOS DE IMPRESSÃO (PDF/RELATÓRIO)
+   ============================================================ */
+@media print {
+    body { background: white; padding: 0; }
+    .navbar, .actions, .btn-delete, .btn-print { display: none !important; }
+    .container { 
+        box-shadow: none; 
+        border: none; 
+        max-width: 100%; 
+        padding: 0;
+    }
+    section { border: 1px solid #000; break-inside: avoid; }
+}
+
+/* Responsividade para Celulares */
 @media (max-width: 600px) {
-    .container {
-        padding: 20px;
-    }
-    
-    .grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .actions {
-        flex-direction: column;
-    }
-    
-    .grid-results {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Estilo para o Parecer Nutricional */
-textarea {
-    resize: vertical;
-    min-height: 100px;
-    border: 1.5px solid #27ae60;
-    background-color: #fdfdfd;
+    .grid { grid-template-columns: 1fr; }
+    .actions { flex-direction: column; }
+    .navbar { flex-wrap: wrap; }
 }
