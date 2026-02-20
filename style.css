@@ -1,128 +1,235 @@
+/* VARIÁVEIS E BASE */
 :root {
     --primary-color: #27ae60;
     --secondary-color: #2980b9;
-    --bg-input: #f0f4f2; /* Cor de destaque para saber onde preencher */
+    --bg-input: #f0f4f2;
     --text-color: #2c3e50;
     --border-color: #dcdde1;
+    --white: #ffffff;
+    --shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background-color: #f4f7f6;
-    color: var(--text-color);
-    padding: 40px;
+body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    background-color: #f4f7f6; 
+    color: var(--text-color); 
+    margin: 0; 
+    padding: 0; 
 }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    background: white;
-    padding: 50px;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+/* NAVBAR UNIFICADA */
+.navbar { 
+    background: var(--white); 
+    padding: 15px 0; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+    position: sticky; 
+    top: 0; 
+    z-index: 1000; 
+    margin-bottom: 40px; 
 }
 
-header {
-    text-align: center;
-    border-bottom: 3px solid var(--primary-color);
-    margin-bottom: 50px;
-    padding-bottom: 20px;
+.nav-container { 
+    max-width: 1200px; 
+    margin: auto; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 20px; 
 }
 
-section {
-    margin-bottom: 60px;
-    padding: 25px;
-    background: #fff;
-    border: 1px solid #f0f0f0;
-    border-radius: 15px;
+.nav-logo { height: 50px; }
+
+.nav-links { display: flex; gap: 8px; align-items: center; }
+
+.nav-link { 
+    text-decoration: none; 
+    color: var(--text-color); 
+    font-weight: 700; 
+    font-size: 0.8rem; 
+    padding: 10px 12px; 
+    border-radius: 8px; 
+    transition: 0.3s; 
 }
 
-section h3 {
-    color: var(--primary-color);
-    margin-bottom: 30px;
-    border-left: 6px solid var(--primary-color);
-    padding-left: 15px;
-    text-transform: uppercase;
+.nav-link:hover { 
+    background: var(--bg-input); 
+    color: var(--primary-color); 
 }
 
-/* GRID DE CAMPOS */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 40px; /* Espaço amplo para não colar */
-    margin-bottom: 20px;
+.home-btn { background: var(--primary-color) !important; color: white !important; }
+
+/* CONTEÚDO E CONTAINER */
+.container { 
+    max-width: 1100px; 
+    margin: 20px auto; 
+    background: white; 
+    padding: 40px; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.06); 
 }
 
-label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: #34495e;
+header { 
+    text-align: center; 
+    border-bottom: 3px solid var(--primary-color); 
+    margin-bottom: 50px; 
+    padding-bottom: 20px; 
 }
 
-input, select, textarea {
-    width: 100%;
-    padding: 14px;
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    background-color: var(--bg-input);
-    font-size: 1rem;
-    transition: all 0.3s ease;
+header h1 { margin: 0; color: var(--text-color); }
+header p { color: #7f8c8d; margin-top: 5px; }
+
+/* GRID DE ESTATÍSTICAS (DASHBOARD) */
+.grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+    gap: 25px; 
+    margin-bottom: 40px; 
 }
 
-input:focus, select:focus, textarea:focus {
-    background-color: #ffffff;
-    border-color: var(--primary-color);
-    outline: none;
+.stat-card {
+    background: var(--white); 
+    padding: 30px; 
+    border-radius: 15px; 
+    text-align: center; 
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
 }
 
-input[readonly] {
-    background-color: #f8f9fa;
-    border-style: dashed;
+.stat-card:hover { transform: translateY(-5px); }
+
+.stat-card label { 
+    font-size: 0.9rem; 
+    color: #7f8c8d; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
 }
 
-/* ESTILO PARA LINHAS DE EXAMES (Garante que nada se misture) */
-.exam-row {
-    display: grid;
-    grid-template-columns: 2.5fr 1.5fr 2fr;
-    gap: 25px;
-    padding: 15px 0;
-    border-bottom: 1px solid #eee;
-    align-items: center;
+.stat-card p { 
+    font-size: 2.5rem; 
+    font-weight: bold; 
+    margin: 10px 0 0 0; 
 }
 
-.cat-header {
-    background: var(--secondary-color);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-top: 30px;
-    font-weight: bold;
+/* FORMULÁRIOS */
+section { 
+    margin-bottom: 60px; 
+    padding: 35px; 
+    border: 1px solid #f0f0f0; 
+    border-radius: 15px; 
+    background: #fff; 
 }
 
-.ref-text { font-size: 0.85rem; color: #7f8c8d; font-style: italic; }
-
-.btn-save {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 20px;
-    border-radius: 12px;
-    width: 100%;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 40px;
-}
-
-.navbar {
+section h3 { 
+    color: var(--primary-color); 
+    margin-bottom: 30px; 
+    border-left: 6px solid var(--primary-color); 
+    padding-left: 15px; 
+    text-transform: uppercase; 
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    background: #fff;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-.navbar a { text-decoration: none; color: var(--text-color); font-weight: 700; margin-right: 30px; }
+label { display: block; font-weight: 700; margin-bottom: 12px; color: #34495e; }
+
+input, select, textarea { 
+    width: 100%; 
+    padding: 15px; 
+    border: 2px solid var(--border-color); 
+    border-radius: 10px; 
+    background-color: var(--bg-input); 
+    font-size: 1rem; 
+    box-sizing: border-box;
+}
+
+input:focus { background-color: #fff; border-color: var(--primary-color); outline: none; }
+
+/* TABELAS (DASHBOARD) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+th {
+    background: #f8f9fa;
+    padding: 18px;
+    text-align: left;
+    border-bottom: 2px solid var(--primary-color);
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+td {
+    padding: 18px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+}
+
+tr:hover { background-color: #f9fbf9; }
+
+/* BOTÕES */
+.btn-save { 
+    background: var(--primary-color); 
+    color: white; 
+    border: none; 
+    padding: 18px 25px; 
+    border-radius: 12px; 
+    font-size: 1.1rem; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.btn-save:hover { 
+    background: #219150; 
+    transform: translateY(-2px); 
+    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+}
+
+/* TABELA DE EXAMES E COMORBIDADES */
+.exam-row { 
+    display: grid; 
+    grid-template-columns: 2.5fr 1.5fr 2fr; 
+    gap: 25px; 
+    padding: 18px 0; 
+    border-bottom: 1px solid #eee; 
+    align-items: center; 
+}
+
+.cat-header { 
+    background: var(--secondary-color); 
+    color: white; 
+    padding: 12px 20px; 
+    border-radius: 8px; 
+    margin-top: 40px; 
+    font-weight: bold; 
+}
+
+/* CONFIGURAÇÃO DE IMPRESSÃO */
+@media print {
+    .navbar, .btn-save, select, label, .no-print {
+        display: none !important;
+    }
+    body { background-color: white !important; }
+    .container { 
+        width: 100% !important; 
+        max-width: 100% !important; 
+        box-shadow: none !important; 
+        border: none !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+    }
+    section { 
+        page-break-inside: avoid; 
+        border: 1px solid #ccc !important; 
+        margin-bottom: 20px !important; 
+    }
+}
