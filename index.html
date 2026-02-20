@@ -1,11 +1,3 @@
-Para automatizar o parecer técnico seguindo o modelo PES (Problema, Etiologia e Sinais/Sintomas), o sistema agora analisará os resultados calculados e montará a frase diagnóstica de forma padronizada. Isso garante que a conduta seja técnica e direta, facilitando a elaboração do relatório para o Lar Padre Euclides.
-
-Aqui estão os códigos finais atualizados com a automação do PES integrada à função de cálculos.
-
-1. Código Final: index.html
-Este código agora inclui a lógica de geração automática de texto no campo de parecer.
-
-HTML
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -13,17 +5,11 @@ HTML
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avaliação Nutricional - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .navbar { display: flex; align-items: center; background: #fff; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .nav-logo { height: 50px; margin-right: 20px; }
-        .navbar a { text-decoration: none; color: #27ae60; font-weight: bold; margin-right: 15px; }
-        .highlight-box { border: 1px dashed #27ae60; background: #fdfdfd; padding: 15px; margin-top: 15px; }
-    </style>
 </head>
 <body>
 
     <div class="navbar">
-        <img src="logo.png" alt="Lar Padre Euclides" class="nav-logo">
+        <img src="logo.png" alt="Lar Padre Euclides" class="nav-logo" style="height: 50px; margin-right: 20px;">
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="ficha-completa.html">Ficha Clínica</a>
@@ -40,60 +26,97 @@ HTML
             <section>
                 <h3>1. Identificação do Residente</h3>
                 <div class="grid">
-                    <input type="text" id="nome" placeholder="Nome Completo" required>
-                    <select id="sexo" onchange="executarCalculos()">
-                        <option value="F">Feminino</option>
-                        <option value="M">Masculino</option>
-                    </select>
-                    <input type="date" id="dataNasc" onchange="atualizarIdade()">
-                    <input type="date" id="dataAdmissao">
-                    <input type="text" id="idade_display" readonly placeholder="Idade">
-                    <input type="hidden" id="idade_val">
+                    <div>
+                        <label>Nome Completo</label>
+                        <input type="text" id="nome" placeholder="Nome do paciente" required>
+                    </div>
+                    <div>
+                        <label>Sexo</label>
+                        <select id="sexo" onchange="executarCalculos()">
+                            <option value="F">Feminino</option>
+                            <option value="M">Masculino</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="dataNasc" onchange="atualizarIdade()">
+                    </div>
+                    <div>
+                        <label>Data de Admissão</label>
+                        <input type="date" id="dataAdmissao">
+                    </div>
+                    <div>
+                        <label>Idade Atual</label>
+                        <input type="text" id="idade_display" readonly>
+                        <input type="hidden" id="idade_val">
+                    </div>
                 </div>
             </section>
 
             <section>
                 <h3>2. Antropometria e Estatura Estimada</h3>
                 <div class="grid">
-                    <input type="number" step="0.1" id="peso" placeholder="Peso (kg)" oninput="executarCalculos()">
-                    <input type="number" step="0.01" id="altura" placeholder="Altura Real (m)" oninput="executarCalculos()">
-                    <input type="number" step="0.1" id="altJoelho" placeholder="Alt. Joelho (cm)" oninput="executarCalculos()">
+                    <div>
+                        <label>Peso Atual (kg)</label>
+                        <input type="number" step="0.1" id="peso" placeholder="00.0" oninput="executarCalculos()">
+                    </div>
+                    <div>
+                        <label>Altura Real (m)</label>
+                        <input type="number" step="0.01" id="altura" placeholder="0.00" oninput="executarCalculos()">
+                    </div>
+                    <div>
+                        <label>Alt. do Joelho (cm)</label>
+                        <input type="number" step="0.1" id="altJoelho" placeholder="Chumlea" oninput="executarCalculos()">
+                    </div>
                 </div>
-                <div class="grid-results" style="margin-top:10px;">
-                    <div>IMC: <input type="text" id="imc" readonly></div>
-                    <div>Classificação: <input type="text" id="classImc" readonly></div>
-                    <div>Alt. Estimada: <input type="text" id="altEstimada" readonly></div>
-                </div>
-            </section>
-
-            <section>
-                <h3>3. Circunferências Ajustadas (Prado et al. 2022)</h3>
-                <div class="grid">
-                    <input type="number" step="0.1" id="circBraco" placeholder="CB (cm)" oninput="executarCalculos()">
-                    <input type="number" step="0.1" id="circPanturrilha" placeholder="CP (cm)" oninput="executarCalculos()">
-                </div>
-                <div class="grid-results" style="margin-top:10px;">
-                    <div>CB Ajustada: <input type="text" id="cbAjustada" readonly></div>
-                    <div>CP Ajustada: <input type="text" id="cpAjustada" readonly></div>
+                <div class="grid" style="margin-top:10px;">
+                    <div><label>IMC</label><input type="text" id="imc" readonly></div>
+                    <div><label>Classificação IMC</label><input type="text" id="classImc" readonly></div>
+                    <div><label>Alt. Estimada</label><input type="text" id="altEstimada" readonly></div>
                 </div>
             </section>
 
             <section>
-                <h3>4. Rastreamento (MNA & NRS-2002)</h3>
+                <h3>3. Circunferências Ajustadas (Massa Muscular)</h3>
                 <div class="grid">
-                    <input type="number" step="0.5" id="mna" placeholder="Score MNA (0-30)" oninput="executarCalculos()">
-                    <input type="number" id="nrs" placeholder="Score NRS" oninput="executarCalculos()">
+                    <div>
+                        <label>Circ. Braço (cm)</label>
+                        <input type="number" step="0.1" id="circBraco" oninput="executarCalculos()">
+                    </div>
+                    <div>
+                        <label>Circ. Panturrilha (cm)</label>
+                        <input type="number" step="0.1" id="circPanturrilha" oninput="executarCalculos()">
+                    </div>
                 </div>
-                <div class="grid highlight-box">
-                    <div>ICN: <input type="text" id="icn" readonly></div>
-                    <div>Status: <input type="text" id="classIcn" readonly></div>
+                <div class="grid" style="margin-top:10px;">
+                    <div><label>CB Ajustada</label><input type="text" id="cbAjustada" readonly></div>
+                    <div><label>CP Ajustada</label><input type="text" id="cpAjustada" readonly></div>
+                </div>
+            </section>
+
+            <section>
+                <h3>4. Resultados MNA e NRS-2002</h3>
+                <div class="grid">
+                    <div>
+                        <label>Score MNA (0-30)</label>
+                        <input type="number" step="0.5" id="mna" oninput="executarCalculos()">
+                        <input type="text" id="statusMna" readonly style="margin-top:5px; color: #2980b9; font-weight: bold;">
+                    </div>
+                    <div>
+                        <label>Score NRS (0-7)</label>
+                        <input type="number" id="nrs" oninput="executarCalculos()">
+                        <input type="text" id="statusNrs" readonly style="margin-top:5px; color: #2980b9; font-weight: bold;">
+                    </div>
+                </div>
+                <div class="grid" style="margin-top:20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <div><label>ICN Final</label><input type="text" id="icn" readonly></div>
+                    <div><label>Classificação ICN</label><input type="text" id="classIcn" readonly></div>
                 </div>
             </section>
 
             <section>
                 <h3>5. Diagnóstico Nutricional (Modelo PES)</h3>
-                <textarea id="parecer" rows="6" placeholder="O parecer será gerado automaticamente aqui..."></textarea>
-                <p style="font-size:0.8rem; color:#666; margin-top:5px;">*P: Problema | E: Etiologia | S: Sinais e Sintomas</p>
+                <textarea id="parecer" rows="6" placeholder="Diagnóstico gerado automaticamente..."></textarea>
             </section>
 
             <button type="button" class="btn-save" onclick="processarSalvamento()">💾 Salvar Avaliação Completa</button>
@@ -115,40 +138,43 @@ HTML
             const aj = getNum("altJoelho");
             const idade = parseInt(document.getElementById("idade_val").value) || 0;
             const sexo = document.getElementById("sexo").value;
+            const mna = getNum("mna");
+            const nrs = getNum("nrs");
 
             if (altura === 0 && aj > 0 && idade > 0) {
                 altura = estimarAltura(aj, idade, sexo);
                 document.getElementById("altEstimada").value = altura.toFixed(2) + " m";
+            } else {
+                document.getElementById("altEstimada").value = "";
             }
 
             if (peso > 0 && altura > 0) {
                 const imcVal = peso / (altura * altura);
-                const cpOrig = getNum("circPanturrilha");
-                const cbOrig = getNum("circBraco");
-                const mna = getNum("mna");
-                const nrs = getNum("nrs");
-
                 document.getElementById("imc").value = imcVal.toFixed(2);
                 document.getElementById("classImc").value = classificarIMC(imcVal);
 
-                const cpAdj = ajustarCP(cpOrig, imcVal);
-                const cbAdj = ajustarCB(cbOrig, imcVal, sexo);
+                const cpAdj = ajustarCP(getNum("circPanturrilha"), imcVal);
+                const cbAdj = ajustarCB(getNum("circBraco"), imcVal, sexo);
                 document.getElementById("cpAjustada").value = cpAdj.toFixed(1) + " cm";
                 document.getElementById("cbAjustada").value = cbAdj.toFixed(1) + " cm";
 
-                const icnVal = calcularICN(mna, nrs, imcVal);
-                const statusIcn = classificarICN(icnVal);
-                document.getElementById("icn").value = icnVal.toFixed(1);
-                document.getElementById("classIcn").value = statusIcn;
+                const sMna = classificarMNA(mna);
+                const sNrs = classificarNRS(nrs);
+                document.getElementById("statusMna").value = sMna;
+                document.getElementById("statusNrs").value = sNrs;
 
-                // GERAÇÃO AUTOMÁTICA DO PES
-                document.getElementById("parecer").value = gerarParecerPES(statusIcn, imcVal, cpAdj, mna, nrs, sexo);
+                const icnVal = calcularICN(mna, nrs, imcVal);
+                const sIcn = classificarICN(icnVal);
+                document.getElementById("icn").value = icnVal.toFixed(1);
+                document.getElementById("classIcn").value = sIcn;
+
+                document.getElementById("parecer").value = gerarParecerPES(sMna, sNrs, sIcn, imcVal, cpAdj, sexo);
             }
         }
 
         function processarSalvamento() {
             const nome = document.getElementById("nome").value;
-            if (!nome) return alert("Insira o nome!");
+            if (!nome) return alert("Insira o nome do residente!");
             const aval = {
                 data: new Date().toISOString().split('T')[0],
                 nome: nome,
@@ -157,7 +183,7 @@ HTML
                 parecer: document.getElementById("parecer").value
             };
             salvarAvaliacao(nome, aval);
-            alert("Salvo com sucesso!");
+            alert("Avaliação salva com sucesso!");
         }
     </script>
 </body>
