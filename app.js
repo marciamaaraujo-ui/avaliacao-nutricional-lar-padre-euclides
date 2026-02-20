@@ -31,17 +31,23 @@ function salvarExame(nome, exame) {
    2. FÓRMULAS ANTROPOMÉTRICAS E AJUSTES CIENTÍFICOS
    ========================================================================== */
 
-function calcularIdade(data) {
-    if (!data) return 0;
-    const nasc = new Date(data);
+/**
+ * Cálculo da idade cronológica
+ */
+function calcularIdade(dataString) {
+    if (!dataString) return 0;
+    const nasc = new Date(dataString);
     const hoje = new Date();
     let idade = hoje.getFullYear() - nasc.getFullYear();
-    if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() == nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
+    const m = hoje.getMonth() - nasc.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
+        idade--;
+    }
     return idade;
 }
 
 /**
- * Estimativa de Altura pela AJ (Altura do Joelho)
+ * Estimativa de Altura pela Altura do Joelho (AJ)
  */
 function estimarAltura(aj, idade, sexo) {
     if (sexo === "M") return (64.19 - (0.04 * idade) + (2.02 * aj)) / 100;
@@ -49,18 +55,18 @@ function estimarAltura(aj, idade, sexo) {
 }
 
 /**
- * Ajuste da Circunferência da Panturrilha (CP) p/ Idosos e Populações Clínicas
- * Fonte: Prado et al. (2022) [cite: 33, 48, 113]
+ * Ajuste da Circunferência da Panturrilha (CP) 
+ * Baseado em Prado et al. (2022) para Populações Idosas/Clínicas
  */
 function ajustarCP(cp, imc) {
-    if (imc < 25.0) return cp;           // Sem ajuste [cite: 37, 38, 39]
-    if (imc <= 29.9) return cp - 3;      // IMC 25-29.9: -3 cm [cite: 34, 41, 114, 115]
-    if (imc <= 39.9) return cp - 7;      // IMC 30-39.9: -7 cm [cite: 42, 44, 116, 117]
-    return cp - 12;                      // IMC >= 40: -12 cm [cite: 43, 45, 118]
+    if (imc < 25.0) return cp;           // Sem ajuste para IMC < 25 [cite: 22, 38, 39, 48]
+    if (imc <= 29.9) return cp - 3;      // IMC 25-29.9: -3 cm [cite: 23, 29, 34, 41, 48, 115]
+    if (imc <= 39.9) return cp - 7;      // IMC 30-39.9: -7 cm [cite: 24, 30, 34, 42, 44, 48, 117]
+    return cp - 12;                      // IMC >= 40: -12 cm [cite: 25, 31, 34, 43, 45, 48, 118]
 }
 
 /**
- * Ajuste da Circunferência do Braço (CB) por IMC e Sexo
+ * Ajuste da Circunferência do Braço (CB) 
  * Fonte: NHANES 1999-2006
  */
 function ajustarCB(cb, imc, sexo) {
@@ -75,8 +81,8 @@ function ajustarCB(cb, imc, sexo) {
    ========================================================================== */
 
 function classificarIMC(imc) {
-    if (imc < 22) return "Desnutrição"; // Critério Lipschitz [cite: 77]
-    if (imc <= 27) return "Eutrofia";    // [cite: 78, 79]
+    if (imc < 22) return "Desnutrição"; // Critério Lipschitz [cite: 76-80]
+    if (imc <= 27) return "Eutrofia";    // [cite: 78-79]
     return "Excesso de Peso";           // [cite: 80]
 }
 
@@ -92,6 +98,7 @@ function calcularSomaNRS(idade) {
     const status = parseFloat(document.getElementById("nrs_status").value) || 0;
     const gravidade = parseFloat(document.getElementById("nrs_gravidade").value) || 0;
     const total = status + gravidade;
+    // NRS 2002: Adiciona 1 ponto para idade >= 70 anos
     return idade >= 70 ? total + 1 : total;
 }
 
@@ -107,18 +114,18 @@ function classificarICN(icn) {
 }
 
 /**
- * Geração Automática do Parecer Nutricional PES
- * Utiliza a CP ajustada para maior precisão prognóstica [cite: 32, 47, 144]
+ * Geração do Parecer Nutricional PES
+ * Utiliza a CP ajustada e pontos de corte específicos (34M / 33F)
  */
 function gerarParecerPES(sIcn, imc, cpAdj, sexo, mna, nrs) {
     let P = sIcn.includes("Alto") ? "Desnutrição Proteico-Calórica (P)" : (sIcn.includes("Moderado") ? "Risco de desnutrição (P)" : "Estado nutricional preservado (P)");
     let E = "relacionado à institucionalização e senescência (E)";
     let S = `evidenciado por ICN: ${sIcn}, MNA: ${mna}pts, NRS: ${nrs}pts, IMC: ${imc.toFixed(2)}kg/m²`;
     
-    // Pontos de corte específicos para sexo: 34cm (M) e 33cm (F) 
-    const cutoffCP = (sexo === "M") ? 34 : 33; 
-    if (cpAdj < cutoffCP) {
-        S += ` e reserva muscular reduzida (CP ajustada: ${cpAdj.toFixed(1)}cm)`;
+    // Pontos de corte específicos: 34 cm para homens e 33 cm para mulheres 
+    const limite = (sexo === "M") ? 34 : 33; 
+    if (cpAdj < limite) {
+        S += ` e baixa reserva muscular (CP ajustada: ${cpAdj.toFixed(1)}cm)`;
     }
     
     return `${P}, ${E}, ${S} (S). Conduta: Suporte Nutricional conforme protocolo do Lar.`;
@@ -146,7 +153,7 @@ function exportarParaCSV() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `Relatorio_Geral_Nutricao_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute("download", `Relatorio_Nutricional_${new Date().toISOString().slice(0,10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
