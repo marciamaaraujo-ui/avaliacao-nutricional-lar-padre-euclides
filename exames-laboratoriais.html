@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exames Laboratoriais - Painel Nutricional</title>
+    <title>Exames - Painel Nutricional</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body onload="carregarResidentes()">
@@ -23,7 +23,7 @@
     <div class="container">
         <header>
             <h1>Registo de Exames Laboratoriais</h1>
-            <p>Insira os resultados bioquímicos para monitorização clínica</p>
+            <p>Insira os resultados bioquímicos para monitorização</p>
         </header>
 
         <section>
@@ -31,9 +31,7 @@
             <div class="grid">
                 <div>
                     <label>Residente</label>
-                    <select id="selectResidente">
-                        <option value="">Selecione um residente...</option>
-                    </select>
+                    <select id="selectResidente"><option value="">Selecione...</option></select>
                 </div>
                 <div>
                     <label>Data da Colheita</label>
@@ -43,88 +41,44 @@
         </section>
 
         <section>
-            <h3>2. Bioquímica e Hematologia</h3>
+            <h3>2. Bioquímica</h3>
             <div class="grid">
-                <div>
-                    <label>Glicémia (mg/dL)</label>
-                    <input type="number" id="glicemia" step="0.1" placeholder="Ref: 70-99">
-                </div>
-                <div>
-                    <label>Albumina (g/dL)</label>
-                    <input type="number" id="albumina" step="0.1" placeholder="Ref: 3.5-5.0">
-                </div>
-                <div>
-                    <label>Hemoglobina (g/dL)</label>
-                    <input type="number" id="hemoglobina" step="0.1">
-                </div>
-                <div>
-                    <label>Colesterol Total (mg/dL)</label>
-                    <input type="number" id="col_total" step="0.1">
-                </div>
-                <div>
-                    <label>Creatinina (mg/dL)</label>
-                    <input type="number" id="creatinina" step="0.01">
-                </div>
-                <div>
-                    <label>Ureia (mg/dL)</label>
-                    <input type="number" id="ureia" step="0.1">
-                </div>
+                <div><label>Glicémia (mg/dL)</label><input type="number" id="glicemia" step="0.1"></div>
+                <div><label>Albumina (g/dL)</label><input type="number" id="albumina" step="0.1"></div>
+                <div><label>Hemoglobina (g/dL)</label><input type="number" id="hemoglobina" step="0.1"></div>
+                <div><label>Creatinina (mg/dL)</label><input type="number" id="creatinina" step="0.01"></div>
             </div>
-            
-            <div style="margin-top: 20px;">
-                <label>Notas Adicionais / Outros Exames</label>
-                <textarea id="notasExames" rows="3" placeholder="Ex: Vitaminas, eletrólitos ou observações..."></textarea>
-            </div>
-
             <button class="btn-save" onclick="guardarExames()">💾 Guardar Resultados</button>
         </section>
     </div>
 
     <script src="app.js"></script>
     <script>
-        // Preenche o Select com os nomes que já existem no banco
         function carregarResidentes() {
             const banco = obterBanco();
             const select = document.getElementById("selectResidente");
-            
-            // Limpa opções anteriores (exceto a primeira)
-            select.innerHTML = '<option value="">Selecione um residente...</option>';
-            
             Object.keys(banco).sort().forEach(nome => {
-                const option = document.createElement("option");
-                option.value = nome;
-                option.textContent = nome;
-                select.appendChild(option);
+                const opt = document.createElement("option");
+                opt.value = nome; opt.textContent = nome;
+                select.appendChild(opt);
             });
         }
 
         function guardarExames() {
             const nome = document.getElementById("selectResidente").value;
             const data = document.getElementById("dataExame").value;
+            if (!nome || !data) return alert("Selecione o residente e a data.");
 
-            if (!nome || !data) {
-                alert("Por favor, selecione o residente e a data do exame.");
-                return;
-            }
-
-            // Captura os dados usando a função getNum do app.js
             const exame = {
                 data: new Date(data).toLocaleDateString('pt-PT'),
                 glicemia: getNum("glicemia"),
                 albumina: getNum("albumina"),
                 hemoglobina: getNum("hemoglobina"),
-                col_total: getNum("col_total"),
-                creatinina: getNum("creatinina"),
-                ureia: getNum("ureia"),
-                notas: document.getElementById("notasExames").value
+                creatinina: getNum("creatinina")
             };
 
-            // Salva no banco unificado (função do app.js)
             salvarExame(nome, exame);
-
-            alert("Exames de " + nome + " guardados com sucesso!");
-            
-            // Limpa o formulário ou redireciona
+            alert("Exames guardados!");
             window.location.href = "dashboard.html";
         }
     </script>
