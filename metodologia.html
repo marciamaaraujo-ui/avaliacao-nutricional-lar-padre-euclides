@@ -1,31 +1,105 @@
+A página de Metodologia é o "alicerce" do seu TCC. É aqui que você prova para a banca examinadora que o seu software não é apenas um conjunto de botões, mas sim uma ferramenta baseada em evidências científicas.
+
+Aqui está o código completo para o seu arquivo metodologia.html, com textos fundamentados para a sua defesa:
+
+metodologia.html
+HTML
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Metodologia</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Metodologia - Lar Padre Euclides</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .method-text { line-height: 1.8; text-align: justify; }
+        .formula-box { 
+            background: #eef9f1; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #27ae60; 
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .ref-list { font-size: 0.85rem; color: #666; }
+    </style>
 </head>
 <body>
 
-<div class="navbar">
-    <div class="navbar-inner">
-        <a href="index.html">Home</a>
-        <a href="ficha-completa.html">Ficha</a>
-        <a href="exames-laboratoriais.html">Exames</a>
+    <div class="navbar">
+        <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
-        <a href="relatorio-executivo.html">Relatório</a>
         <a href="metodologia.html">Metodologia</a>
     </div>
-</div>
-  
-<div class="container">
-<h2>Metodologia Técnica</h2>
 
-<p><strong>IMC Idoso:</strong> &lt;22 desnutrição | 22–27 eutrofia | &gt;27 excesso de peso</p>
-<p><strong>ICN:</strong> Integra MNA (40%) + NRS (40%) + IMC score</p>
-<p><strong>Índice Inflamatório:</strong> PCR / Albumina</p>
+    <div class="container">
+        <header>
+            <h1>Fundamentação Metodológica</h1>
+            <h2>Critérios de Triagem e o Índice ICN</h2>
+        </header>
 
-</div>
+        <section class="method-text">
+            <h3>1. Protocolos Base</h3>
+            <p>O sistema integra três pilares da avaliação nutricional geriátrica para garantir maior sensibilidade na detecção de desnutrição em Instituições de Longa Permanência (ILPI):</p>
+            
+            <ul>
+                <li><strong>MNA (Mini Nutritional Assessment):</strong> Considerada o padrão-ouro para idosos. Avalia aspectos clínicos, dietéticos e de autopercepção. 
+                </li>
+                <li><strong>NRS-2002 (Nutritional Risk Screening):</strong> Protocolo que cruza o estado nutricional atual com a gravidade da doença (estresse metabólico).</li>
+                <li><strong>IMC Específico para Idosos:</strong> Diferente de adultos jovens, idosos possuem pontos de corte maiores (LIPSCHITZ, 1994), onde IMC < 22 kg/m² já indica baixo peso.</li>
+            </ul>
+        </section>
+
+        <section class="method-text">
+            <h3>2. O Índice de Conclusão Nutricional (ICN)</h3>
+            <p>O ICN é uma métrica ponderada desenvolvida para este projeto, visando unificar os resultados em um único escore de decisão clínica. A fórmula aplicada é:</p>
+            
+            <div class="formula-box">
+                ICN = (MNA * 0.4) + (NRS * 0.4) + (imcScore * 2)
+            </div>
+
+            <p><strong>Justificativa dos Pesos:</strong></p>
+            <ul>
+                <li><strong>MNA e NRS (Peso 0.4):</strong> Atuam como indicadores de triagem subjetiva e risco agudo.</li>
+                <li><strong>imcScore (Peso 2):</strong> O peso elevado para o IMC (onde 2 pontos = baixo peso, 1 ponto = eutrofia) garante que a desnutrição física real tenha um impacto imediato no risco clínico total.</li>
+            </ul>
+        </section>
+
+        <section class="method-text">
+            <h3>3. Classificação de Risco</h3>
+            <p>Com base no cálculo do ICN, o residente é classificado em três níveis de atenção:</p>
+            <table>
+                <tr>
+                    <th>Escore ICN</th>
+                    <th>Classificação</th>
+                    <th>Conduta Sugerida</th>
+                </tr>
+                <tr style="color: #e74c3c; font-weight: bold;">
+                    <td>≥ 6 pontos</td>
+                    <td>Alto Risco Clínico</td>
+                    <td>Intervenção imediata e suplementação.</td>
+                </tr>
+                <tr style="color: #f39c12; font-weight: bold;">
+                    <td>3 a 5.9 pontos</td>
+                    <td>Risco Moderado</td>
+                    <td>Monitoramento quinzenal e ajuste calórico.</td>
+                </tr>
+                <tr style="color: #27ae60; font-weight: bold;">
+                    <td>< 3 pontos</td>
+                    <td>Baixo Risco</td>
+                    <td>Manter dieta padrão e reavaliar trimestralmente.</td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="ref-list">
+            <h3>Referências Bibliográficas</h3>
+            <p>GUIGOZ, Y. The Mini Nutritional Assessment (MNA) review of the literature - What does it tell us? J Nutr Health Aging, 2006.</p>
+            <p>KONDROP, J. et al. ESPEN Guidelines for Nutrition Screening 2002. Clinical Nutrition, 2003.</p>
+            <p>LIPSCHITZ, D. A. Screening for nutritional status in the elderly. Primary Care, 1994.</p>
+        </section>
+    </div>
 
 </body>
 </html>
