@@ -2,131 +2,57 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Epidemiológico - ILPI</title>
+<title>Dashboard Epidemiológico</title>
 <link rel="stylesheet" href="style.css">
 <script src="app.js"></script>
 </head>
-
 <body>
 
 <div class="navbar">
-  <div class="navbar-inner">
-    <img src="logo.png" class="logo">
-    <div class="links">
-      <a href="ficha-completa.html">Ficha</a>
-      <a href="exames-laboratoriais.html">Exames</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="relatorio.html">Direção</a>
-    </div>
-  </div>
+<a href="index.html">Home</a>
+<a href="ficha.html">Ficha</a>
+<a href="exames.html">Exames</a>
+<a href="dashboard.html">Dashboard</a>
+<a href="relatorio.html">Relatório</a>
+<a href="metodologia.html">Metodologia</a>
 </div>
 
 <div class="container">
+<h2>Painel Epidemiológico</h2>
 
-<h1>Dashboard Epidemiológico</h1>
-
-<div class="grid">
-
-<div class="card normal">
-Baixo Risco
-<br>
-<span id="baixo">0</span>
-</div>
-
-<div class="card risco">
-Risco Moderado
-<br>
-<span id="moderado">0</span>
-</div>
-
-<div class="card desnutrido">
-Alto Risco Clínico
-<br>
-<span id="alto">0</span>
-</div>
-
-<div class="card media">
-Total de Avaliações
-<br>
-<span id="total">0</span>
-</div>
-
-</div>
-
-<h2>Tendência por Residente</h2>
-
-<div class="grid">
-
-<div>
-<label>Nome do Residente</label>
-<input type="text" id="residenteTendencia">
-</div>
-
-<div>
-<button onclick="verTendencia()">Ver Tendência</button>
-</div>
-
-<div>
-<label>Resultado</label>
-<input type="text" id="resultadoTendencia" readonly>
-</div>
-
-</div>
+<div id="resultado"></div>
 
 </div>
 
 <script>
 
-const banco = obterBanco();
+function gerarDashboard(){
 
-let baixo = 0;
-let moderado = 0;
-let alto = 0;
-let total = 0;
+    const banco = obterBanco();
+    let total = 0;
+    let altoRisco = 0;
 
-Object.keys(banco).forEach(nome => {
-    banco[nome].forEach(reg => {
-        total++;
+    for(let nome in banco){
 
-        if(reg.classificacao === "Alto Risco Clínico") alto++;
-        else if(reg.classificacao === "Risco Moderado") moderado++;
-        else baixo++;
-    });
-});
+        const avals = banco[nome].avaliacoes;
+        if(avals.length>0){
 
-document.getElementById("baixo").innerText = baixo;
-document.getElementById("moderado").innerText = moderado;
-document.getElementById("alto").innerText = alto;
-document.getElementById("total").innerText = total;
+            const ultima = avals[avals.length-1];
+            total++;
 
-function verTendencia(){
-
-    const nome = residenteTendencia.value.trim();
-
-    if(!banco[nome]){
-        resultadoTendencia.value = "Residente não encontrado.";
-        return;
+            if(ultima.icn >= 6){
+                altoRisco++;
+            }
+        }
     }
 
-    const historico = banco[nome];
-
-    if(historico.length < 2){
-        resultadoTendencia.value = "Sem dados suficientes.";
-        return;
-    }
-
-    const ultimo = historico[historico.length-1].icn;
-    const anterior = historico[historico.length-2].icn;
-
-    if(ultimo > anterior){
-        resultadoTendencia.value = "Piora clínica.";
-    } else if(ultimo < anterior){
-        resultadoTendencia.value = "Melhora clínica.";
-    } else {
-        resultadoTendencia.value = "Estável.";
-    }
+    document.getElementById("resultado").innerHTML = `
+        <p>Total Residentes Avaliados: ${total}</p>
+        <p>Alto Risco Clínico: ${altoRisco}</p>
+    `;
 }
+
+gerarDashboard();
 
 </script>
 
