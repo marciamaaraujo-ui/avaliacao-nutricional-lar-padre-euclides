@@ -1,9 +1,3 @@
-A página de Metodologia é o "alicerce" do seu TCC. É aqui que você prova para a banca examinadora que o seu software não é apenas um conjunto de botões, mas sim uma ferramenta baseada em evidências científicas.
-
-Aqui está o código completo para o seu arquivo metodologia.html, com textos fundamentados para a sua defesa:
-
-metodologia.html
-HTML
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -11,6 +5,12 @@ HTML
     <title>Metodologia - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        .navbar-brand img {
+            height: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        /* ... outros estilos da metodologia ... */
         .method-text { line-height: 1.8; text-align: justify; }
         .formula-box { 
             background: #eef9f1; 
@@ -28,6 +28,9 @@ HTML
 <body>
 
     <div class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <img src="logo.png" alt="Lar Padre Euclides">
+        </a>
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="metodologia.html">Metodologia</a>
@@ -44,8 +47,7 @@ HTML
             <p>O sistema integra três pilares da avaliação nutricional geriátrica para garantir maior sensibilidade na detecção de desnutrição em Instituições de Longa Permanência (ILPI):</p>
             
             <ul>
-                <li><strong>MNA (Mini Nutritional Assessment):</strong> Considerada o padrão-ouro para idosos. Avalia aspectos clínicos, dietéticos e de autopercepção. 
-                </li>
+                <li><strong>MNA (Mini Nutritional Assessment):</strong> Considerada o padrão-ouro para idosos. Avalia aspectos clínicos, dietéticos e de autopercepção.</li>
                 <li><strong>NRS-2002 (Nutritional Risk Screening):</strong> Protocolo que cruza o estado nutricional atual com a gravidade da doença (estresse metabólico).</li>
                 <li><strong>IMC Específico para Idosos:</strong> Diferente de adultos jovens, idosos possuem pontos de corte maiores (LIPSCHITZ, 1994), onde IMC < 22 kg/m² já indica baixo peso.</li>
             </ul>
