@@ -3,16 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha Clínica Completa - Painel Nutricional</title>
+    <title>Ficha Clínica - Painel Nutricional</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Ajustes específicos para a ficha de visualização */
-        .info-group { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .info-label { font-weight: bold; color: var(--secondary-color); font-size: 0.9rem; }
-        .info-value { font-size: 1.1rem; color: var(--text-color); }
-        .pes-box { background: #fdfdfd; border: 1px solid #ddd; padding: 20px; border-radius: 10px; font-style: italic; line-height: 1.6; }
-        @media print { .no-print { display: none !important; } }
-    </style>
+    <style>@media print { .no-print { display: none !important; } }</style>
 </head>
 <body onload="carregarListaResidentes()">
 
@@ -31,76 +24,17 @@
     <div class="container">
         <header class="no-print">
             <h1>Ficha Clínica Individual</h1>
-            <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
-                <select id="selectResidente" style="max-width: 400px;" onchange="gerarFicha()">
-                    <option value="">Selecione um residente para visualizar...</option>
-                </select>
-                <button class="btn-save" onclick="window.print()" style="width: auto; padding: 0 25px; margin: 0; background: var(--secondary-color);">🖨️ Imprimir Ficha</button>
+            <div style="margin-top: 20px; display: flex; gap: 15px;">
+                <select id="selectResidente" onchange="gerarFicha()"><option value="">Escolha um residente...</option></select>
+                <button class="btn-save" onclick="window.print()" style="width: auto; padding: 0 20px; background: var(--secondary-color);">🖨️ Imprimir</button>
             </div>
         </header>
 
-        <div id="conteudoFicha" style="display: none;">
-            <div style="text-align: center; border-bottom: 3px solid var(--primary-color); margin-bottom: 30px;">
-                <h2 id="print_nome" style="margin-bottom: 5px;">---</h2>
-                <p id="print_subtitulo">Relatório de Avaliação Nutricional e Bioquímica</p>
-            </div>
-
+        <div id="conteudoFicha" style="display: none; margin-top: 30px;">
+            <h2 id="print_nome" style="text-align: center; border-bottom: 2px solid var(--primary-color);">---</h2>
             <section>
-                <h3>1. Perfil do Residente</h3>
-                <div class="grid">
-                    <div class="info-group">
-                        <div class="info-label">Sexo</div>
-                        <div id="res_sexo" class="info-value">---</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">Data de Nascimento</div>
-                        <div id="res_nasc" class="info-value">---</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">Data da Última Avaliação</div>
-                        <div id="res_data" class="info-value">---</div>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h3>2. Avaliação Nutricional (MNA / NRS / ICN)</h3>
-                <div class="grid">
-                    <div class="info-group">
-                        <div class="info-label">Peso / Altura</div>
-                        <div id="res_antropometria" class="info-value">---</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">IMC</div>
-                        <div id="res_imc" class="info-value">---</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">Risco Clínico (ICN)</div>
-                        <div id="res_icn" class="info-value" style="font-weight: bold;">---</div>
-                    </div>
-                </div>
-                <div style="margin-top: 20px;">
-                    <div class="info-label">Parecer Diagnóstico (PES)</div>
-                    <div id="res_parecer" class="pes-box">---</div>
-                </div>
-            </section>
-
-            <section>
-                <h3>3. Últimos Exames Laboratoriais</h3>
-                <div id="areaExames">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: #f8f9fa;">
-                                <th>Parâmetro</th>
-                                <th>Resultado</th>
-                                <th>Referência</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelaExames">
-                            </tbody>
-                    </table>
-                </div>
-                <div id="res_notas_exames" style="margin-top: 15px; font-size: 0.9rem; color: #666;"></div>
+                <h3>Estado Nutricional</h3>
+                <div id="res_parecer" style="font-style: italic; background: #f9f9f9; padding: 15px; border-radius: 8px;">---</div>
             </section>
         </div>
     </div>
@@ -110,64 +44,21 @@
         function carregarListaResidentes() {
             const banco = obterBanco();
             const select = document.getElementById("selectResidente");
-            Object.keys(banco).sort().forEach(nome => {
+            Object.keys(banco).sort().forEach(n => {
                 const opt = document.createElement("option");
-                opt.value = nome;
-                opt.textContent = nome;
+                opt.value = n; opt.textContent = n;
                 select.appendChild(opt);
             });
         }
 
         function gerarFicha() {
             const nome = document.getElementById("selectResidente").value;
-            if (!nome) {
-                document.getElementById("conteudoFicha").style.display = "none";
-                return;
-            }
-
-            const banco = obterBanco();
-            const residente = banco[nome];
-            const ultimaAval = residente.avaliacoes[residente.avaliacoes.length - 1] || {};
-            const ultimoExame = residente.exames ? residente.exames[residente.exames.length - 1] : null;
-
-            // Mostrar área da ficha
+            if (!nome) return;
             document.getElementById("conteudoFicha").style.display = "block";
-
-            // Preencher Dados
+            const banco = obterBanco();
+            const u = banco[nome].avaliacoes.slice(-1)[0] || {};
             document.getElementById("print_nome").textContent = nome;
-            document.getElementById("res_sexo").textContent = residente.perfil?.sexo === "M" ? "Masculino" : "Feminino";
-            document.getElementById("res_nasc").textContent = residente.perfil?.nasc || "Não registada";
-            document.getElementById("res_data").textContent = ultimaAval.data || "---";
-            
-            document.getElementById("res_antropometria").textContent = `${ultimaAval.peso || '--'} kg / ${ultimaAval.altura || '--'} m`;
-            document.getElementById("res_imc").textContent = `${ultimaAval.imc || '--'} kg/m² (${classificarIMC(ultimaAval.imc)})`;
-            document.getElementById("res_icn").textContent = `${ultimaAval.icn || '--'} pts - ${ultimaAval.classIcn || '--'}`;
-            document.getElementById("res_parecer").textContent = ultimaAval.parecer || "Nenhum parecer gerado.";
-
-            // Preencher Tabela de Exames
-            const corpoExames = document.getElementById("tabelaExames");
-            corpoExames.innerHTML = "";
-            
-            if (ultimoExame) {
-                const params = [
-                    { n: "Glicémia", v: ultimoExame.glicemia, r: "70-99 mg/dL" },
-                    { n: "Albumina", v: ultimoExame.albumina, r: "3.5-5.0 g/dL" },
-                    { n: "Hemoglobina", v: ultimoExame.hemoglobina, r: "12-16 g/dL" },
-                    { n: "Creatinina", v: ultimoExame.creatinina, r: "0.6-1.2 mg/dL" }
-                ];
-
-                params.forEach(p => {
-                    corpoExames.innerHTML += `
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.n}</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">${p.v || 'N/A'}</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #eee; color: #7f8c8d; font-size: 0.85rem;">${p.r}</td>
-                        </tr>`;
-                });
-                document.getElementById("res_notas_exames").textContent = "Notas: " + (ultimoExame.notas || "Sem observações.");
-            } else {
-                corpoExames.innerHTML = "<tr><td colspan='3' style='padding: 20px; text-align: center;'>Nenhum exame laboratorial registado para este residente.</td></tr>";
-            }
+            document.getElementById("res_parecer").textContent = u.parecer || "Sem parecer registado.";
         }
     </script>
 </body>
