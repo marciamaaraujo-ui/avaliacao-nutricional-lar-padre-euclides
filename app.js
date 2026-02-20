@@ -1,6 +1,30 @@
-/* ============================================================
-   FÓRMULAS E AJUSTES ANTROPOMÉTRICOS
-   ============================================================ */
+/* BANCO DE DADOS */
+function obterBanco() { return JSON.parse(localStorage.getItem("bancoILPI")) || {}; }
+function salvarBanco(banco) { localStorage.setItem("bancoILPI", JSON.stringify(banco)); }
+
+function salvarAvaliacao(nome, avaliacao) {
+    const banco = obterBanco();
+    if (!banco[nome]) banco[nome] = { avaliacoes: [], exames: [] };
+    banco[nome].avaliacoes.push(avaliacao);
+    salvarBanco(banco);
+}
+
+function salvarExame(nome, exame) {
+    const banco = obterBanco();
+    if (!banco[nome]) banco[nome] = { avaliacoes: [], exames: [] };
+    banco[nome].exames.push(exame);
+    salvarBanco(banco);
+}
+
+/* FÓRMULAS */
+function calcularIdade(data) {
+    if (!data) return 0;
+    const nasc = new Date(data);
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+    if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() == nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
+    return idade;
+}
 
 function estimarAltura(aj, idade, sexo) {
     if (sexo === "M") return (64.19 - (0.04 * idade) + (2.02 * aj)) / 100;
@@ -27,28 +51,6 @@ function classificarIMC(imc) {
     return "Excesso de Peso";
 }
 
-/* ============================================================
-   LÓGICA DE UNIFICAÇÃO MNA & NRS-2002
-   ============================================================ */
-
-function sincronizarProtocolos(imc, perdaPeso, tempoPerda, ingesta) {
-    // Sincronizar MNA Questão F (IMC)
-    let mnaF = 0;
-    if (imc >= 23) mnaF = 3;
-    else if (imc >= 21) mnaF = 2;
-    else if (imc >= 19) mnaF = 1;
-    document.getElementById("mna_f").value = mnaF;
-
-    // Sincronizar NRS-2002 Status Nutricional
-    let nrsStatus = 0;
-    if (perdaPeso > 5) {
-        if (tempoPerda <= 1) nrsStatus = 3;
-        else if (tempoPerda <= 2) nrsStatus = 2;
-        else if (tempoPerda <= 3) nrsStatus = 1;
-    }
-    document.getElementById("nrs_status").value = nrsStatus;
-}
-
 function calcularSomaMNA() {
     const ids = ["mna_a","mna_b","mna_c","mna_d","mna_e","mna_f","mna_g","mna_h","mna_i","mna_j","mna_k","mna_l","mna_m","mna_n","mna_o","mna_p","mna_q","mna_r"];
     return ids.reduce((soma, id) => soma + (parseFloat(document.getElementById(id).value) || 0), 0);
@@ -70,31 +72,12 @@ function classificarICN(icn) {
     return "Alto Risco Clínico";
 }
 
-function gerarParecerPES(mnaTotal, nrsTotal, sIcn, imc, cpAdj, sexo) {
+function gerarParecerPES(sIcn, imc, cpAdj, sexo, mna, nrs) {
     let P = sIcn.includes("Alto") ? "Desnutrição Proteico-Calórica (P)" : (sIcn.includes("Moderado") ? "Risco de desnutrição (P)" : "Estado nutricional preservado (P)");
     let E = "relacionado à institucionalização e senescência (E)";
-    let S = `evidenciado por MNA de ${mnaTotal} pts, NRS de ${nrsTotal} pts, IMC de ${imc.toFixed(2)}kg/m²`;
+    let S = `evidenciado por ICN: ${sIcn}, MNA: ${mna}pts, NRS: ${nrs}pts, IMC: ${imc.toFixed(2)}kg/m²`;
     if ((sexo === "F" && cpAdj < 33) || (sexo === "M" && cpAdj < 34)) S += ` e baixa reserva muscular (CP ajustada: ${cpAdj.toFixed(1)}cm)`;
-    return `${P}, ${E}, ${S} (S). Conduta: Suporte Nutricional conforme protocolo ILPI.`;
+    return `${P}, ${E}, ${S} (S). Conduta: Suporte Nutricional conforme protocolo do Lar.`;
 }
 
-/* ============================================================
-   UTILITÁRIOS E BANCO DE DADOS
-   ============================================================ */
-function obterBanco() { return JSON.parse(localStorage.getItem("bancoILPI")) || {}; }
-function salvarBanco(banco) { localStorage.setItem("bancoILPI", JSON.stringify(banco)); }
-function salvarAvaliacao(nome, avaliacao) {
-    const banco = obterBanco();
-    if (!banco[nome]) banco[nome] = { avaliacoes: [], exames: [] };
-    banco[nome].avaliacoes.push(avaliacao);
-    salvarBanco(banco);
-}
-function calcularIdade(data) {
-    if (!data) return 0;
-    const nasc = new Date(data);
-    const hoje = new Date();
-    let idade = hoje.getFullYear() - nasc.getFullYear();
-    if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() == nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
-    return idade;
-}
 function getNum(id) { return parseFloat(document.getElementById(id).value.replace(',', '.')) || 0; }
