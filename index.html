@@ -1,28 +1,165 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Home - ILPI</title>
-<link rel="stylesheet" href="style.css">
-<script src="app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação Nutricional - Lar Padre Euclides</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="navbar">
-    <div class="navbar-inner">
-        <a href="index.html">Home</a>
-        <a href="ficha-completa.html">Ficha</a>
-        <a href="exames-laboratoriais.html">Exames</a>
+    <div class="navbar">
+        <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
-        <a href="relatorio-executivo.html">Relatório</a>
+        <a href="ficha-completa.html">Ficha Clínica</a>
+        <a href="exames-laboratoriais.html">Exames</a>
         <a href="metodologia.html">Metodologia</a>
     </div>
-</div>
 
-<div class="container">
-<h1>Sistema Integrado ILPI</h1>
-<p>Bem-vinda ao sistema institucional de avaliação nutricional.</p>
-</div>
+    <div class="container">
+        <header>
+            <h1>Avaliação Nutricional</h1>
+            <h2>Lar Padre Euclides - Triagem Integrada</h2>
+        </header>
 
+        <form id="formAvaliacao">
+            <section>
+                <h3>1. Identificação do Residente</h3>
+                <div class="grid">
+                    <div>
+                        <label>Nome Completo</label>
+                        <input type="text" id="nome" placeholder="Ex: Maria Oliveira" required>
+                    </div>
+                    <div>
+                        <label>Data de Nascimento (para Idade)</label>
+                        <input type="date" id="dataNasc" onchange="atualizarIdade()">
+                    </div>
+                    <div>
+                        <label>Idade Atual</label>
+                        <input type="text" id="idade" readonly placeholder="Calculada automaticamente">
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>2. Antropometria</h3>
+                <div class="grid">
+                    <div>
+                        <label>Peso Atual (kg)</label>
+                        <input type="number" step="0.1" id="peso" placeholder="00.0" oninput="executarCalculos()">
+                    </div>
+                    <div>
+                        <label>Altura (m)</label>
+                        <input type="number" step="0.01" id="altura" placeholder="0.00" oninput="executarCalculos()">
+                    </div>
+                    <div>
+                        <label>IMC</label>
+                        <input type="text" id="imc" readonly>
+                    </div>
+                    <div>
+                        <label>Classificação IMC</label>
+                        <input type="text" id="classImc" readonly>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>3. Rastreamento (MNA & NRS-2002)</h3>
+                <div class="grid">
+                    <div>
+                        <label>MNA (Pontuação Total)</label>
+                        <input type="number" id="mna" placeholder="0 a 30" oninput="executarCalculos()">
+                    </div>
+                    <div>
+                        <label>NRS (Pontuação Total)</label>
+                        <input type="number" id="nrs" placeholder="0 a 7" oninput="executarCalculos()">
+                    </div>
+                </div>
+                
+                <div class="grid" style="margin-top: 20px; background: #fdfdfd; padding: 15px; border: 1px dashed #27ae60;">
+                    <div>
+                        <label>Índice de Conclusão Nutricional (ICN)</label>
+                        <input type="text" id="icn" readonly>
+                    </div>
+                    <div>
+                        <label>Status de Risco Clínico</label>
+                        <input type="text" id="classIcn" readonly>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>4. Parecer Técnico</h3>
+                <textarea id="parecer" rows="4" placeholder="Descreva aqui a conduta nutricional recomendada..."></textarea>
+            </section>
+
+            <div class="actions">
+                <button type="button" class="btn-save" onclick="processarSalvamento()">💾 Salvar Avaliação no Prontuário</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="app.js"></script>
+
+    <script>
+        // Função para atualizar a idade usando sua função do app.js
+        function atualizarIdade() {
+            const dataNasc = document.getElementById("dataNasc").value;
+            const idade = calcularIdade(dataNasc);
+            document.getElementById("idade").value = idade + " anos";
+        }
+
+        // Função que orquestra todos os cálculos em tempo real
+        function executarCalculos() {
+            const peso = getNum("peso");
+            const altura = getNum("altura");
+            const mna = getNum("mna");
+            const nrs = getNum("nrs");
+
+            if (peso > 0 && altura > 0) {
+                // Cálculo do IMC
+                const imcVal = peso / (altura * altura);
+                document.getElementById("imc").value = imcVal.toFixed(2);
+                document.getElementById("classImc").value = classificarIMC(imcVal);
+
+                // Cálculo do ICN (Usando sua fórmula do app.js)
+                const icnVal = calcularICN(mna, nrs, imcVal);
+                document.getElementById("icn").value = icnVal.toFixed(1);
+                document.getElementById("classIcn").value = classificarICN(icnVal);
+            }
+        }
+
+        // Função para salvar os dados no Banco Central (bancoILPI)
+        function processarSalvamento() {
+            const nome = document.getElementById("nome").value;
+            const dataAval = new Date().toISOString().split('T')[0]; // Data de hoje
+
+            if (!nome) {
+                alert("Por favor, insira o nome do residente.");
+                return;
+            }
+
+            const avaliacao = {
+                data: dataAval,
+                idade: document.getElementById("idade").value,
+                peso: getNum("peso"),
+                altura: getNum("altura"),
+                imc: getNum("imc"),
+                classificacaoIMC: document.getElementById("classImc").value,
+                mna: getNum("mna"),
+                nrs: getNum("nrs"),
+                icn: getNum("icn"),
+                classIcn: document.getElementById("classIcn").value,
+                parecer: document.getElementById("parecer").value
+            };
+
+            // Chama sua função do app.js
+            salvarAvaliacao(nome, avaliacao);
+
+            if (confirm("Avaliação salva com sucesso! Deseja ver o Dashboard?")) {
+                window.location.href = "dashboard.html";
+            }
+        }
+    </script>
 </body>
 </html>
