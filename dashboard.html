@@ -1,3 +1,8 @@
+Com certeza! Vou atualizar o código para incluir as colunas de Peso e Altura, tanto na visualização da tabela quanto no ficheiro Excel (CSV).
+
+Aqui está o código completo e atualizado para o seu dashboard.html:
+
+HTML
 <!DOCTYPE html>
 <html lang="pt-pt">
 <head>
@@ -41,18 +46,20 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <h3>Histórico de Acompanhamento</h3>
                 <button class="btn-save" onclick="exportarExcel()" style="width: auto; padding: 12px 25px; margin: 0; font-size: 1rem; cursor: pointer; background-color: #27ae60; color: white; border: none; border-radius: 8px;">
-                    📊 Exportar Planilha Excel
+                    📊 Exportar Planilha Completa
                 </button>
             </div>
             
             <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                 <thead>
                     <tr style="background: #f8f9fa; text-align: left;">
-                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Residente</th>
-                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Data</th>
-                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">MNA (0-30)</th>
-                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">NRS (0-7)</th>
-                        <th style="padding: 20px; border-bottom: 2px solid var(--primary-color);">Status ICN</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">Residente</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">Data</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">Peso (kg)</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">Alt (m)</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">IMC</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">MNA</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">Status ICN</th>
                     </tr>
                 </thead>
                 <tbody id="corpoTabela"></tbody>
@@ -72,7 +79,7 @@
                 const avais = banco[nome].avaliacoes;
                 if(avais.length > 0) {
                     totalRes++;
-                    const u = avais[avais.length - 1];
+                    const u = avais[avais.length - 1]; // Pega a última avaliação
                     somaImc += parseFloat(u.imc) || 0;
                     if(u.classIcn === "Alto Risco Clínico") totalRisco++;
 
@@ -80,11 +87,13 @@
 
                     corpo.innerHTML += `
                         <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 20px;"><strong>${nome}</strong></td>
-                            <td style="padding: 20px;">${u.data}</td>
-                            <td style="padding: 20px;">${u.mna || '-'} pts</td>
-                            <td style="padding: 20px;">${u.nrs || '-'} pts</td>
-                            <td style="padding: 20px; font-weight: bold; color: ${corStatus}">${u.classIcn}</td>
+                            <td style="padding: 15px;"><strong>${nome}</strong></td>
+                            <td style="padding: 15px;">${u.data}</td>
+                            <td style="padding: 15px;">${u.peso || '-'}</td>
+                            <td style="padding: 15px;">${u.altura || '-'}</td>
+                            <td style="padding: 15px;">${u.imc || '-'}</td>
+                            <td style="padding: 15px;">${u.mna || '-'} pts</td>
+                            <td style="padding: 15px; font-weight: bold; color: ${corStatus}">${u.classIcn}</td>
                         </tr>`;
                 }
             });
@@ -94,27 +103,25 @@
             document.getElementById("statImc").innerText = totalRes > 0 ? (somaImc / totalRes).toFixed(1) : "0";
         }
 
-        // Função de exportação melhorada
         function exportarExcel() {
             const b = obterBanco();
-            // Cabeçalho da planilha
-            let csv = "Residente;Data;IMC;MNA;NRS;ICN;Status\n";
+            // Cabeçalho atualizado com Peso e Altura
+            let csv = "Residente;Data;Peso;Altura;IMC;MNA;NRS;Status ICN\n";
             
             Object.keys(b).forEach(n => { 
                 b[n].avaliacoes.forEach(a => { 
-                    // Substitui vírgulas por pontos para não quebrar o CSV e garante o uso de ponto e vírgula como separador
-                    csv += `${n};${a.data};${a.imc || ''};${a.mna || ''};${a.nrs || ''};${a.icn || ''};${a.classIcn}\n`; 
+                    // Monta a linha com os novos campos
+                    csv += `${n};${a.data};${a.peso || ''};${a.altura || ''};${a.imc || ''};${a.mna || ''};${a.nrs || ''};${a.classIcn}\n`; 
                 }); 
             });
 
-            // Criar o arquivo para download (Blob)
             const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             
-            const dataHoje = new Date().toISOString().slice(0,10);
+            const dataHoje = new Date().toLocaleDateString().replace(/\//g, '-');
             link.setAttribute("href", url);
-            link.setAttribute("download", `relatorio_nutricional_${dataHoje}.csv`);
+            link.setAttribute("download", `relatorio_completo_${dataHoje}.csv`);
             link.style.visibility = 'hidden';
             
             document.body.appendChild(link);
