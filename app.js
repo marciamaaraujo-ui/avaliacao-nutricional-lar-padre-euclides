@@ -1,43 +1,5 @@
 /* ============================================================
-   LÓGICA DE PONTUAÇÃO AUTOMÁTICA - MNA & NRS-2002
-   ============================================================ */
-
-function calcularSomaMNA() {
-    // Triagem (A-F)
-    const a = getNum("mna_a");
-    const b = getNum("mna_b");
-    const c = getNum("mna_c");
-    const d = getNum("mna_d");
-    const e = getNum("mna_e");
-    const f = getNum("mna_f"); // Pontos baseados no IMC
-
-    // Avaliação Global (G-R)
-    const g = getNum("mna_g");
-    const h = getNum("mna_h");
-    const i = getNum("mna_i");
-    const j = getNum("mna_j");
-    const k = getNum("mna_k");
-    const l = getNum("mna_l");
-    const m = getNum("mna_m");
-    const n = getNum("mna_n");
-    const o = getNum("mna_o");
-    const p = getNum("mna_p");
-    const q = getNum("mna_q");
-    const r = getNum("mna_r");
-
-    return a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q + r;
-}
-
-function calcularSomaNRS(idade) {
-    const status = getNum("nrs_status");
-    const gravidade = getNum("nrs_gravidade");
-    let total = status + gravidade;
-    if (idade >= 70) total += 1;
-    return total;
-}
-
-/* ============================================================
-   FÓRMULAS ANTROPOMÉTRICAS E AJUSTES
+   FÓRMULAS E AJUSTES ANTROPOMÉTRICOS
    ============================================================ */
 
 function estimarAltura(aj, idade, sexo) {
@@ -65,14 +27,36 @@ function classificarIMC(imc) {
     return "Excesso de Peso";
 }
 
-function classificarMNA(total) {
-    if (total >= 24) return "Estado Nutricional Normal";
-    if (total >= 17) return "Risco de Desnutrição";
-    return "Desnutrido";
+/* ============================================================
+   LÓGICA DE UNIFICAÇÃO MNA & NRS-2002
+   ============================================================ */
+
+function sincronizarProtocolos(imc, perdaPeso, tempoPerda, ingesta) {
+    // Sincronizar MNA Questão F (IMC)
+    let mnaF = 0;
+    if (imc >= 23) mnaF = 3;
+    else if (imc >= 21) mnaF = 2;
+    else if (imc >= 19) mnaF = 1;
+    document.getElementById("mna_f").value = mnaF;
+
+    // Sincronizar NRS-2002 Status Nutricional
+    let nrsStatus = 0;
+    if (perdaPeso > 5) {
+        if (tempoPerda <= 1) nrsStatus = 3;
+        else if (tempoPerda <= 2) nrsStatus = 2;
+        else if (tempoPerda <= 3) nrsStatus = 1;
+    }
+    document.getElementById("nrs_status").value = nrsStatus;
 }
 
-function classificarNRS(total) {
-    return total >= 3 ? "Risco Nutricional" : "Sem Risco Nutricional";
+function calcularSomaMNA() {
+    const ids = ["mna_a","mna_b","mna_c","mna_d","mna_e","mna_f","mna_g","mna_h","mna_i","mna_j","mna_k","mna_l","mna_m","mna_n","mna_o","mna_p","mna_q","mna_r"];
+    return ids.reduce((soma, id) => soma + (parseFloat(document.getElementById(id).value) || 0), 0);
+}
+
+function calcularSomaNRS(idade) {
+    const total = (parseFloat(document.getElementById("nrs_status").value) || 0) + (parseFloat(document.getElementById("nrs_gravidade").value) || 0);
+    return idade >= 70 ? total + 1 : total;
 }
 
 function calcularICN(mna, nrs, imc) {
@@ -86,16 +70,16 @@ function classificarICN(icn) {
     return "Alto Risco Clínico";
 }
 
-function gerarParecerPES(sMna, sNrs, sIcn, imc, cpAdj, sexo) {
-    let P = (sIcn === "Alto Risco Clínico") ? "Desnutrição Proteico-Calórica (P)" : (sIcn === "Risco Moderado" ? "Risco de desnutrição (P)" : "Estado nutricional preservado (P)");
-    let E = "relacionado à senescência e possivel redução da ingesta alimentar (E)";
-    let S = `evidenciado por MNA: ${sMna}, NRS: ${sNrs}, IMC: ${imc.toFixed(2)}kg/m²`;
+function gerarParecerPES(mnaTotal, nrsTotal, sIcn, imc, cpAdj, sexo) {
+    let P = sIcn.includes("Alto") ? "Desnutrição Proteico-Calórica (P)" : (sIcn.includes("Moderado") ? "Risco de desnutrição (P)" : "Estado nutricional preservado (P)");
+    let E = "relacionado à institucionalização e senescência (E)";
+    let S = `evidenciado por MNA de ${mnaTotal} pts, NRS de ${nrsTotal} pts, IMC de ${imc.toFixed(2)}kg/m²`;
     if ((sexo === "F" && cpAdj < 33) || (sexo === "M" && cpAdj < 34)) S += ` e baixa reserva muscular (CP ajustada: ${cpAdj.toFixed(1)}cm)`;
-    return `${P}, ${E}, ${S} (S). Conduta: Suporte Nutricional conforme protocolo do Lar.`;
+    return `${P}, ${E}, ${S} (S). Conduta: Suporte Nutricional conforme protocolo ILPI.`;
 }
 
 /* ============================================================
-   BANCO DE DADOS E UTILITÁRIOS
+   UTILITÁRIOS E BANCO DE DADOS
    ============================================================ */
 function obterBanco() { return JSON.parse(localStorage.getItem("bancoILPI")) || {}; }
 function salvarBanco(banco) { localStorage.setItem("bancoILPI", JSON.stringify(banco)); }
@@ -113,7 +97,4 @@ function calcularIdade(data) {
     if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() == nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
     return idade;
 }
-function getNum(id) {
-    const el = document.getElementById(id);
-    return el ? parseFloat(el.value.replace(',', '.')) || 0 : 0;
-}
+function getNum(id) { return parseFloat(document.getElementById(id).value.replace(',', '.')) || 0; }
