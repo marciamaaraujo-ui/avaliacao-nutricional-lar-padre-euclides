@@ -5,6 +5,12 @@
     <title>Exames Laboratoriais - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        .navbar-brand img {
+            height: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        /* ... outros estilos da página de exames ... */
         .exam-grid { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
         .header-exam { font-weight: bold; background: #f8f9fa; padding: 10px; border-radius: 4px; }
         .ref-value { font-size: 0.8rem; color: #666; font-style: italic; }
@@ -14,6 +20,9 @@
 <body onload="carregarResidentes()">
 
     <div class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <img src="logo.png" alt="Lar Padre Euclides">
+        </a>
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="exames-laboratoriais.html">Exames</a>
