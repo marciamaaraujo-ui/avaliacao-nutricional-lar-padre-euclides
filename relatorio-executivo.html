@@ -1,177 +1,154 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório Executivo - Lar Padre Euclides</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Executivo - Gestão Nutricional</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Estilos específicos para o Relatório Impresso */
-        .report-paper {
-            width: 210mm; /* Tamanho A4 */
-            min-height: 297mm;
-            padding: 20mm;
-            margin: auto;
-            background: white;
-            border: 1px solid #ddd;
-        }
-        .report-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #27ae60;
-            margin-bottom: 30px;
-            padding-bottom: 10px;
-        }
-        .report-logo { height: 60px; }
-        .executive-summary {
-            background: #f1f9f4;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 6px solid #27ae60;
-            margin: 20px 0;
-        }
-        .data-table { width: 100%; margin-top: 20px; border: 1px solid #eee; }
-        .data-table td { padding: 10px; border: 1px solid #eee; }
-        .label-cell { font-weight: bold; width: 30%; background: #fcfcfc; }
-        
-        .signature-area {
-            margin-top: 60px;
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-        }
-        .sig-line { border-top: 1px solid #333; width: 250px; padding-top: 5px; margin-top: 40px; }
-
-        @media print {
-            body { background: white; padding: 0; }
-            .report-paper { border: none; margin: 0; width: 100%; padding: 10mm; }
-            .no-print { display: none !important; }
-        }
+        .chart-container { margin-top: 30px; }
+        .bar-wrap { background: #eee; border-radius: 10px; height: 25px; margin-bottom: 20px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; transition: width 1s ease-in-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; color: white; font-size: 0.8rem; font-weight: bold; }
+        .label-group { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
-<body onload="carregarRelatorio()">
+<body onload="gerarRelatorioExecutivo()">
 
     <div class="navbar no-print">
-        <a href="index.html">Nova Avaliação</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="relatorio-executivo.html">Relatório Executivo</a>
-    </div>
-
-    <div class="report-paper">
-        <header class="report-header">
-            <img src="logo.png" alt="Logo" class="report-logo" onerror="this.style.display='none'">
-            <div style="text-align: right;">
-                <h1 style="margin:0; font-size: 22px;">RELATÓRIO NUTRICIONAL</h1>
-                <p style="margin:0; color: #666;">Lar Padre Euclides - Ribeirão Preto/SP</p>
-            </div>
-        </header>
-
-        <button class="btn-pdf no-print" onclick="window.print()" style="margin-bottom: 20px;">🖨️ Imprimir / Salvar em PDF</button>
-
-        <section class="secao-relatorio">
-            <h3>Identificação do Residente</h3>
-            <table class="data-table">
-                <tr>
-                    <td class="label-cell">Nome:</td>
-                    <td id="r_nome">-</td>
-                </tr>
-                <tr>
-                    <td class="label-cell">Idade:</td>
-                    <td id="r_idade">-</td>
-                </tr>
-                <tr>
-                    <td class="label-cell">Data da Avaliação:</td>
-                    <td id="r_data">-</td>
-                </tr>
-            </table>
-        </section>
-
-        <section class="executive-summary">
-            <h3 style="border:none; padding:0; margin-bottom: 10px;">Conclusão do Índice de Risco (ICN)</h3>
-            <p>O Índice de Conclusão Nutricional (ICN) integra os protocolos MNA e NRS-2002 ao IMC específico para idosos.</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                <div>
-                    <span style="font-size: 14px; color: #666;">SCORE ICN:</span><br>
-                    <strong style="font-size: 24px; color: #27ae60;" id="r_icn">-</strong>
-                </div>
-                <div style="text-align: right;">
-                    <span style="font-size: 14px; color: #666;">CLASSIFICAÇÃO:</span><br>
-                    <strong style="font-size: 20px;" id="r_status">-</strong>
-                </div>
-            </div>
-        </section>
-
-        <section>
-            <h3>Detalhamento dos Indicadores</h3>
-            <table class="data-table">
-                <tr>
-                    <td class="label-cell">IMC Atual:</td>
-                    <td id="r_imc">-</td>
-                    <td id="r_classImc">-</td>
-                </tr>
-                <tr>
-                    <td class="label-cell">MNA (Score):</td>
-                    <td id="r_mna">-</td>
-                    <td>Protocolo Mini Nutricional</td>
-                </tr>
-                <tr>
-                    <td class="label-cell">NRS-2002:</td>
-                    <td id="r_nrs">-</td>
-                    <td>Risco Nutricional (Hosp/ILPI)</td>
-                </tr>
-            </table>
-        </section>
-
-        <section style="margin-top: 30px;">
-            <h3>Parecer e Conduta Técnica</h3>
-            <div id="r_parecer" style="min-height: 100px; padding: 10px; border: 1px solid #eee; font-style: italic;">
-                -
-            </div>
-        </section>
-
-        <div class="signature-area">
-            <div>
-                <div class="sig-line"></div>
-                <p>Responsável Técnico (Nutrição)<br>CRN: _________</p>
-            </div>
-            <div>
-                <div class="sig-line"></div>
-                <p>Coordenação de Enfermagem<br>Lar Padre Euclides</p>
+        <div class="nav-container">
+            <img src="logo.png" alt="Logo" class="nav-logo">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Nova Avaliação</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="ficha-completa.html" class="nav-link">Ficha Clínica</a>
+                <a href="exames-laboratoriais.html" class="nav-link">Exames</a>
             </div>
         </div>
     </div>
 
+    <div class="container">
+        <header>
+            <h1>Relatório Executivo Nutricional</h1>
+            <p id="dataRelatorio">Estado Geral da Instituição</p>
+            <button class="btn-save no-print" onclick="window.print()" style="width: auto; padding: 10px 20px; font-size: 0.9rem; background: var(--secondary-color); margin-top: 15px;">📥 Descarregar PDF / Imprimir</button>
+        </header>
+
+        <div class="grid">
+            <div class="stat-card" style="border-top: 5px solid var(--secondary-color);">
+                <label>População Total</label>
+                <p id="totalResidentes">0</p>
+            </div>
+            <div class="stat-card" style="border-top: 5px solid #e74c3c;">
+                <label>Alto Risco Clínico</label>
+                <p id="totalAltoRisco">0</p>
+            </div>
+            <div class="stat-card" style="border-top: 5px solid #f39c12;">
+                <label>Risco Moderado</label>
+                <p id="totalModerado">0</p>
+            </div>
+        </div>
+
+        <section>
+            <h3>Distribuição de Risco Clínico (ICN)</h3>
+            <p style="margin-bottom: 25px; color: #666;">Percentual de residentes em cada categoria de risco nutricional baseado no ICN.</p>
+            
+            <div class="chart-container">
+                <div class="label-group"><span>Baixo Risco</span><span id="percBaixo">0%</span></div>
+                <div class="bar-wrap"><div id="barBaixo" class="bar-fill" style="background: #27ae60; width: 0%;"></div></div>
+
+                <div class="label-group"><span>Risco Moderado</span><span id="percModerado">0%</span></div>
+                <div class="bar-wrap"><div id="barModerado" class="bar-fill" style="background: #f39c12; width: 0%;"></div></div>
+
+                <div class="label-group"><span>Alto Risco Clínico</span><span id="percAlto">0%</span></div>
+                <div class="bar-wrap"><div id="barAlto" class="bar-fill" style="background: #e74c3c; width: 0%;"></div></div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Perfil Antropométrico (IMC)</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="text-align: left; background: #f8f9fa;">
+                        <th style="padding: 15px;">Classificação IMC</th>
+                        <th style="padding: 15px;">Quantidade</th>
+                        <th style="padding: 15px;">Percentagem</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaIMC">
+                    </tbody>
+            </table>
+        </section>
+
+        <footer style="margin-top: 50px; text-align: center; font-size: 0.8rem; color: #999;" class="only-print">
+            Relatório gerado automaticamente pelo Sistema de Gestão Nutricional em <span id="dataRodape"></span>.
+        </footer>
+    </div>
+
     <script src="app.js"></script>
     <script>
-        function carregarRelatorio() {
+        function gerarRelatorioExecutivo() {
             const banco = obterBanco();
-            const nomes = Object.keys(banco);
-            
-            if (nomes.length === 0) {
-                alert("Não há dados salvos no banco.");
-                return;
-            }
+            const residentes = Object.keys(banco);
+            const total = residentes.length;
 
-            // Pega o nome do último paciente cadastrado no banco
-            const ultimoNome = nomes[nomes.length - 1];
-            const residente = banco[ultimoNome];
-            const ultimaAval = residente.avaliacoes[residente.avaliacoes.length - 1];
+            let counts = { baixo: 0, moderado: 0, alto: 0 };
+            let imcCounts = { desnutricao: 0, eutrofia: 0, excesso: 0 };
 
-            // Preenche o Relatório
-            document.getElementById("r_nome").innerText = ultimoNome;
-            document.getElementById("r_idade").innerText = ultimaAval.idade || "Não informada";
-            document.getElementById("r_data").innerText = ultimaAval.data;
-            document.getElementById("r_icn").innerText = ultimaAval.icn;
-            document.getElementById("r_status").innerText = ultimaAval.classIcn;
-            document.getElementById("r_imc").innerText = ultimaAval.imc + " kg/m²";
-            document.getElementById("r_classImc").innerText = ultimaAval.classificacaoIMC;
-            document.getElementById("r_mna").innerText = ultimaAval.mna + " pts";
-            document.getElementById("r_nrs").innerText = ultimaAval.nrs + " pts";
-            document.getElementById("r_parecer").innerText = ultimaAval.parecer || "Nenhuma observação registrada.";
+            residentes.forEach(nome => {
+                const avaliacoes = banco[nome].avaliacoes;
+                if (avaliacoes.length > 0) {
+                    const u = avaliacoes[avaliacoes.length - 1];
+                    
+                    // Contagem ICN
+                    if (u.classIcn === "Baixo Risco") counts.baixo++;
+                    else if (u.classIcn === "Risco Moderado") counts.moderado++;
+                    else counts.alto++;
 
-            // Muda a cor se for Alto Risco
-            if(ultimaAval.icn >= 6) {
-                document.getElementById("r_status").style.color = "#e74c3c";
+                    // Contagem IMC
+                    const imcVal = parseFloat(u.imc);
+                    if (imcVal < 22) imcCounts.desnutricao++;
+                    else if (imcVal <= 27) imcCounts.eutrofia++;
+                    else imcCounts.excesso++;
+                }
+            });
+
+            // Atualizar Números Principais
+            document.getElementById("totalResidentes").innerText = total;
+            document.getElementById("totalAltoRisco").innerText = counts.alto;
+            document.getElementById("totalModerado").innerText = counts.moderado;
+            document.getElementById("dataRodape").innerText = new Date().toLocaleDateString();
+
+            // Calcular e Renderizar Barras (ICN)
+            if (total > 0) {
+                const pBaixo = ((counts.baixo / total) * 100).toFixed(1);
+                const pMod = ((counts.moderado / total) * 100).toFixed(1);
+                const pAlto = ((counts.alto / total) * 100).toFixed(1);
+
+                document.getElementById("percBaixo").innerText = pBaixo + "%";
+                document.getElementById("barBaixo").style.width = pBaixo + "%";
+                
+                document.getElementById("percModerado").innerText = pMod + "%";
+                document.getElementById("barModerado").style.width = pMod + "%";
+
+                document.getElementById("percAlto").innerText = pAlto + "%";
+                document.getElementById("barAlto").style.width = pAlto + "%";
+
+                // Preencher Tabela IMC
+                const tabela = document.getElementById("tabelaIMC");
+                const imcData = [
+                    { label: "Desnutrição (< 22)", qtd: imcCounts.desnutricao },
+                    { label: "Eutrofia (22 - 27)", qtd: imcCounts.eutrofia },
+                    { label: "Excesso de Peso (> 27)", qtd: imcCounts.excesso }
+                ];
+
+                tabela.innerHTML = imcData.map(item => `
+                    <tr>
+                        <td style="padding: 15px; border-bottom: 1px solid #eee;">${item.label}</td>
+                        <td style="padding: 15px; border-bottom: 1px solid #eee;">${item.qtd}</td>
+                        <td style="padding: 15px; border-bottom: 1px solid #eee;">${((item.qtd / total) * 100).toFixed(1)}%</td>
+                    </tr>
+                `).join('');
             }
         }
     </script>
