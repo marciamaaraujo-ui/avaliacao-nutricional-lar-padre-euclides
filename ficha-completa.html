@@ -2,98 +2,171 @@
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório Individual - Lar Padre Euclides</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha Clínica Completa - Painel Nutricional</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Ajustes específicos para a ficha de visualização */
+        .info-group { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .info-label { font-weight: bold; color: var(--secondary-color); font-size: 0.9rem; }
+        .info-value { font-size: 1.1rem; color: var(--text-color); }
+        .pes-box { background: #fdfdfd; border: 1px solid #ddd; padding: 20px; border-radius: 10px; font-style: italic; line-height: 1.6; }
+        @media print { .no-print { display: none !important; } }
+    </style>
 </head>
-<body onload="inicializarFicha()">
+<body onload="carregarListaResidentes()">
+
     <div class="navbar no-print">
+        <div class="nav-container">
+            <img src="logo.png" alt="Logo" class="nav-logo">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Nova Avaliação</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="ficha-completa.html" class="nav-link home-btn">Ficha Clínica</a>
+                <a href="exames-laboratoriais.html" class="nav-link">Exames</a>
+            </div>
         </div>
+    </div>
 
     <div class="container">
-        <header>
-            <img src="logo.png" style="height: 60px; margin-bottom: 10px;">
-            <h1>Relatório Nutricional Individual</h1>
-            <p id="dataRelatorio" style="font-weight: bold;"></p>
+        <header class="no-print">
+            <h1>Ficha Clínica Individual</h1>
+            <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
+                <select id="selectResidente" style="max-width: 400px;" onchange="gerarFicha()">
+                    <option value="">Selecione um residente para visualizar...</option>
+                </select>
+                <button class="btn-save" onclick="window.print()" style="width: auto; padding: 0 25px; margin: 0; background: var(--secondary-color);">🖨️ Imprimir Ficha</button>
+            </div>
         </header>
 
-        <section class="no-print">
-            <label>Selecione o Residente para Gerar o Relatório:</label>
-            <select id="selRes" onchange="gerarFichaCompleta()">
-                <option value="">-- Escolher Residente --</option>
-            </select>
-        </section>
+        <div id="conteudoFicha" style="display: none;">
+            <div style="text-align: center; border-bottom: 3px solid var(--primary-color); margin-bottom: 30px;">
+                <h2 id="print_nome" style="margin-bottom: 5px;">---</h2>
+                <p id="print_subtitulo">Relatório de Avaliação Nutricional e Bioquímica</p>
+            </div>
 
-        <div id="conteudoRelatorio" style="display:none;">
             <section>
-                <h3>1. Dados de Identificação</h3>
-                <div id="dadosId" class="grid"></div>
+                <h3>1. Perfil do Residente</h3>
+                <div class="grid">
+                    <div class="info-group">
+                        <div class="info-label">Sexo</div>
+                        <div id="res_sexo" class="info-value">---</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Data de Nascimento</div>
+                        <div id="res_nasc" class="info-value">---</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Data da Última Avaliação</div>
+                        <div id="res_data" class="info-value">---</div>
+                    </div>
+                </div>
             </section>
 
             <section>
-                <h3>2. Última Avaliação e Diagnóstico PES</h3>
-                <div id="dadosNutri"></div>
+                <h3>2. Avaliação Nutricional (MNA / NRS / ICN)</h3>
+                <div class="grid">
+                    <div class="info-group">
+                        <div class="info-label">Peso / Altura</div>
+                        <div id="res_antropometria" class="info-value">---</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">IMC</div>
+                        <div id="res_imc" class="info-value">---</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Risco Clínico (ICN)</div>
+                        <div id="res_icn" class="info-value" style="font-weight: bold;">---</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <div class="info-label">Parecer Diagnóstico (PES)</div>
+                    <div id="res_parecer" class="pes-box">---</div>
+                </div>
             </section>
 
             <section>
-                <h3>3. Quadro Clínico e Comorbidades</h3>
-                <div id="dadosClinicos" style="line-height: 1.6;"></div>
+                <h3>3. Últimos Exames Laboratoriais</h3>
+                <div id="areaExames">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th>Parâmetro</th>
+                                <th>Resultado</th>
+                                <th>Referência</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaExames">
+                            </tbody>
+                    </table>
+                </div>
+                <div id="res_notas_exames" style="margin-top: 15px; font-size: 0.9rem; color: #666;"></div>
             </section>
-
-            <section>
-                <h3>4. Últimos Resultados Laboratoriais</h3>
-                <div id="dadosExames"></div>
-            </section>
-
-            <button class="btn-save no-print" onclick="window.print()">🖨️ IMPRIMIR RELATÓRIO INDIVIDUAL</button>
         </div>
     </div>
 
     <script src="app.js"></script>
     <script>
-        function inicializarFicha() {
-            const b = obterBanco();
-            const s = document.getElementById("selRes");
-            Object.keys(b).sort().forEach(n => { s.innerHTML += `<option value="${n}">${n}</option>`; });
-            document.getElementById("dataRelatorio").innerText = "Gerado em: " + new Date().toLocaleDateString();
+        function carregarListaResidentes() {
+            const banco = obterBanco();
+            const select = document.getElementById("selectResidente");
+            Object.keys(banco).sort().forEach(nome => {
+                const opt = document.createElement("option");
+                opt.value = nome;
+                opt.textContent = nome;
+                select.appendChild(opt);
+            });
         }
 
-        function gerarFichaCompleta() {
-            const n = document.getElementById("selRes").value;
-            if(!n) return;
-            document.getElementById("conteudoRelatorio").style.display = "block";
-            const res = obterBanco()[n];
+        function gerarFicha() {
+            const nome = document.getElementById("selectResidente").value;
+            if (!nome) {
+                document.getElementById("conteudoFicha").style.display = "none";
+                return;
+            }
 
-            // 1. Identificação
-            document.getElementById("dadosId").innerHTML = `
-                <p><strong>Nome:</strong> ${n}</p>
-                <p><strong>Sexo:</strong> ${res.perfil.sexo}</p>
-                <p><strong>Nascimento:</strong> ${new Date(res.perfil.nasc).toLocaleDateString()}</p>
-            `;
+            const banco = obterBanco();
+            const residente = banco[nome];
+            const ultimaAval = residente.avaliacoes[residente.avaliacoes.length - 1] || {};
+            const ultimoExame = residente.exames ? residente.exames[residente.exames.length - 1] : null;
 
-            // 2. Nutrição (Última)
-            const uA = res.avaliacoes.slice(-1)[0];
-            document.getElementById("dadosNutri").innerHTML = `
-                <p><strong>Status ICN:</strong> ${uA.classIcn}</p>
-                <div style="background:#f9f9f9; padding:15px; border-left:5px solid var(--primary-color); margin-top:10px;">
-                    <strong>Parecer Técnico (PES):</strong><br>${uA.parecer}
-                </div>
-            `;
+            // Mostrar área da ficha
+            document.getElementById("conteudoFicha").style.display = "block";
 
-            // 3. Comorbidades
-            const com = res.comorbidades || [];
-            document.getElementById("dadosClinicos").innerHTML = com.length > 0 ? 
-                "<strong>Condições Diagnosticadas:</strong> " + com.join(", ") : 
-                "Nenhuma comorbidade registrada.";
+            // Preencher Dados
+            document.getElementById("print_nome").textContent = nome;
+            document.getElementById("res_sexo").textContent = residente.perfil?.sexo === "M" ? "Masculino" : "Feminino";
+            document.getElementById("res_nasc").textContent = residente.perfil?.nasc || "Não registada";
+            document.getElementById("res_data").textContent = ultimaAval.data || "---";
+            
+            document.getElementById("res_antropometria").textContent = `${ultimaAval.peso || '--'} kg / ${ultimaAval.altura || '--'} m`;
+            document.getElementById("res_imc").textContent = `${ultimaAval.imc || '--'} kg/m² (${classificarIMC(ultimaAval.imc)})`;
+            document.getElementById("res_icn").textContent = `${ultimaAval.icn || '--'} pts - ${ultimaAval.classIcn || '--'}`;
+            document.getElementById("res_parecer").textContent = ultimaAval.parecer || "Nenhum parecer gerado.";
 
-            // 4. Exames (Último)
-            const uE = res.exames.slice(-1)[0];
-            if(uE) {
-                document.getElementById("dadosExames").innerHTML = `
-                    <p><strong>Data da Coleta:</strong> ${uE.data}</p>
-                    <p>Albumina/PCR: ${uE.alb_pcr || '--'} | Glicemia: ${uE.glic || '--'} | Vit D: ${uE.vitd || '--'}</p>
-                `;
+            // Preencher Tabela de Exames
+            const corpoExames = document.getElementById("tabelaExames");
+            corpoExames.innerHTML = "";
+            
+            if (ultimoExame) {
+                const params = [
+                    { n: "Glicémia", v: ultimoExame.glicemia, r: "70-99 mg/dL" },
+                    { n: "Albumina", v: ultimoExame.albumina, r: "3.5-5.0 g/dL" },
+                    { n: "Hemoglobina", v: ultimoExame.hemoglobina, r: "12-16 g/dL" },
+                    { n: "Creatinina", v: ultimoExame.creatinina, r: "0.6-1.2 mg/dL" }
+                ];
+
+                params.forEach(p => {
+                    corpoExames.innerHTML += `
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee;">${p.n}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">${p.v || 'N/A'}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee; color: #7f8c8d; font-size: 0.85rem;">${p.r}</td>
+                        </tr>`;
+                });
+                document.getElementById("res_notas_exames").textContent = "Notas: " + (ultimoExame.notas || "Sem observações.");
             } else {
-                document.getElementById("dadosExames").innerHTML = "Nenhum exame laboratoriais registado.";
+                corpoExames.innerHTML = "<tr><td colspan='3' style='padding: 20px; text-align: center;'>Nenhum exame laboratorial registado para este residente.</td></tr>";
             }
         }
     </script>
