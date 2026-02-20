@@ -2,95 +2,62 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Relatório Executivo - ILPI</title>
+<title>Relatório Executivo</title>
 <link rel="stylesheet" href="style.css">
 <script src="app.js"></script>
 </head>
-
 <body>
 
-<script>
-const senha = prompt("Acesso Direção - Digite a senha:");
-
-if(senha !== "direcao123"){
-    alert("Acesso negado.");
-    window.location.href = "dashboard.html";
-}
-</script>
-
 <div class="navbar">
-  <div class="navbar-inner">
-    <img src="logo.png" class="logo">
-    <div class="links">
-      <a href="dashboard.html">Dashboard</a>
-    </div>
-  </div>
+<a href="index.html">Home</a>
+<a href="ficha.html">Ficha</a>
+<a href="exames.html">Exames</a>
+<a href="dashboard.html">Dashboard</a>
+<a href="relatorio.html">Relatório</a>
+<a href="metodologia.html">Metodologia</a>
 </div>
 
 <div class="container">
+<h2>Relatório Executivo - Direção</h2>
 
-<h1>Relatório Executivo Institucional</h1>
+<div id="relatorio"></div>
 
-<div id="relatorioConteudo"></div>
+<button onclick="window.print()">Gerar PDF</button>
 
 </div>
 
 <script>
 
-const bancoExec = obterBanco();
+function gerarRelatorio(){
 
-let totalAvaliacoes = 0;
-let altoRisco = 0;
-let moderadoRisco = 0;
-let baixoRisco = 0;
+    const banco = obterBanco();
+    let total = 0;
+    let risco = 0;
 
-Object.keys(bancoExec).forEach(nome => {
-    bancoExec[nome].forEach(reg => {
+    for(let nome in banco){
 
-        totalAvaliacoes++;
+        const avals = banco[nome].avaliacoes;
+        if(avals.length>0){
 
-        if(reg.classificacao === "Alto Risco Clínico") altoRisco++;
-        else if(reg.classificacao === "Risco Moderado") moderadoRisco++;
-        else baixoRisco++;
+            const ultima = avals[avals.length-1];
+            total++;
 
-    });
-});
+            if(ultima.icn >= 3){
+                risco++;
+            }
+        }
+    }
 
-let pctAlto = totalAvaliacoes > 0 ? (altoRisco/totalAvaliacoes)*100 : 0;
+    const percentual = total>0 ? ((risco/total)*100).toFixed(1) : 0;
 
-let metaStatus = pctAlto < 15 
-    ? "Meta institucional atingida (<15% Alto Risco)." 
-    : "Meta institucional NÃO atingida.";
-
-let tendenciaInstitucional = "Estável";
-
-if(totalAvaliacoes >= 2){
-
-    const todosICN = [];
-
-    Object.keys(bancoExec).forEach(nome=>{
-        bancoExec[nome].forEach(reg=>{
-            todosICN.push(reg.icn);
-        });
-    });
-
-    const ultimo = todosICN[todosICN.length-1];
-    const anterior = todosICN[todosICN.length-2];
-
-    if(ultimo > anterior) tendenciaInstitucional = "Tendência de piora institucional.";
-    if(ultimo < anterior) tendenciaInstitucional = "Tendência de melhora institucional.";
+    document.getElementById("relatorio").innerHTML = `
+        <p>Total avaliados: ${total}</p>
+        <p>Em risco clínico: ${risco}</p>
+        <p>Percentual institucional: ${percentual}%</p>
+    `;
 }
 
-document.getElementById("relatorioConteudo").innerHTML = `
-<p><strong>Total de Avaliações:</strong> ${totalAvaliacoes}</p>
-<p><strong>Alto Risco Clínico:</strong> ${altoRisco}</p>
-<p><strong>Risco Moderado:</strong> ${moderadoRisco}</p>
-<p><strong>Baixo Risco:</strong> ${baixoRisco}</p>
-<p><strong>% Alto Risco:</strong> ${pctAlto.toFixed(1)}%</p>
-<p><strong>Meta Institucional:</strong> ${metaStatus}</p>
-<p><strong>Tendência Institucional:</strong> ${tendenciaInstitucional}</p>
-`;
+gerarRelatorio();
 
 </script>
 
