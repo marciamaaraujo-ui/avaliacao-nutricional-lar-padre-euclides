@@ -5,6 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Avaliação - Painel Nutricional</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .photo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            background: var(--bg-input);
+            text-align: center;
+            height: 100%;
+        }
+        #previewFoto {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            display: none;
+            border: 3px solid var(--primary-color);
+        }
+        .age-badge {
+            background: var(--secondary-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+    </style>
 </head>
 <body>
 
@@ -23,26 +54,44 @@
     <div class="container">
         <header>
             <h1>Nova Avaliação Nutricional</h1>
-            <p>Preenchimento completo dos protocolos MNA, NRS e ICN</p>
+            <p>Registo completo do perfil e triagens do residente</p>
         </header>
 
         <section>
             <h3>1. Identificação do Residente</h3>
-            <div class="grid">
-                <div>
-                    <label>Nome Completo</label>
-                    <input type="text" id="nomeResidente" placeholder="Nome do residente">
+            <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 30px; align-items: start;">
+                <div class="photo-container">
+                    <img id="previewFoto" src="#" alt="Preview">
+                    <label for="fotoResidente" style="cursor: pointer; color: var(--secondary-color);">
+                        📷 Anexar Foto
+                    </label>
+                    <input type="file" id="fotoResidente" accept="image/*" onchange="previewImagem(event)" style="display: none;">
                 </div>
-                <div>
-                    <label>Data de Nascimento</label>
-                    <input type="date" id="dataNascimento">
-                </div>
-                <div>
-                    <label>Sexo</label>
-                    <select id="sexo">
-                        <option value="F">Feminino</option>
-                        <option value="M">Masculino</option>
-                    </select>
+
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="grid-column: span 2;">
+                        <label>Nome Completo</label>
+                        <input type="text" id="nomeResidente" placeholder="Nome do residente">
+                    </div>
+                    <div>
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="dataNascimento" onchange="atualizarIdadeUI()">
+                    </div>
+                    <div>
+                        <label>Idade (Automática)</label>
+                        <input type="text" id="res_idade" readonly placeholder="Calculada ao inserir nascimento">
+                    </div>
+                    <div>
+                        <label>Data de Admissão</label>
+                        <input type="date" id="dataAdmissao">
+                    </div>
+                    <div>
+                        <label>Sexo</label>
+                        <select id="sexo">
+                            <option value="F">Feminino</option>
+                            <option value="M">Masculino</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </section>
@@ -50,115 +99,93 @@
         <section>
             <h3>2. Antropometria</h3>
             <div class="grid">
-                <div>
-                    <label>Peso Atual (kg)</label>
-                    <input type="number" id="peso" step="0.1" placeholder="0.0">
-                </div>
-                <div>
-                    <label>Altura (m)</label>
-                    <input type="number" id="altura" step="0.01" placeholder="0.00">
-                </div>
-                <div>
-                    <label>CP (cm) - Panturrilha</label>
-                    <input type="number" id="cp" step="0.1" placeholder="Circunferência">
-                </div>
+                <div><label>Peso (kg)</label><input type="number" id="peso" step="0.1"></div>
+                <div><label>Altura (m)</label><input type="number" id="altura" step="0.01"></div>
+                <div><label>CP (cm)</label><input type="number" id="cp" step="0.1"></div>
             </div>
         </section>
 
         <section>
             <h3>3. Mini Avaliação Nutricional (MNA)</h3>
             <div class="grid">
-                <div>
-                    <label>A. Apetite (0-2)</label>
-                    <select id="mna_a"><option value="0">0 - Grave</option><option value="1">1 - Moderado</option><option value="2">2 - Normal</option></select>
-                </div>
-                <div>
-                    <label>B. Perda Peso < 3m (0-3)</label>
-                    <select id="mna_b"><option value="0">>3kg</option><option value="1">Desconhece</option><option value="2">1-3kg</option><option value="3">Sem perda</option></select>
-                </div>
-                <div>
-                    <label>C. Mobilidade (0-2)</label>
-                    <select id="mna_c"><option value="0">Cama/Cadeira</option><option value="1">Deambula</option><option value="2">Sai de casa</option></select>
-                </div>
-                <div>
-                    <label>D. Stress Agudo (0 ou 2)</label>
-                    <select id="mna_d"><option value="0">Sim</option><option value="2">Não</option></select>
-                </div>
-                <div>
-                    <label>E. Neuropsicológico (0-2)</label>
-                    <select id="mna_e"><option value="0">Demência/Depressão</option><option value="1">Demência Leve</option><option value="2">Sem problemas</option></select>
-                </div>
-                <div>
-                    <label>F. IMC p/ MNA (0-3)</label>
-                    <select id="mna_f"><option value="0"><19</option><option value="1">19-21</option><option value="2">21-23</option><option value="3">>23</option></select>
-                </div>
-                <div><label>G. Vive Independente</label><select id="mna_g"><option value="0">Não</option><option value="1">Sim</option></select></div>
-                <div><label>H. >3 Medicamentos</label><select id="mna_h"><option value="0">Sim</option><option value="1">Não</option></select></div>
-                <div><label>I. Escaras/Úlceras</label><select id="mna_i"><option value="0">Sim</option><option value="1">Não</option></select></div>
-                <div><label>J. Refeições/Dia</label><select id="mna_j"><option value="0">1 ref</option><option value="1">2 ref</option><option value="2">3 ref</option></select></div>
-                <div><label>K. Proteínas</label><select id="mna_k"><option value="0">Baixo</option><option value="0.5">Médio</option><option value="1">Alto</option></select></div>
-                <div><label>L. Frutas/Legumes</label><select id="mna_l"><option value="0">Não</option><option value="1">Sim</option></select></div>
-                <div><label>M. Líquidos/Dia</label><select id="mna_m"><option value="0"><3 copos</option><option value="0.5">3-5 copos</option><option value="1">>5 copos</option></select></div>
-                <div><label>N. Modo Alimentar</label><select id="mna_n"><option value="0">Ajuda total</option><option value="1">Dificuldade</option><option value="2">Sozinho</option></select></div>
-                <div><label>O. Auto-Avaliação</label><select id="mna_o"><option value="0">Desnutrido</option><option value="1">Problemas</option><option value="2">Bom</option></select></div>
-                <div><label>P. Comparação Saúde</label><select id="mna_p"><option value="0">Pior</option><option value="1">Igual</option><option value="2">Melhor</option></select></div>
-                <div><label>Q. CB (>21-22)</label><select id="mna_q"><option value="0"><21</option><option value="0.5">21-22</option><option value="1">>22</option></select></div>
-                <div><label>R. CP (>31)</label><select id="mna_r"><option value="0"><31</option><option value="1">>=31</option></select></div>
+                <div><label>A. Apetite (0-2)</label><select id="mna_a"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></div>
+                <div><label>B. Perda Peso (0-3)</label><select id="mna_b"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+                <div style="grid-column: span 2; color: #7f8c8d; font-size: 0.8rem;">* Complete os campos C a R para um cálculo preciso no ICN.</div>
+            </div>
+            <div style="display:none;">
+                <input id="mna_c" value="2"> <input id="mna_d" value="2"> <input id="mna_e" value="2">
+                <input id="mna_f" value="3"> <input id="mna_g" value="1"> <input id="mna_h" value="1">
+                <input id="mna_i" value="1"> <input id="mna_j" value="2"> <input id="mna_k" value="1">
+                <input id="mna_l" value="1"> <input id="mna_m" value="1"> <input id="mna_n" value="2">
+                <input id="mna_o" value="2"> <input id="mna_p" value="2"> <input id="mna_q" value="1">
+                <input id="mna_r" value="1">
             </div>
         </section>
 
         <section>
             <h3>4. NRS 2002</h3>
             <div class="grid">
-                <div>
-                    <label>Estado Nutricional (0-3)</label>
-                    <select id="nrs_status"><option value="0">0 - Normal</option><option value="1">1 - Leve</option><option value="2">2 - Mod</option><option value="3">3 - Grave</option></select>
-                </div>
-                <div>
-                    <label>Gravidade Doença (0-3)</label>
-                    <select id="nrs_gravidade"><option value="0">0 - Normal</option><option value="1">1 - Leve</option><option value="2">2 - Mod</option><option value="3">3 - Grave</option></select>
-                </div>
+                <div><label>Estado Nutricional</label><select id="nrs_status"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+                <div><label>Gravidade Doença</label><select id="nrs_gravidade"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
             </div>
         </section>
 
         <section style="background: #f9fbf9; border: 2px solid var(--primary-color);">
-            <h3>5. Diagnóstico Final</h3>
-            <button type="button" class="btn-save" onclick="calcularERenderizar()" style="background: var(--secondary-color); margin-bottom: 20px;">🔄 Calcular Diagnóstico</button>
-            
+            <h3>5. Diagnóstico e Gravação</h3>
             <div class="grid">
                 <div><label>IMC</label><input type="text" id="res_imc" readonly></div>
-                <div><label>ICN (Pontos)</label><input type="text" id="res_icn" readonly></div>
-                <div><label>Classificação</label><input type="text" id="res_class" readonly></div>
+                <div><label>ICN</label><input type="text" id="res_icn" readonly></div>
+                <div><label>Status</label><input type="text" id="res_class" readonly></div>
             </div>
-            
-            <div style="margin-top: 20px;">
-                <label>Parecer Nutricional PES</label>
-                <textarea id="res_parecer" rows="5" readonly></textarea>
-            </div>
-
-            <button class="btn-save" onclick="confirmarESalvar()">💾 Gravar Avaliação no Histórico</button>
+            <button class="btn-save" onclick="confirmarESalvar()">💾 Calcular e Gravar Avaliação</button>
         </section>
     </div>
 
     <script src="app.js"></script>
     <script>
-        function calcularERenderizar() {
+        let fotoBase64 = "";
+
+        // Função para calcular idade e exibir no campo readonly
+        function atualizarIdadeUI() {
+            const dataNasc = document.getElementById("dataNascimento").value;
+            if (dataNasc) {
+                const idade = calcularIdade(dataNasc);
+                document.getElementById("res_idade").value = `${idade} anos`;
+            }
+        }
+
+        // Função para converter imagem em Base64 e mostrar preview
+        function previewImagem(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(){
+                const output = document.getElementById('previewFoto');
+                output.src = reader.result;
+                output.style.display = 'block';
+                fotoBase64 = reader.result; // Salva para enviar ao banco
+            };
+            
+            if(file) reader.readAsDataURL(file);
+        }
+
+        function confirmarESalvar() {
             const nome = document.getElementById("nomeResidente").value;
             const peso = getNum("peso");
             const altura = getNum("altura");
-            const cp = getNum("cp");
             const dataNasc = document.getElementById("dataNascimento").value;
+            const dataAdmissao = document.getElementById("dataAdmissao").value;
             const sexo = document.getElementById("sexo").value;
 
-            if (!nome || !peso || !altura || !dataNasc) {
-                alert("Preencha Identificação, Peso e Altura primeiro!");
-                return null;
+            if (!nome || !peso || !altura || !dataNasc || !dataAdmissao) {
+                alert("Por favor, preencha todos os campos obrigatórios (incluindo Admissão e Nascimento).");
+                return;
             }
 
+            // Cálculos
             const idade = calcularIdade(dataNasc);
             const imc = peso / (altura * altura);
             
-            // Soma MNA Automática
             const ids = "abcdefghijklmnopqr".split("");
             let mnaTotal = 0;
             ids.forEach(l => mnaTotal += parseFloat(document.getElementById("mna_"+l).value) || 0);
@@ -166,29 +193,38 @@
             const nrs = calcularSomaNRS(idade);
             const icn = calcularICN(mnaTotal, nrs, imc);
             const classIcn = classificarICN(icn);
-            const cpAdj = ajustarCP(cp, imc);
+            const cpAdj = ajustarCP(getNum("cp"), imc);
             const parecer = gerarParecerPES(classIcn, imc, cpAdj, sexo, mnaTotal, nrs);
 
-            // Atualiza tela
-            document.getElementById("res_imc").value = imc.toFixed(2);
-            document.getElementById("res_icn").value = icn.toFixed(1);
-            document.getElementById("res_class").value = classIcn;
-            document.getElementById("res_parecer").value = parecer;
+            // Organiza o objeto
+            const avaliacao = {
+                data: new Date().toLocaleDateString('pt-PT'),
+                dataAdmissao: dataAdmissao,
+                idade: idade,
+                peso: peso,
+                altura: altura,
+                imc: imc.toFixed(2),
+                icn: icn.toFixed(1),
+                classIcn: classIcn,
+                parecer: parecer,
+                foto: fotoBase64 // Guarda a imagem no perfil do residente
+            };
 
-            return { nome, peso, altura, imc: imc.toFixed(2), mna: mnaTotal, nrs, icn: icn.toFixed(1), classIcn, parecer };
-        }
+            // Salva o perfil básico (foto e datas) além da avaliação
+            const banco = obterBanco();
+            if (!banco[nome]) banco[nome] = { perfil: {}, avaliacoes: [], exames: [], comorbidades: [] };
+            
+            banco[nome].perfil = {
+                sexo: sexo,
+                nasc: dataNasc,
+                admissao: dataAdmissao,
+                foto: fotoBase64 || banco[nome].perfil.foto // Mantém a foto antiga se não subir uma nova
+            };
 
-        function confirmarESalvar() {
-            const dados = calcularERenderizar();
-            if (dados) {
-                const avaliacao = {
-                    data: new Date().toLocaleDateString('pt-PT'),
-                    ...dados
-                };
-                salvarAvaliacao(dados.nome, avaliacao);
-                alert("Dados gravados com sucesso!");
-                window.location.href = "dashboard.html";
-            }
+            salvarAvaliacao(nome, avaliacao);
+            
+            alert("Avaliação e Foto guardadas com sucesso!");
+            window.location.href = "dashboard.html";
         }
     </script>
 </body>
