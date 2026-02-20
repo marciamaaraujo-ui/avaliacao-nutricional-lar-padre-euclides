@@ -4,10 +4,24 @@
     <meta charset="UTF-8">
     <title>Ficha Clínica Integrada - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .navbar-brand img {
+            height: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .valor-ficha { font-weight: bold; color: var(--primary-color); font-size: 1.1rem; margin-top: 5px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .data-table th { background: #f4f7f6; padding: 10px; text-align: left; border-bottom: 2px solid var(--primary-color); }
+        .data-table td { padding: 10px; border-bottom: 1px solid #eee; }
+    </style>
 </head>
 <body onload="inicializarFicha()">
 
     <div class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <img src="logo.png" alt="Lar Padre Euclides">
+        </a>
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="ficha-completa.html">Ficha Clínica</a>
@@ -71,6 +85,7 @@
 
     <script src="app.js"></script>
     <script>
+        // ... scripts da ficha clínica (sem alterações) ...
         function inicializarFicha() {
             const banco = obterBanco();
             const select = document.getElementById("selectResidente");
@@ -112,7 +127,8 @@
             const corpo = document.getElementById("historicoCorpo");
             corpo.innerHTML = "";
 
-            historico.reverse().forEach(av => {
+            // Faz uma cópia do histórico para não inverter o array original no banco
+            [...historico].reverse().forEach(av => {
                 const status = classificarICN(av.icn);
                 const corBadge = status === "Baixo Risco" ? "badge-normal" : "badge-risco";
                 
@@ -128,12 +144,5 @@
             });
         }
     </script>
-
-    <style>
-        .valor-ficha { font-weight: bold; color: var(--primary-color); font-size: 1.1rem; margin-top: 5px; }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .data-table th { background: #f4f7f6; padding: 10px; text-align: left; border-bottom: 2px solid var(--primary-color); }
-        .data-table td { padding: 10px; border-bottom: 1px solid #eee; }
-    </style>
 </body>
 </html>
