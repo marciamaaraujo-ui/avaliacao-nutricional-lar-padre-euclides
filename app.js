@@ -1,34 +1,29 @@
 /* ============================================================
-   LÓGICA DO DIAGNÓSTICO PES AUTOMÁTICO
+   FÓRMULAS DE CLASSIFICAÇÃO (MNA e NRS conforme anexos)
    ============================================================ */
-function gerarParecerPES(statusIcn, imc, cpAdj, mna, nrs, sexo) {
-    let P = ""; // Problema
-    let E = "relacionado à senescência e possível redução da ingesta alimentar"; // Etiologia padrão para ILPI
-    let S = `evidenciado por ICN de ${statusIcn}, IMC de ${imc.toFixed(2)} kg/m²`; // Sinais/Sintomas
 
-    // Definição do Problema (P)
-    if (statusIcn.includes("Alto Risco")) {
-        P = "Desnutrição proteico-calórica ou Risco Nutricional Grave (P)";
-    } else if (statusIcn.includes("Moderado")) {
-        P = "Risco de desnutrição moderado (P)";
-    } else {
-        P = "Estado nutricional preservado (P)";
-        E = "relacionado à manutenção de hábitos saudáveis";
-    }
+function classificarMNA(mna) {
+    if (mna >= 24) return "Estado Nutricional Normal";
+    if (mna >= 17) return "Risco de Desnutrição";
+    return "Desnutrido";
+}
 
-    // Adição de Sarcopenia aos Sinais (S)
-    let sarcopenia = "";
-    if ((sexo === "F" && cpAdj < 33) || (sexo === "M" && cpAdj < 34)) {
-        sarcopenia = ` e provável redução de massa muscular (CP ajustada: ${cpAdj.toFixed(1)} cm)`;
-    }
+function classificarNRS(nrs) {
+    return nrs >= 3 ? "Risco Nutricional" : "Sem Risco Nutricional";
+}
 
-    return `${P}, ${E} (E), ${S}${sarcopenia} (S). Conduta: Iniciar/Manter monitoramento e suporte conforme protocolo do Lar Padre Euclides.`;
+function classificarIMC(imc) {
+    if (imc < 22) return "Desnutrição";
+    if (imc <= 27) return "Eutrofia";
+    return "Excesso de Peso";
 }
 
 /* ============================================================
-   FÓRMULAS E BANCO DE DADOS (Inalterados)
+   ANTROPOMETRIA E AJUSTES (Prado et al. 2022)
    ============================================================ */
+
 function estimarAltura(aj, idade, sexo) {
+    // Fórmulas de Chumlea
     if (sexo === "M") return (64.19 - (0.04 * idade) + (2.02 * aj)) / 100;
     return (84.88 - (0.24 * idade) + (1.83 * aj)) / 100;
 }
@@ -47,11 +42,9 @@ function ajustarCB(cb, imc, sexo) {
     return (sexo === "F") ? cb - 9 : cb - 10;
 }
 
-function classificarIMC(imc) {
-    if (imc < 22) return "Desnutrição";
-    if (imc <= 27) return "Eutrofia";
-    return "Excesso de Peso";
-}
+/* ============================================================
+   ICN E DIAGNÓSTICO PES AUTOMÁTICO
+   ============================================================ */
 
 function calcularICN(mna, nrs, imc) {
     let imcScore = (imc < 22) ? 2 : (imc <= 27 ? 1 : 0);
@@ -59,10 +52,31 @@ function calcularICN(mna, nrs, imc) {
 }
 
 function classificarICN(icn) {
-    if (icn >= 18) return "Estado Normal"; // Ajuste de lógica conforme score máximo
-    if (icn >= 12) return "Risco Moderado";
+    if (icn >= 13) return "Baixo Risco";
+    if (icn >= 8) return "Risco Moderado";
     return "Alto Risco Clínico";
 }
+
+function gerarParecerPES(sMna, sNrs, sIcn, imc, cpAdj, sexo) {
+    let P = ""; 
+    let E = "relacionado à senescência e institucionalização"; 
+    let S = `evidenciado por MNA: ${sMna}, NRS: ${sNrs}, IMC: ${imc.toFixed(2)}kg/m²`; 
+
+    if (sIcn === "Alto Risco Clínico") P = "Desnutrição Proteico-Calórica (P)";
+    else if (sIcn === "Risco Moderado") P = "Risco Nutricional Moderado (P)";
+    else P = "Estado Nutricional Preservado (P)";
+
+    let sarcopenia = "";
+    if ((sexo === "F" && cpAdj < 33) || (sexo === "M" && cpAdj < 34)) {
+        sarcopenia = ` e sinais de redução de reserva muscular (CP ajustada: ${cpAdj.toFixed(1)}cm)`;
+    }
+
+    return `${P}, ${E} (E), ${S}${sarcopenia} (S). Conduta: Iniciar/Manter suporte conforme protocolo ILPI.`;
+}
+
+/* ============================================================
+   BANCO DE DADOS E UTILITÁRIOS
+   ============================================================ */
 
 function obterBanco() { return JSON.parse(localStorage.getItem("bancoILPI")) || {}; }
 function salvarBanco(banco) { localStorage.setItem("bancoILPI", JSON.stringify(banco)); }
