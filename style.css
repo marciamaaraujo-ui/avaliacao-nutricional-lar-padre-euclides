@@ -1,22 +1,19 @@
-/* =========================
-   VARIÁVEIS GLOBAIS
-========================= */
 :root {
-    --primary-color: #27ae60;    /* Verde Oficial */
-    --secondary-color: #2980b9;  /* Azul Exames */
-    --bg-input: #f0f4f2;         /* Cor de destaque para preenchimento */
+    --primary-color: #27ae60;
+    --secondary-color: #2980b9;
+    --bg-input: #f0f4f2; /* Cor de destaque para saber onde preencher */
     --text-color: #2c3e50;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     background-color: #f4f7f6;
     color: var(--text-color);
     padding: 20px;
 }
 
 .container {
-    max-width: 900px;
+    max-width: 950px;
     margin: auto;
     background: white;
     padding: 30px;
@@ -24,41 +21,32 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* =========================
-   CAMPOS DE PREENCHIMENTO (CORRIGIDO)
-========================= */
+/* CAMPOS DE PREENCHIMENTO DESTACADOS */
 input, select, textarea {
     width: 100%;
     padding: 12px;
     margin-top: 5px;
-    border: 2px solid #dcdde1; /* Borda mais visível */
+    border: 2px solid #dcdde1;
     border-radius: 6px;
-    background-color: var(--bg-input); /* AGORA VISÍVEL DE IMEDIATO */
+    background-color: var(--bg-input); /* Cor visível imediata */
     font-size: 1rem;
-    transition: all 0.3s ease;
 }
 
-/* Efeito quando clica para digitar */
 input:focus, select:focus, textarea:focus {
     background-color: #ffffff;
     border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 0 8px rgba(39, 174, 96, 0.2);
 }
 
-/* Campos que são apenas leitura (resultados) */
 input[readonly] {
     background-color: #e9ecef;
-    color: #495057;
-    cursor: not-allowed;
     border-style: dashed;
+    cursor: not-allowed;
 }
 
-/* =========================
-   BOTÃO DE SALVAR (CORRIGIDO)
-========================= */
+/* BOTÃO DE SALVAR PERMANENTE */
 .btn-save {
-    background-color: var(--primary-color); /* COR VERDE FIXA AGORA */
+    background-color: var(--primary-color);
     color: white;
     border: none;
     padding: 18px;
@@ -68,31 +56,12 @@ input[readonly] {
     font-weight: bold;
     cursor: pointer;
     margin-top: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    transition: background 0.3s ease, transform 0.2s ease;
+    transition: background 0.3s;
 }
 
-/* Efeito ao passar o mouse (fica um pouco mais escuro) */
-.btn-save:hover {
-    background-color: #219150;
-    transform: translateY(-2px);
-}
+.btn-save:hover { background-color: #219150; }
 
-/* Efeito ao clicar */
-.btn-save:active {
-    transform: translateY(0);
-}
-
-/* GRID E LAYOUT */
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-header { text-align: center; border-bottom: 3px solid var(--primary-color); margin-bottom: 25px; padding-bottom: 10px; }
-section { margin-bottom: 30px; }
-h3 { color: var(--primary-color); margin-bottom: 15px; }
-
-/* NAVBAR */
 .navbar { display: flex; align-items: center; background: #fff; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.navbar a { text-decoration: none; color: var(--text-color); font-weight: bold; margin-right: 20px; font-size: 0.9rem; }
-.navbar a:hover { color: var(--primary-color); }
+.navbar a { text-decoration: none; color: var(--text-color); font-weight: bold; margin-right: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+header { text-align: center; border-bottom: 3px solid var(--primary-color); margin-bottom: 25px; padding-bottom: 10px; }
