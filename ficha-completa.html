@@ -4,162 +4,136 @@
     <meta charset="UTF-8">
     <title>Ficha Clínica Integrada - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
-    <script src="app.js"></script>
-    <style>
-        /* Estilos específicos para a Ficha Clínica */
-        .status-box {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-        }
-        .icn-alerta { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-        .icn-bom { background: #d4edda; color: #155724; border-color: #c3e6cb; }
-    </style>
 </head>
-<body>
+<body onload="inicializarFicha()">
 
-<div class="main-nav">
-    <div class="navbar-inner">
-        <a href="index.html">Calculadora</a>
-        <a href="ficha-completa.html">Ficha Clínica</a>
-        <a href="exames-laboratoriais.html">Exames</a>
+    <div class="navbar">
+        <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
+        <a href="ficha-completa.html">Ficha Clínica</a>
         <a href="metodologia.html">Metodologia</a>
     </div>
-</div>
 
-<div class="container">
-    <header>
-        <h1>Ficha Clínica Integrada</h1>
-        <p>Monitoramento Nutricional de Residentes</p>
-    </header>
+    <div class="container">
+        <header>
+            <h1>Ficha Clínica Integrada</h1>
+            <h2>Histórico e Evolução do Residente</h2>
+        </header>
 
-    <section>
-        <h3>Entrada de Dados</h3>
-        <div class="grid">
-            <div>
-                <label>Nome do Residente</label>
-                <input type="text" id="nome" placeholder="Nome completo">
-            </div>
-            <div>
-                <label>Data da Avaliação</label>
-                <input type="date" id="data">
-            </div>
-            <div>
-                <label>Peso (kg)</label>
-                <input type="number" step="0.1" id="peso" oninput="atualizarICN()">
-            </div>
-            <div>
-                <label>Altura (m)</label>
-                <input type="number" step="0.01" id="altura" oninput="atualizarICN()">
-            </div>
-            <div>
-                <label>Score MNA</label>
-                <input type="number" id="mna" placeholder="0 a 30" oninput="atualizarICN()">
-            </div>
-            <div>
-                <label>Score NRS</label>
-                <input type="number" id="nrs" placeholder="0 a 7" oninput="atualizarICN()">
+        <section style="background: #f8f9fa; border: 1px solid var(--primary-color);">
+            <label>Selecione o Residente para consulta:</label>
+            <select id="selectResidente" onchange="carregarDadosResidente()" style="margin-top:10px; font-weight:bold;">
+                <option value="">-- Escolha um nome --</option>
+            </select>
+        </section>
+
+        <div id="conteudoFicha" style="display:none;">
+            <section>
+                <h3>Informações Gerais</h3>
+                <div class="grid">
+                    <div><label>Nome:</label> <p id="d_nome" class="valor-ficha">-</p></div>
+                    <div><label>Idade na última avaliação:</label> <p id="d_idade" class="valor-ficha">-</p></div>
+                </div>
+            </section>
+
+            <section>
+                <h3>Evolução Antropométrica e ICN</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Peso</th>
+                            <th>IMC</th>
+                            <th>ICN</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historicoCorpo"></tbody>
+                </table>
+            </section>
+
+            <section>
+                <h3>Última Conduta Nutricional</h3>
+                <div id="d_parecer" style="padding:15px; background:#fff; border:1px solid #eee; font-style:italic; border-radius:8px;">
+                    -
+                </div>
+            </section>
+
+            <div class="actions">
+                <button class="btn-pdf" onclick="window.print()">🖨️ Imprimir Ficha de Evolução</button>
             </div>
         </div>
-    </section>
-
-    <section>
-        <h3>Indicadores Gerados</h3>
-        <div class="grid-results full">
-            <div>
-                <label>IMC Calculado</label>
-                <input type="text" id="imc_result" readonly>
-            </div>
-            <div>
-                <label>Conclusão Nutricional (ICN)</label>
-                <input type="text" id="icn_result" readonly>
-            </div>
-        </div>
-        <div id="boxStatus" class="status-box">
-            Aguardando dados para análise...
-        </div>
-    </section>
-
-    <div class="actions">
-        <button class="btn-save" onclick="salvarFicha()">💾 Salvar na Base de Dados</button>
-    </div>
-</div>
-
-<script>
-// Função para calcular o Índice de Conclusão Nutricional (Lógica para o TCC)
-function calcularICN(mna, nrs, imc) {
-    // Critério: Se MNA < 17 ou NRS >= 3 ou IMC < 22 (idoso baixo peso)
-    if (mna < 17 || nrs >= 3 || imc < 22) {
-        return "ALTO RISCO / DESNUTRIDO";
-    } else if (mna < 24 || nrs >= 1) {
-        return "RISCO MODERADO";
-    } else {
-        return "ESTADO NORMAL";
-    }
-}
-
-function atualizarICN() {
-    const peso = parseFloat(document.getElementById("peso").value) || 0;
-    const altura = parseFloat(document.getElementById("altura").value) || 0;
-    const mna = parseFloat(document.getElementById("mna").value) || 0;
-    const nrs = parseFloat(document.getElementById("nrs").value) || 0;
-    const boxStatus = document.getElementById("boxStatus");
-
-    if (peso > 0 && altura > 0) {
-        const imc = peso / (altura * altura);
-        document.getElementById("imc_result").value = imc.toFixed(2);
         
-        const icn = calcularICN(mna, nrs, imc);
-        document.getElementById("icn_result").value = icn;
+        <div id="mensagemVazio" style="text-align:center; padding:50px; color:#999;">
+            Selecione um residente acima para carregar o prontuário.
+        </div>
+    </div>
 
-        // Estilização visual do resultado
-        if (icn.includes("ALTO")) {
-            boxStatus.innerText = "🚨 Alerta: Intervenção imediata sugerida.";
-            boxStatus.className = "status-box icn-alerta";
-        } else if (icn.includes("MODERADO")) {
-            boxStatus.innerText = "⚠️ Atenção: Monitoramento quinzenal necessário.";
-            boxStatus.className = "status-box";
-        } else {
-            boxStatus.innerText = "✅ Estabilidade: Manter conduta atual.";
-            boxStatus.className = "status-box icn-bom";
+    <script src="app.js"></script>
+    <script>
+        function inicializarFicha() {
+            const banco = obterBanco();
+            const select = document.getElementById("selectResidente");
+            const nomes = Object.keys(banco);
+
+            nomes.sort().forEach(nome => {
+                let opt = document.createElement("option");
+                opt.value = nome;
+                opt.textContent = nome;
+                select.appendChild(opt);
+            });
         }
-    }
-}
 
-function salvarFicha() {
-    const nome = document.getElementById("nome").value;
-    const data = document.getElementById("data").value;
-    const imc = document.getElementById("imc_result").value;
-    const icn = document.getElementById("icn_result").value;
+        function carregarDadosResidente() {
+            const nomeSelecionado = document.getElementById("selectResidente").value;
+            const display = document.getElementById("conteudoFicha");
+            const msg = document.getElementById("mensagemVazio");
 
-    if (!nome || !data) {
-        alert("Por favor, preencha pelo menos Nome e Data.");
-        return;
-    }
+            if (!nomeSelecionado) {
+                display.style.display = "none";
+                msg.style.display = "block";
+                return;
+            }
 
-    const novaAvaliacao = {
-        nome: nome,
-        data: data,
-        imc: imc,
-        mnaTotal: document.getElementById("mna").value,
-        nrsTotal: document.getElementById("nrs").value,
-        mnaClass: icn, // Salvamos o ICN como a classificação principal
-        parecer: "Ficha clínica integrada realizada em " + data
-    };
+            display.style.display = "block";
+            msg.style.display = "none";
 
-    // Padrão de salvamento que usamos no sistema todo
-    let lista = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-    lista.push(novaAvaliacao);
-    localStorage.setItem("avaliacoes", JSON.stringify(lista));
+            const banco = obterBanco();
+            const residente = banco[nomeSelecionado];
+            const historico = residente.avaliacoes;
+            const ultima = historico[historico.length - 1];
 
-    alert("Avaliação salva com sucesso! Você pode visualizá-la no Dashboard.");
-}
-</script>
+            // Preenche cabeçalho
+            document.getElementById("d_nome").innerText = nomeSelecionado;
+            document.getElementById("d_idade").innerText = ultima.idade || "Não informada";
+            document.getElementById("d_parecer").innerText = ultima.parecer || "Nenhuma observação registrada.";
 
+            // Preenche Tabela de Evolução
+            const corpo = document.getElementById("historicoCorpo");
+            corpo.innerHTML = "";
+
+            historico.reverse().forEach(av => {
+                const status = classificarICN(av.icn);
+                const corBadge = status === "Baixo Risco" ? "badge-normal" : "badge-risco";
+                
+                corpo.innerHTML += `
+                    <tr>
+                        <td>${av.data}</td>
+                        <td>${av.peso} kg</td>
+                        <td>${av.imc}</td>
+                        <td><strong>${av.icn}</strong></td>
+                        <td><span class="badge ${corBadge}">${status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+
+    <style>
+        .valor-ficha { font-weight: bold; color: var(--primary-color); font-size: 1.1rem; margin-top: 5px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .data-table th { background: #f4f7f6; padding: 10px; text-align: left; border-bottom: 2px solid var(--primary-color); }
+        .data-table td { padding: 10px; border-bottom: 1px solid #eee; }
+    </style>
 </body>
 </html>
