@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avaliação Nutricional - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilo para posicionar o logo na navbar */
+        .navbar-brand img {
+            height: 50px; /* Ajuste a altura conforme necessário */
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
 
     <div class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <img src="logo.png" alt="Lar Padre Euclides">
+        </a>
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="ficha-completa.html">Ficha Clínica</a>
@@ -100,16 +111,14 @@
     </div>
 
     <script src="app.js"></script>
-
     <script>
-        // Função para atualizar a idade usando sua função do app.js
+        // ... scripts da página (sem alterações) ...
         function atualizarIdade() {
             const dataNasc = document.getElementById("dataNasc").value;
             const idade = calcularIdade(dataNasc);
             document.getElementById("idade").value = idade + " anos";
         }
 
-        // Função que orquestra todos os cálculos em tempo real
         function executarCalculos() {
             const peso = getNum("peso");
             const altura = getNum("altura");
@@ -117,22 +126,19 @@
             const nrs = getNum("nrs");
 
             if (peso > 0 && altura > 0) {
-                // Cálculo do IMC
                 const imcVal = peso / (altura * altura);
                 document.getElementById("imc").value = imcVal.toFixed(2);
                 document.getElementById("classImc").value = classificarIMC(imcVal);
 
-                // Cálculo do ICN (Usando sua fórmula do app.js)
                 const icnVal = calcularICN(mna, nrs, imcVal);
                 document.getElementById("icn").value = icnVal.toFixed(1);
                 document.getElementById("classIcn").value = classificarICN(icnVal);
             }
         }
 
-        // Função para salvar os dados no Banco Central (bancoILPI)
         function processarSalvamento() {
             const nome = document.getElementById("nome").value;
-            const dataAval = new Date().toISOString().split('T')[0]; // Data de hoje
+            const dataAval = new Date().toISOString().split('T')[0];
 
             if (!nome) {
                 alert("Por favor, insira o nome do residente.");
@@ -153,7 +159,6 @@
                 parecer: document.getElementById("parecer").value
             };
 
-            // Chama sua função do app.js
             salvarAvaliacao(nome, avaliacao);
 
             if (confirm("Avaliação salva com sucesso! Deseja ver o Dashboard?")) {
