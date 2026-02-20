@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
     <title>Exames - Lar Padre Euclides</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .exam-row { display: grid; grid-template-columns: 1.5fr 1fr 1.5fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; align-items: center; }
-        .cat-title { background: var(--secondary-color); color: white; padding: 8px; border-radius: 4px; margin-top: 20px; font-weight: bold; }
+        .exam-row { display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #eee; align-items: center; }
+        .cat-tag { background: var(--secondary-color); color: white; padding: 10px 20px; border-radius: 8px; margin-top: 40px; font-weight: bold; display: inline-block; }
     </style>
 </head>
 <body onload="carregarResidentes()">
 
     <div class="navbar">
-        <img src="logo.png" height="40" style="margin-right:20px;">
+        <img src="logo.png" height="60" style="margin-right: 30px;">
         <a href="index.html">Nova Avaliação</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="exames-laboratoriais.html">Exames</a>
@@ -20,62 +20,67 @@
 
     <div class="container">
         <header>
-            <h1>Registro de Exames</h1>
-            <p>Os campos coloridos aguardam os resultados do laudo.</p>
+            <h1>Prontuário Bioquímico</h1>
+            <p>Registo detalhado de exames laboratoriais</p>
         </header>
 
         <section>
             <div class="grid">
                 <div>
-                    <label>Residente</label>
-                    <select id="selResidente"><option value="">-- Selecionar --</option></select>
+                    <label>Selecionar Residente</label>
+                    <select id="selRes"><option value="">-- Escolher --</option></select>
                 </div>
                 <div>
-                    <label>Data da Coleta</label>
+                    <label>Data do Exame</label>
                     <input type="date" id="dataExame">
                 </div>
             </div>
         </section>
 
         <form id="formExames">
-            <div class="cat-title">Proteínas e Inflamação</div>
-            <div class="exam-row"><div>Albumina Sérica + PCR</div><input type="text" id="alb_pcr"><span>Ref: >3.5 g/dL | <0.5 mg/dL</span></div>
-            
-            <div class="cat-title">Metabólico e Vitaminas</div>
-            <div class="exam-row"><div>Glicemia Jejum / HbA1c</div><input type="text" id="glic"><span>70-99 mg/dL | <6.5%</span></div>
-            <div class="exam-row"><div>Vitamina D (25-OH)</div><input type="text" id="vitd"><span>Ref: >30 ng/mL (Idoso)</span></div>
-            <div class="exam-row"><div>Vitamina B12</div><input type="text" id="vitb12"><span>Ref: 200 - 900 pg/mL</span></div>
-            
-            <div class="cat-title">Minerais e Função Renal</div>
-            <div class="exam-row"><div>Ferritina / Ferro Sérico</div><input type="text" id="ferro"><span>Ref: 20-250 ng/mL</span></div>
-            <div class="exam-row"><div>Ureia / Creatinina</div><input type="text" id="renal"><span>Referência Adulto/Idoso</span></div>
+            <div class="cat-tag">Hemograma Completo</div>
+            <div class="exam-row"><div>Eritrócitos, Hemoglobina e Hematócrito</div><input type="text" id="hemograma"><span>Hb M:13.5-17.5 | F:12-15.5 g/dL</span></div>
+            <div class="exam-row"><div>Leucócitos e Plaquetas</div><input type="text" id="leuco_plaq"><span>Ref: 4k-11k | 150k-450k</span></div>
+
+            <div class="cat-tag">Proteínas e Inflamação</div>
+            <div class="exam-row"><div>Albumina Sérica + PCR</div><input type="text" id="alb_pcr"><span>Alb >3.5 g/dL | PCR <0.5 mg/dL</span></div>
+            <div class="exam-row"><div>Proteínas Totais e Frações</div><input type="text" id="prot_totais"><span>Ref: 6.0 - 8.0 g/dL</span></div>
+
+            <div class="cat-tag">Controlo Glicémico e Função Renal</div>
+            <div class="exam-row"><div>Glicemia de Jejum e HbA1c</div><input type="text" id="glicemia"><span>Ref: 70-99 mg/dL | HbA1c <6.5%</span></div>
+            <div class="exam-row"><div>Ureia e Creatinina</div><input type="text" id="renal"><span>Ref: U:15-45 | C:0.6-1.3 mg/dL</span></div>
+
+            <div class="cat-tag">Lipograma</div>
+            <div class="exam-row"><div>Colesterol Total e Frações</div><input type="text" id="colest"><span>CT <190 | HDL >40 | LDL <130</span></div>
+            <div class="exam-row"><div>Triglicerídeos</div><input type="text" id="trig"><span>Ref: <150 mg/dL</span></div>
+
+            <div class="cat-tag">Micronutrientes (Vitaminas e Minerais)</div>
+            <div class="exam-row"><div>Vitamina D e B12</div><input type="text" id="vits_d_b12"><span>D >30ng | B12 >200pg</span></div>
+            <div class="exam-row"><div>Ácido Fólico e Ferritina</div><input type="text" id="fol_ferro"><span>F:20-250 ng/mL</span></div>
+            <div class="exam-row"><div>Zinco e Eletrólitos (Na, K, P, Ca, Mg)</div><input type="text" id="minerais"><span>Sódio: 135-145 | Potássio: 3.5-5.0</span></div>
+
+            <div class="cat-tag">Outros</div>
+            <div class="exam-row"><div>EAS (Urina Tipo 1)</div><input type="text" id="eas"><span>pH: 5.0 - 7.0</span></div>
+            <div class="exam-row"><div>TGO, TGP e TSH</div><input type="text" id="hepato_tsh"><span>TSH: 0.4 - 4.5 mIU/L</span></div>
         </form>
 
-        <button class="btn-save" onclick="salvarDadosExame()">💾 Guardar Exames no Prontuário</button>
+        <button class="btn-save" onclick="salvarExames()">💾 SALVAR EXAMES NO HISTÓRICO</button>
     </div>
 
     <script src="app.js"></script>
     <script>
         function carregarResidentes() {
-            const banco = obterBanco();
-            const select = document.getElementById("selResidente");
-            Object.keys(banco).sort().forEach(nome => {
-                let opt = document.createElement("option");
-                opt.value = nome;
-                opt.textContent = nome;
-                select.appendChild(opt);
-            });
+            const b = obterBanco();
+            const s = document.getElementById("selRes");
+            Object.keys(b).sort().forEach(n => { s.innerHTML += `<option value="${n}">${n}</option>`; });
         }
-
-        function salvarDadosExame() {
-            const nome = document.getElementById("selResidente").value;
-            if(!nome) return alert("Selecione o residente.");
-            
+        function salvarExames() {
+            const n = document.getElementById("selRes").value;
+            if(!n) return alert("Selecione um residente!");
             const dados = { data: document.getElementById("dataExame").value };
             document.querySelectorAll("#formExames input").forEach(i => dados[i.id] = i.value);
-            
-            salvarExame(nome, dados);
-            alert("Exames de " + nome + " guardados!");
+            salvarExame(n, dados);
+            alert("Exames de " + n + " guardados com sucesso!");
         }
     </script>
 </body>
