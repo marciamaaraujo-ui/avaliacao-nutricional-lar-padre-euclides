@@ -1,6 +1,33 @@
-/* =========================
-   FÓRMULAS E AJUSTES
-========================= */
+/* ============================================================
+   LÓGICA DO DIAGNÓSTICO PES AUTOMÁTICO
+   ============================================================ */
+function gerarParecerPES(statusIcn, imc, cpAdj, mna, nrs, sexo) {
+    let P = ""; // Problema
+    let E = "relacionado à senescência e possível redução da ingesta alimentar"; // Etiologia padrão para ILPI
+    let S = `evidenciado por ICN de ${statusIcn}, IMC de ${imc.toFixed(2)} kg/m²`; // Sinais/Sintomas
+
+    // Definição do Problema (P)
+    if (statusIcn.includes("Alto Risco")) {
+        P = "Desnutrição proteico-calórica ou Risco Nutricional Grave (P)";
+    } else if (statusIcn.includes("Moderado")) {
+        P = "Risco de desnutrição moderado (P)";
+    } else {
+        P = "Estado nutricional preservado (P)";
+        E = "relacionado à manutenção de hábitos saudáveis";
+    }
+
+    // Adição de Sarcopenia aos Sinais (S)
+    let sarcopenia = "";
+    if ((sexo === "F" && cpAdj < 33) || (sexo === "M" && cpAdj < 34)) {
+        sarcopenia = ` e provável redução de massa muscular (CP ajustada: ${cpAdj.toFixed(1)} cm)`;
+    }
+
+    return `${P}, ${E} (E), ${S}${sarcopenia} (S). Conduta: Iniciar/Manter monitoramento e suporte conforme protocolo do Lar Padre Euclides.`;
+}
+
+/* ============================================================
+   FÓRMULAS E BANCO DE DADOS (Inalterados)
+   ============================================================ */
 function estimarAltura(aj, idade, sexo) {
     if (sexo === "M") return (64.19 - (0.04 * idade) + (2.02 * aj)) / 100;
     return (84.88 - (0.24 * idade) + (1.83 * aj)) / 100;
@@ -32,14 +59,11 @@ function calcularICN(mna, nrs, imc) {
 }
 
 function classificarICN(icn) {
-    if (icn >= 6) return "Alto Risco Clínico";
-    if (icn >= 3) return "Risco Moderado";
-    return "Baixo Risco";
+    if (icn >= 18) return "Estado Normal"; // Ajuste de lógica conforme score máximo
+    if (icn >= 12) return "Risco Moderado";
+    return "Alto Risco Clínico";
 }
 
-/* =========================
-   BANCO DE DADOS
-========================= */
 function obterBanco() { return JSON.parse(localStorage.getItem("bancoILPI")) || {}; }
 function salvarBanco(banco) { localStorage.setItem("bancoILPI", JSON.stringify(banco)); }
 
