@@ -1,29 +1,46 @@
 /* ============================================================
-   FÓRMULAS DE CLASSIFICAÇÃO (MNA e NRS conforme anexos)
+   LÓGICA DE PONTUAÇÃO AUTOMÁTICA - MNA & NRS-2002
    ============================================================ */
 
-function classificarMNA(mna) {
-    if (mna >= 24) return "Estado Nutricional Normal";
-    if (mna >= 17) return "Risco de Desnutrição";
-    return "Desnutrido";
+function calcularSomaMNA() {
+    // Triagem (A-F)
+    const a = getNum("mna_a");
+    const b = getNum("mna_b");
+    const c = getNum("mna_c");
+    const d = getNum("mna_d");
+    const e = getNum("mna_e");
+    const f = getNum("mna_f"); // Pontos baseados no IMC
+
+    // Avaliação Global (G-R)
+    const g = getNum("mna_g");
+    const h = getNum("mna_h");
+    const i = getNum("mna_i");
+    const j = getNum("mna_j");
+    const k = getNum("mna_k");
+    const l = getNum("mna_l");
+    const m = getNum("mna_m");
+    const n = getNum("mna_n");
+    const o = getNum("mna_o");
+    const p = getNum("mna_p");
+    const q = getNum("mna_q");
+    const r = getNum("mna_r");
+
+    return a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q + r;
 }
 
-function classificarNRS(nrs) {
-    return nrs >= 3 ? "Risco Nutricional" : "Sem Risco Nutricional";
-}
-
-function classificarIMC(imc) {
-    if (imc < 22) return "Desnutrição";
-    if (imc <= 27) return "Eutrofia";
-    return "Excesso de Peso";
+function calcularSomaNRS(idade) {
+    const status = getNum("nrs_status");
+    const gravidade = getNum("nrs_gravidade");
+    let total = status + gravidade;
+    if (idade >= 70) total += 1;
+    return total;
 }
 
 /* ============================================================
-   ANTROPOMETRIA E AJUSTES (Prado et al. 2022)
+   FÓRMULAS ANTROPOMÉTRICAS E AJUSTES
    ============================================================ */
 
 function estimarAltura(aj, idade, sexo) {
-    // Fórmulas de Chumlea
     if (sexo === "M") return (64.19 - (0.04 * idade) + (2.02 * aj)) / 100;
     return (84.88 - (0.24 * idade) + (1.83 * aj)) / 100;
 }
@@ -42,9 +59,21 @@ function ajustarCB(cb, imc, sexo) {
     return (sexo === "F") ? cb - 9 : cb - 10;
 }
 
-/* ============================================================
-   ICN E DIAGNÓSTICO PES AUTOMÁTICO
-   ============================================================ */
+function classificarIMC(imc) {
+    if (imc < 22) return "Desnutrição";
+    if (imc <= 27) return "Eutrofia";
+    return "Excesso de Peso";
+}
+
+function classificarMNA(total) {
+    if (total >= 24) return "Estado Nutricional Normal";
+    if (total >= 17) return "Risco de Desnutrição";
+    return "Desnutrido";
+}
+
+function classificarNRS(total) {
+    return total >= 3 ? "Risco Nutricional" : "Sem Risco Nutricional";
+}
 
 function calcularICN(mna, nrs, imc) {
     let imcScore = (imc < 22) ? 2 : (imc <= 27 ? 1 : 0);
@@ -58,36 +87,24 @@ function classificarICN(icn) {
 }
 
 function gerarParecerPES(sMna, sNrs, sIcn, imc, cpAdj, sexo) {
-    let P = ""; 
-    let E = "relacionado à senescência e institucionalização"; 
-    let S = `evidenciado por MNA: ${sMna}, NRS: ${sNrs}, IMC: ${imc.toFixed(2)}kg/m²`; 
-
-    if (sIcn === "Alto Risco Clínico") P = "Desnutrição Proteico-Calórica (P)";
-    else if (sIcn === "Risco Moderado") P = "Risco Nutricional Moderado (P)";
-    else P = "Estado Nutricional Preservado (P)";
-
-    let sarcopenia = "";
-    if ((sexo === "F" && cpAdj < 33) || (sexo === "M" && cpAdj < 34)) {
-        sarcopenia = ` e sinais de redução de reserva muscular (CP ajustada: ${cpAdj.toFixed(1)}cm)`;
-    }
-
-    return `${P}, ${E} (E), ${S}${sarcopenia} (S). Conduta: Iniciar/Manter suporte conforme protocolo ILPI.`;
+    let P = (sIcn === "Alto Risco Clínico") ? "Desnutrição Proteico-Calórica (P)" : (sIcn === "Risco Moderado" ? "Risco de desnutrição (P)" : "Estado nutricional preservado (P)");
+    let E = "relacionado à senescência e possivel redução da ingesta alimentar (E)";
+    let S = `evidenciado por MNA: ${sMna}, NRS: ${sNrs}, IMC: ${imc.toFixed(2)}kg/m²`;
+    if ((sexo === "F" && cpAdj < 33) || (sexo === "M" && cpAdj < 34)) S += ` e baixa reserva muscular (CP ajustada: ${cpAdj.toFixed(1)}cm)`;
+    return `${P}, ${E}, ${S} (S). Conduta: Suporte Nutricional conforme protocolo do Lar.`;
 }
 
 /* ============================================================
    BANCO DE DADOS E UTILITÁRIOS
    ============================================================ */
-
 function obterBanco() { return JSON.parse(localStorage.getItem("bancoILPI")) || {}; }
 function salvarBanco(banco) { localStorage.setItem("bancoILPI", JSON.stringify(banco)); }
-
 function salvarAvaliacao(nome, avaliacao) {
     const banco = obterBanco();
     if (!banco[nome]) banco[nome] = { avaliacoes: [], exames: [] };
     banco[nome].avaliacoes.push(avaliacao);
     salvarBanco(banco);
 }
-
 function calcularIdade(data) {
     if (!data) return 0;
     const nasc = new Date(data);
@@ -96,5 +113,7 @@ function calcularIdade(data) {
     if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() == nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
     return idade;
 }
-
-function getNum(id) { return parseFloat(document.getElementById(id).value.replace(',', '.')) || 0; }
+function getNum(id) {
+    const el = document.getElementById(id);
+    return el ? parseFloat(el.value.replace(',', '.')) || 0 : 0;
+}
