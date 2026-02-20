@@ -2,7 +2,7 @@
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
-    <title>Ficha Clínica - Lar Padre Euclides</title>
+    <title>Ficha Clínica</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body onload="inicializarFicha()">
@@ -16,21 +16,20 @@
 
     <div class="container">
         <header>
-            <h1>Histórico de Evolução</h1>
-            <p>Consulta detalhada por residente</p>
+            <h1>Prontuário de Evolução Nutricional</h1>
+            <p>Consulta detalhada de diagnósticos e condutas anteriores</p>
         </header>
 
-        <section style="background: var(--bg-input); padding: 30px; border-radius: 15px;">
+        <section style="background: var(--bg-input); padding: 40px; border-radius: 15px;">
             <label>Pesquisar Residente</label>
-            <select id="selRes" onchange="verFicha()">
-                <option value="">-- Selecione para abrir o prontuário --</option>
+            <select id="selRes" onchange="carregarFicha()">
+                <option value="">-- Selecionar para abrir o prontuário --</option>
             </select>
         </section>
 
-        <div id="fichaContent" style="display:none; margin-top: 50px;">
-            <h2 id="nomeResidente" style="color: var(--primary-color); margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 10px;"></h2>
-            
-            <div id="linhaDoTempo"></div>
+        <div id="areaFicha" style="display:none; margin-top: 50px;">
+            <h2 id="nomeFicha" style="color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 40px;">-</h2>
+            <div id="listaEvolucao"></div>
         </div>
     </div>
 
@@ -42,32 +41,28 @@
             Object.keys(b).sort().forEach(n => { s.innerHTML += `<option value="${n}">${n}</option>`; });
         }
 
-        function verFicha() {
+        function carregarFicha() {
             const n = document.getElementById("selRes").value;
-            const area = document.getElementById("fichaContent");
-            if(!n) { area.style.display="none"; return; }
+            const area = document.getElementById("areaFicha");
+            if(!n) { area.style.display = "none"; return; }
             
-            area.style.display="block";
-            document.getElementById("nomeResidente").innerText = n;
+            area.style.display = "block";
+            document.getElementById("nomeFicha").innerText = "Residente: " + n;
             
-            const historico = obterBanco()[n].avaliacoes;
-            const timeline = document.getElementById("linhaDoTempo");
-            timeline.innerHTML = "";
+            const avais = obterBanco()[n].avaliacoes;
+            const lista = document.getElementById("listaEvolucao");
+            lista.innerHTML = "";
 
-            historico.reverse().forEach(a => {
-                timeline.innerHTML += `
-                    <div style="background: #fff; border: 1px solid #ddd; padding: 25px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-                        <div style="display: flex; justify-content: space-between; color: #666; font-size: 0.9rem; margin-bottom: 15px;">
-                            <span>Data: <strong>${a.data}</strong></span>
-                            <span>ICN: <strong>${a.icn}</strong></span>
+            [...avais].reverse().forEach(a => {
+                lista.innerHTML += `
+                    <div style="margin-bottom:40px; padding:30px; border:1px solid #ddd; border-radius:12px; background: #fff;">
+                        <p style="color:#666; font-size:0.9rem; margin-bottom: 10px;">Data da Avaliação: ${a.data}</p>
+                        <p><strong>Diagnóstico ICN:</strong> <span style="font-weight:bold;">${a.classIcn}</span> (Escore: ${a.icn})</p>
+                        <div style="background:#f9f9f9; padding:20px; border-left:6px solid var(--primary-color); margin-top:20px;">
+                            <strong>Parecer Técnico (PES):</strong><br>
+                            <span style="font-style:italic; line-height: 1.6;">${a.parecer}</span>
                         </div>
-                        <p><strong>Diagnóstico:</strong> <span style="color:var(--primary-color)">${a.classIcn}</span></p>
-                        <div style="margin-top: 20px; padding: 15px; background: #fdfdfd; border-left: 5px solid var(--primary-color); font-style: italic;">
-                            <strong>Parecer PES:</strong><br>
-                            ${a.parecer}
-                        </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
     </script>
