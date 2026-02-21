@@ -1,86 +1,230 @@
 <!DOCTYPE html>
 <html lang="pt-pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exames - Painel Nutricional</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exames Laboratoriais - Painel Nutricional</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.exam-grid{
+    display:grid;
+    grid-template-columns: 2fr 1fr 1fr 2fr;
+    gap:15px;
+    margin-bottom:10px;
+    align-items:center;
+}
+.exam-grid label{font-weight:bold;}
+.ref{background:#f4f6f7;padding:10px;border-radius:6px;font-size:0.85rem;}
+.diag{font-weight:bold;}
+.section-title{
+    margin-top:40px;
+    background:var(--secondary-color);
+    color:white;
+    padding:10px 15px;
+    border-radius:8px;
+}
+</style>
 </head>
+
 <body onload="carregarResidentes()">
 
-    <div class="navbar">
-        <div class="nav-container">
-            <img src="logo.png" alt="Logo" class="nav-logo">
-            <div class="nav-links">
-                <a href="index.html" class="nav-link">Nova Avaliação</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="ficha-completa.html" class="nav-link">Ficha Clínica</a>
-                <a href="exames-laboratoriais.html" class="nav-link home-btn">Exames</a>
-            </div>
+<div class="navbar">
+    <div class="nav-container">
+        <img src="logo.png" class="nav-logo">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Nova Avaliação</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="ficha-completa.html" class="nav-link">Ficha Clínica</a>
+            <a href="exames-laboratoriais.html" class="nav-link home-btn">Exames</a>
         </div>
     </div>
+</div>
 
-    <div class="container">
-        <header>
-            <h1>Registo de Exames Laboratoriais</h1>
-            <p>Insira os resultados bioquímicos para monitorização</p>
-        </header>
+<div class="container">
+<header>
+<h1>Exames Laboratoriais Clínicos</h1>
+<p>Monitorização bioquímica completa – ILPI</p>
+</header>
 
-        <section>
-            <h3>1. Selecionar Residente</h3>
-            <div class="grid">
-                <div>
-                    <label>Residente</label>
-                    <select id="selectResidente"><option value="">Selecione...</option></select>
-                </div>
-                <div>
-                    <label>Data da Colheita</label>
-                    <input type="date" id="dataExame">
-                </div>
-            </div>
-        </section>
+<section>
+<h3>Residente</h3>
+<div class="grid">
+<select id="selectResidente"></select>
+<select id="sexo">
+<option value="F">Feminino</option>
+<option value="M">Masculino</option>
+</select>
+<input type="number" id="idade" placeholder="Idade">
+</div>
+</section>
 
-        <section>
-            <h3>2. Bioquímica</h3>
-            <div class="grid">
-                <div><label>Glicémia (mg/dL)</label><input type="number" id="glicemia" step="0.1"></div>
-                <div><label>Albumina (g/dL)</label><input type="number" id="albumina" step="0.1"></div>
-                <div><label>Hemoglobina (g/dL)</label><input type="number" id="hemoglobina" step="0.1"></div>
-                <div><label>Creatinina (mg/dL)</label><input type="number" id="creatinina" step="0.01"></div>
-            </div>
-            <button class="btn-save" onclick="guardarExames()">💾 Guardar Resultados</button>
-        </section>
-    </div>
+<!-- ================= HEMOGRAMA ================= -->
+<div class="section-title">Hemograma Completo</div>
 
-    <script src="app.js"></script>
-    <script>
-        function carregarResidentes() {
-            const banco = obterBanco();
-            const select = document.getElementById("selectResidente");
-            Object.keys(banco).sort().forEach(nome => {
-                const opt = document.createElement("option");
-                opt.value = nome; opt.textContent = nome;
-                select.appendChild(opt);
-            });
-        }
+<div id="hemograma"></div>
 
-        function guardarExames() {
-            const nome = document.getElementById("selectResidente").value;
-            const data = document.getElementById("dataExame").value;
-            if (!nome || !data) return alert("Selecione o residente e a data.");
+<!-- ================= BIOQUÍMICA ================= -->
+<div class="section-title">Bioquímica e Micronutrientes</div>
 
-            const exame = {
-                data: new Date(data).toLocaleDateString('pt-PT'),
-                glicemia: getNum("glicemia"),
-                albumina: getNum("albumina"),
-                hemoglobina: getNum("hemoglobina"),
-                creatinina: getNum("creatinina")
-            };
+<div id="bioquimica"></div>
 
-            salvarExame(nome, exame);
-            alert("Exames guardados!");
-            window.location.href = "dashboard.html";
-        }
-    </script>
+<br>
+<button class="btn-save" onclick="guardarExames()">💾 Guardar Exames</button>
+
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+/* ================== CONFIGURAÇÃO DE EXAMES ================== */
+
+const examesConfig = {
+
+hemograma: [
+{ id:"hb", nome:"Hemoglobina (g/dL)",
+  ref:(sexo)=> sexo==="M"?"13,0 – 17,0":"12,0 – 16,0",
+  analise:(v,sexo)=> sexo==="M"
+      ? (v<13?"Anemia provável":v>17?"Hemoconcentração":"Normal")
+      : (v<12?"Anemia provável":v>16?"Hemoconcentração":"Normal")
+},
+{ id:"ht", nome:"Hematócrito (%)",
+  ref:(sexo)=> sexo==="M"?"40 – 50":"36 – 46",
+  analise:(v,sexo)=> sexo==="M"
+      ? (v<40?"Anemia":"Normal")
+      : (v<36?"Anemia":"Normal")
+},
+{ id:"leuco", nome:"Leucócitos (mil/mm³)",
+  ref:()=>"4.000 – 10.000",
+  analise:(v)=> v<4000?"Leucopenia":v>10000?"Leucocitose":"Normal"
+},
+{ id:"plaquetas", nome:"Plaquetas (mil/mm³)",
+  ref:()=>"150.000 – 450.000",
+  analise:(v)=> v<150000?"Trombocitopenia":v>450000?"Trombocitose":"Normal"
+}
+],
+
+bioquimica: [
+{ id:"glicemia", nome:"Glicemia Jejum (mg/dL)",
+  ref:()=>"70 – 99",
+  analise:(v)=> v<70?"Hipoglicemia":v>=126?"Diabetes provável":v>=100?"Pré-diabetes":"Normal"
+},
+{ id:"hba1c", nome:"HbA1c (%)",
+  ref:()=>"≤ 5,6",
+  analise:(v)=> v>=6.5?"Diabetes":v>=5.7?"Pré-diabetes":"Normal"
+},
+{ id:"albumina", nome:"Albumina (g/dL)",
+  ref:()=>"3,5 – 5,0",
+  analise:(v)=> v<3.5?"Hipoalbuminemia":"Normal"
+},
+{ id:"ureia", nome:"Ureia (mg/dL)",
+  ref:()=>"15 – 50",
+  analise:(v)=> v>50?"Possível disfunção renal":"Normal"
+},
+{ id:"creatinina", nome:"Creatinina (mg/dL)",
+  ref:(sexo)=> sexo==="M"?"0,7 – 1,3":"0,6 – 1,1",
+  analise:(v,sexo)=> sexo==="M"
+      ? (v>1.3?"Disfunção renal":"Normal")
+      : (v>1.1?"Disfunção renal":"Normal")
+},
+{ id:"vitd", nome:"Vitamina D 25(OH) (ng/mL)",
+  ref:()=>"30 – 60",
+  analise:(v)=> v<20?"Deficiência":v<30?"Insuficiência":"Adequado"
+},
+{ id:"b12", nome:"Vitamina B12 (pg/mL)",
+  ref:()=>"200 – 900",
+  analise:(v)=> v<200?"Deficiência":"Normal"
+},
+{ id:"ferritina", nome:"Ferritina (ng/mL)",
+  ref:(sexo)=> sexo==="M"?"30 – 400":"15 – 150",
+  analise:(v)=> v<15?"Deficiência de ferro":"Normal"
+},
+{ id:"tsh", nome:"TSH (µUI/mL)",
+  ref:()=>"0,4 – 4,5",
+  analise:(v)=> v>4.5?"Hipotireoidismo provável":v<0.4?"Hipertireoidismo provável":"Normal"
+}
+]
+
+};
+
+/* ================== GERAR CAMPOS ================== */
+
+function gerarCampos(){
+const sexo=document.getElementById("sexo").value;
+
+["hemograma","bioquimica"].forEach(sec=>{
+const container=document.getElementById(sec);
+container.innerHTML="";
+
+examesConfig[sec].forEach(ex=>{
+const div=document.createElement("div");
+div.className="exam-grid";
+
+div.innerHTML=`
+<label>${ex.nome}</label>
+<input type="number" id="${ex.id}" oninput="avaliar('${sec}','${ex.id}')">
+<div class="ref" id="ref_${ex.id}">${ex.ref(sexo)}</div>
+<div class="diag" id="diag_${ex.id}">---</div>
+`;
+
+container.appendChild(div);
+});
+});
+}
+
+/* ================== AVALIAR ================== */
+
+function avaliar(sec,id){
+const sexo=document.getElementById("sexo").value;
+const idade=document.getElementById("idade").value;
+const config=examesConfig[sec].find(e=>e.id===id);
+const valor=parseFloat(document.getElementById(id).value);
+
+if(!valor){document.getElementById("diag_"+id).innerText="---";return;}
+
+const resultado=config.analise(valor,sexo,idade);
+document.getElementById("diag_"+id).innerText=resultado;
+}
+
+/* ================== RESIDENTES ================== */
+
+function carregarResidentes(){
+const banco=obterBanco();
+const select=document.getElementById("selectResidente");
+select.innerHTML='<option value="">Selecione...</option>';
+Object.keys(banco).sort().forEach(n=>{
+const opt=document.createElement("option");
+opt.value=n; opt.textContent=n;
+select.appendChild(opt);
+});
+gerarCampos();
+}
+
+/* ================== GUARDAR ================== */
+
+function guardarExames(){
+const nome=document.getElementById("selectResidente").value;
+if(!nome){alert("Selecione residente");return;}
+
+const banco=obterBanco();
+if(!banco[nome].exames) banco[nome].exames=[];
+
+let registro={data:new Date().toLocaleDateString("pt-PT")};
+
+Object.keys(examesConfig).forEach(sec=>{
+examesConfig[sec].forEach(ex=>{
+registro[ex.id]=document.getElementById(ex.id).value||null;
+});
+});
+
+banco[nome].exames.push(registro);
+salvarBanco(banco);
+
+alert("Exames guardados com sucesso!");
+}
+
+</script>
+
 </body>
 </html>
