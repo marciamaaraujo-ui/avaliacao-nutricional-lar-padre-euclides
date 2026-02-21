@@ -6,60 +6,214 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
-.photo-container { display:flex; flex-direction:column; align-items:center; border:2px dashed #ccc; padding:15px; border-radius:10px; background:#fafafa;}
-#previewFoto { width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #2ecc71; display:none; margin-bottom:10px;}
-.auto-field { background:#e8f4fd; font-weight:bold; border:1px solid #3498db;}
-.highlight-box { background:#fdf2f2; border-left:4px solid #e74c3c; padding:8px; font-size:0.8rem; margin-top:5px; color:#c0392b;}
-.container { max-width:900px; margin:auto; padding:20px;}
-input, select, textarea { width:100%; padding:8px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc;}
-button { background:#2ecc71; color:white; border:none; padding:12px; border-radius:5px; cursor:pointer; font-weight:bold;}
-button:hover { background:#27ae60;}
+.container { max-width:1100px; margin:auto; padding:20px; }
+section { margin-bottom:30px; }
+.grid { display:grid; gap:15px; }
+.photo-container {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    border:2px dashed #ccc;
+    padding:15px;
+    border-radius:10px;
+    background:#fafafa;
+}
+#previewFoto {
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #2ecc71;
+    display:none;
+    margin-bottom:10px;
+}
+.antropo-row-1 {
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:15px;
+    margin-bottom:15px;
+}
+.antropo-row-2 {
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:15px;
+}
+.auto-field {
+    background-color:#e8f4fd !important;
+    font-weight:bold;
+    border:1px solid #3498db !important;
+}
+.highlight-box {
+    background:#fdf2f2;
+    border-left:4px solid #e74c3c;
+    padding:8px;
+    font-size:0.85rem;
+    margin-top:5px;
+    color:#c0392b;
+}
+.result-section {
+    background:#f9fbf9;
+    border:2px solid #2ecc71;
+    padding:20px;
+    border-radius:8px;
+}
+button {
+    width:100%;
+    margin-top:20px;
+    background:#2ecc71;
+    color:white;
+    border:none;
+    padding:12px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+}
+button:hover { background:#27ae60; }
+input, select, textarea {
+    width:100%;
+    padding:8px;
+    border-radius:5px;
+    border:1px solid #ccc;
+}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h3>IDENTIFICAÇÃO</h3>
+<!-- 1 IDENTIFICAÇÃO -->
+<section>
+<h3>1. IDENTIFICAÇÃO DO RESIDENTE</h3>
 
-<input type="text" id="nomeResidente" placeholder="Nome Completo">
-<input type="date" id="dataNasc" onchange="atualizar()">
-<select id="sexo" onchange="atualizar()">
-<option value="F">Feminino</option>
-<option value="M">Masculino</option>
-</select>
-<input type="text" id="idade" readonly class="auto-field" placeholder="Idade Calculada">
+<div style="display:grid; grid-template-columns:1fr 3fr; gap:25px;">
+    
+    <div class="photo-container">
+        <img id="previewFoto" src="#" alt="Foto">
+        <label for="fotoInput" style="cursor:pointer; color:#2ecc71; font-weight:bold;">
+            📷 Anexar Foto
+        </label>
+        <input type="file" id="fotoInput" accept="image/*" onchange="previewImagem(event)" style="display:none;">
+    </div>
 
-<h3>ANTROPOMETRIA</h3>
+    <div class="grid" style="grid-template-columns:1fr 1fr;">
+        <div style="grid-column:span 2;">
+            <label>Nome Completo</label>
+            <input type="text" id="nomeResidente">
+        </div>
 
-<input type="number" id="peso" placeholder="Peso (kg)" step="0.1" oninput="atualizar()">
-<input type="number" id="altura" placeholder="Altura Manual (m)" step="0.01" oninput="atualizar()">
-<input type="number" id="aj" placeholder="AJ (cm)" step="0.1" oninput="atualizar()">
-<input type="number" id="cp" placeholder="CP (cm)" step="0.1" oninput="atualizar()">
-<input type="number" id="cb" placeholder="CB (cm)" step="0.1" oninput="atualizar()">
+        <div>
+            <label>Nascimento</label>
+            <input type="date" id="dataNasc" oninput="atualizar()">
+        </div>
 
-<h3>MNA (Simplificado)</h3>
+        <div>
+            <label>Idade Calculada</label>
+            <input type="text" id="idade" readonly class="auto-field">
+        </div>
 
-<select id="mna_a" onchange="atualizar()">
-<option value="2">2</option>
-<option value="1">1</option>
-<option value="0">0</option>
-</select>
+        <div>
+            <label>Admissão</label>
+            <input type="date" id="dataAdmissao">
+        </div>
 
-<select id="mna_b" onchange="atualizar()">
-<option value="3">3</option>
-<option value="0">0</option>
-</select>
+        <div>
+            <label>Sexo</label>
+            <select id="sexo" onchange="atualizar()">
+                <option value="F">Feminino</option>
+                <option value="M">Masculino</option>
+            </select>
+        </div>
+    </div>
+</div>
+</section>
 
-<h3>RESULTADOS</h3>
+<!-- 2 ANTROPOMETRIA -->
+<section>
+<h3>2. ANTROPOMETRIA E AJUSTES</h3>
 
-<input type="text" id="resultado_imc" readonly class="auto-field" placeholder="IMC">
-<input type="text" id="resultado_icn" readonly class="auto-field" placeholder="ICN">
-<input type="text" id="resultado_class" readonly class="auto-field" placeholder="Classificação">
-<textarea id="resultado_pes" rows="4" readonly placeholder="Parecer Clínico"></textarea>
+<div class="antropo-row-1">
+    <div>
+        <label>Peso (kg)</label>
+        <input type="number" id="peso" step="0.1" oninput="atualizar()">
+    </div>
+    <div>
+        <label>Altura Manual (m)</label>
+        <input type="number" id="altura" step="0.01" oninput="atualizar()">
+    </div>
+    <div>
+        <label>AJ (cm)</label>
+        <input type="number" id="aj" step="0.1" oninput="atualizar()">
+    </div>
+    <div>
+        <label>Altura Estimada</label>
+        <input type="text" id="ae" readonly class="auto-field">
+    </div>
+</div>
+
+<div class="antropo-row-2">
+    <div>
+        <label>Circ. Braço (CB cm)</label>
+        <input type="number" id="cb" step="0.1" oninput="atualizar()">
+    </div>
+    <div>
+        <label>Circ. Panturrilha (CP cm)</label>
+        <input type="number" id="cp" step="0.1" oninput="atualizar()">
+    </div>
+    <div>
+        <label>CP Ajustada</label>
+        <input type="text" id="cp_ajustada" readonly class="auto-field">
+        <div id="msgCP" class="highlight-box" style="display:none;"></div>
+    </div>
+</div>
+</section>
+
+<!-- 3 MNA -->
+<section>
+<h3>3. MINI AVALIAÇÃO NUTRICIONAL (MNA)</h3>
+
+<div class="grid" style="grid-template-columns:repeat(3, 1fr);">
+    <div>
+        <label>A. Apetite (0-2)</label>
+        <select id="mna_a" onchange="atualizar()">
+            <option value="2">2</option>
+            <option value="1">1</option>
+            <option value="0">0</option>
+        </select>
+    </div>
+
+    <div>
+        <label>B. Perda Peso (0-3)</label>
+        <select id="mna_b" onchange="atualizar()">
+            <option value="3">3</option>
+            <option value="0">0</option>
+        </select>
+    </div>
+</div>
+</section>
+
+<!-- 4 RESULTADOS -->
+<section class="result-section">
+<h3>4. RESULTADOS FINAIS</h3>
+
+<div class="grid" style="grid-template-columns:repeat(3,1fr);">
+    <div>
+        <label>IMC Final</label>
+        <input type="text" id="resultado_imc" readonly class="auto-field">
+    </div>
+    <div>
+        <label>Risco ICN</label>
+        <input type="text" id="resultado_icn" readonly class="auto-field">
+    </div>
+    <div>
+        <label>Classificação</label>
+        <input type="text" id="resultado_class" readonly class="auto-field">
+    </div>
+</div>
+
+<textarea id="resultado_pes" rows="4" readonly style="margin-top:15px;"></textarea>
 
 <button onclick="salvar()">SALVAR AVALIAÇÃO</button>
+</section>
 
 </div>
 
@@ -67,11 +221,22 @@ button:hover { background:#27ae60;}
 
 <script>
 
+let fotoBase64 = "";
 let dadosTemporarios = {};
 
-function atualizar(){
+function previewImagem(e){
+const reader = new FileReader();
+reader.onload = () => {
+const out = document.getElementById('previewFoto');
+out.src = reader.result;
+out.style.display = 'block';
+fotoBase64 = reader.result;
+};
+if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+}
 
-try {
+function atualizar(){
+try{
 
 const peso = numeroSeguro(document.getElementById("peso").value);
 const alturaManual = numeroSeguro(document.getElementById("altura").value);
@@ -87,15 +252,14 @@ document.getElementById("idade").value = idade ? idade + " anos" : "";
 let alturaFinal = alturaManual;
 
 if(!alturaFinal && aj && idade){
-    alturaFinal = estimarAltura(aj, idade, sexo);
+alturaFinal = estimarAltura(aj, idade, sexo);
+document.getElementById("ae").value = arred(alturaFinal,2) + " m";
 }
 
 const imc = calcularIMC(peso, alturaFinal);
 
 if(imc > 0){
-    document.getElementById("resultado_imc").value = arred(imc);
-} else {
-    document.getElementById("resultado_imc").value = "";
+document.getElementById("resultado_imc").value = arred(imc);
 }
 
 const mnaScore =
@@ -105,53 +269,42 @@ numeroSeguro(document.getElementById("mna_b").value);
 let icn = 0;
 
 if(imc > 0){
-    icn = (mnaScore * 0.4) + (imc < 22 ? 2 : 1);
-    document.getElementById("resultado_icn").value = arred(icn);
-    document.getElementById("resultado_class").value = classificarICN(icn);
+icn = (mnaScore * 0.4) + (imc < 22 ? 2 : 1);
+document.getElementById("resultado_icn").value = arred(icn);
+document.getElementById("resultado_class").value = classificarICN(icn);
 }
 
 const cpAdj = ajustarCP(cp, imc);
+document.getElementById("cp_ajustada").value = arred(cpAdj,1);
+
+const limite = sexo === "M" ? 34 : 33;
+const msgCP = document.getElementById("msgCP");
+msgCP.style.display = "block";
+msgCP.innerHTML = cpAdj < limite ?
+"⚠️ <strong>Baixa Reserva Muscular</strong>" :
+"✅ Massa Muscular Adequada";
 
 if(imc > 0){
-    document.getElementById("resultado_pes").value =
-    gerarPES({
-        classificacaoICN: classificarICN(icn),
-        imc: imc,
-        cpAdj: cpAdj,
-        sexo: sexo
-    });
+document.getElementById("resultado_pes").value =
+gerarPES({
+classificacaoICN: classificarICN(icn),
+imc: imc,
+cpAdj: cpAdj,
+sexo: sexo
+});
 }
 
-dadosTemporarios = {
-peso,
-altura: alturaFinal,
-icn,
-cp,
-cb,
-mnaScore,
-sexo
-};
+dadosTemporarios = { peso, altura: alturaFinal, icn, cp, cb, mnaScore, sexo };
 
-} catch (erro){
-    console.error("Erro na atualização:", erro);
-}
-
+}catch(e){ console.error(e); }
 }
 
 function salvar(){
-
 const nome = document.getElementById("nomeResidente").value;
-
-if(!nome){
-    alert("Informe o nome do residente.");
-    return;
-}
-
+if(!nome){ alert("Informe o nome do residente."); return; }
 realizarAvaliacaoCompleta(nome, dadosTemporarios);
-
 alert("Avaliação salva com sucesso!");
 location.reload();
-
 }
 
 </script>
