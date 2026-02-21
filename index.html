@@ -9,6 +9,8 @@
         .photo-container { display: flex; flex-direction: column; align-items: center; border: 2px dashed var(--border-color); padding: 20px; border-radius: 15px; background: var(--bg-input); }
         #previewFoto { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); display: none; margin-bottom: 10px; }
         .highlight-box { background: #eef2f7; padding: 10px; border-radius: 8px; font-size: 0.82rem; border-left: 4px solid var(--secondary-color); margin-top: 5px; line-height: 1.3; }
+        
+        /* Layout solicitado: 4 colunas na linha 1, 3 colunas na linha 2 */
         .antropo-row-1 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
         .antropo-row-2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
     </style>
@@ -17,7 +19,7 @@
 
     <div class="navbar">
         <div class="nav-container">
-            <img src="logo.png" alt="Logo" class="nav-logo">
+            <img src="logo.png" alt="Logo" class="nav-logo" style="height: 50px;">
             <div class="nav-links">
                 <a href="index.html" class="nav-link home-btn">Nova Avaliação</a>
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
@@ -30,12 +32,12 @@
     <div class="container">
         <header>
             <h1>Nova Avaliação Nutricional</h1>
-            <p>Antropometria de Precisão e Triagem Clínica</p>
+            <p>Identificação e Antropometria Clínica (Ajustes Prado 2022)</p>
         </header>
 
         <section>
             <h3>1. Identificação do Residente</h3>
-            <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 30px;">
+            <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 30px; align-items: start;">
                 <div class="photo-container">
                     <img id="previewFoto" src="#" alt="Foto">
                     <label for="fotoInput" style="cursor: pointer; color: var(--secondary-color); font-weight: bold;">📷 Anexar Foto</label>
@@ -53,48 +55,47 @@
 
         <section>
             <h3>2. Antropometria e Ajustes (Prado 2022 / Chumlea 1985)</h3>
+            
             <div class="antropo-row-1">
                 <div><label>Peso (kg)</label><input type="number" id="peso" step="0.1" oninput="atualizarDados()"></div>
                 <div><label>Altura Manual (m)</label><input type="number" id="altura" step="0.01" oninput="atualizarDados()"></div>
                 <div><label>Altura Joelho (AJ cm)</label><input type="number" id="aj" step="0.1" oninput="atualizarDados()"></div>
                 <div><label>Altura Estimada (AE m)</label><input type="text" id="altura_estimada" readonly placeholder="Cálculo Chumlea"></div>
             </div>
+
             <div class="antropo-row-2">
                 <div><label>Circ. Braço (CB cm)</label><input type="number" id="cb" step="0.1" oninput="atualizarDados()"><div id="msgCB" class="highlight-box" style="display:none;"></div></div>
                 <div><label>Circ. Panturrilha (CP cm)</label><input type="number" id="cp" step="0.1" oninput="atualizarDados()"></div>
-                <div><label>CP Ajustada (cm)</label><input type="text" id="cp_ajustada" readonly placeholder="Massa Muscular"><div id="msgCP" class="highlight-box" style="display:none;"></div></div>
+                <div><label>CP Ajustada (cm)</label><input type="text" id="cp_ajustada" readonly><div id="msgCP" class="highlight-box" style="display:none;"></div></div>
             </div>
         </section>
 
         <section>
-            <h3>3. Mini Avaliação Nutricional (MNA)</h3>
+            <h3>3. Triagens e Diagnóstico</h3>
             <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
-                <div><label>A. Apetite (0-2)</label><select id="mna_a" onchange="atualizarDados()"><option value="2">2</option><option value="1">1</option><option value="0">0</option></select></div>
-                <div><label>B. Perda Peso (0-3)</label><select id="mna_b" onchange="atualizarDados()"><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option></select></div>
-                <div><label>F. Score IMC (0-3)</label><select id="mna_f" onchange="atualizarDados()"><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option></select></div>
-                <div style="display:none;">
-                    <input id="mna_c" value="2"> <input id="mna_d" value="2"> <input id="mna_e" value="2">
-                    <input id="mna_g" value="1"> <input id="mna_h" value="1"> <input id="mna_i" value="1">
-                    <input id="mna_j" value="2"> <input id="mna_k" value="1"> <input id="mna_l" value="1">
-                    <input id="mna_m" value="1"> <input id="mna_n" value="2"> <input id="mna_o" value="2">
-                    <input id="mna_p" value="2"> <input id="mna_q" value="1"> <input id="mna_r" value="1">
-                </div>
+                <div><label>MNA A. Apetite (0-2)</label><select id="mna_a" onchange="atualizarDados()"><option value="2">2</option><option value="1">1</option><option value="0">0</option></select></div>
+                <div><label>MNA B. Perda Peso (0-3)</label><select id="mna_b" onchange="atualizarDados()"><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option></select></div>
+                <div><label>MNA F. Score IMC (0-3)</label><select id="mna_f" onchange="atualizarDados()"><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option></select></div>
             </div>
         </section>
 
         <section>
-            <h3>4. Diagnóstico e Parecer PES</h3>
+            <h3>4. NRS 2002</h3>
+            <div class="grid">
+                <div><label>Estado Nutricional (0-3)</label><select id="nrs_status" onchange="atualizarDados()"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+                <div><label>Gravidade Doença (0-3)</label><select id="nrs_gravidade" onchange="atualizarDados()"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+            </div>
+        </section>
+
+        <section style="background: #f9fbf9; border: 2px solid var(--primary-color);">
+            <h3>5. Resultados e Parecer PES</h3>
             <div class="grid">
                 <div><label>IMC (Lipschitz)</label><input type="text" id="res_imc" readonly></div>
                 <div><label>Risco ICN</label><input type="text" id="res_icn" readonly></div>
                 <div><label>Classificação</label><input type="text" id="res_class" readonly style="font-weight:bold;"></div>
             </div>
             <textarea id="res_parecer" rows="5" readonly style="margin-top:20px; width:100%; border-radius: 8px; padding: 10px;"></textarea>
-            <button class="btn-save" onclick="confirmarESalvar()" style="margin-top:20px;">✅ Gravar Avaliação</button>
-            <div style="display:none;">
-                <select id="nrs_status"><option value="0">0</option></select>
-                <select id="nrs_gravidade"><option value="0">0</option></select>
-            </div>
+            <button class="btn-save" onclick="confirmarESalvar()" style="margin-top:20px; width:100%;">✅ Gravar Avaliação</button>
         </section>
     </div>
 
@@ -109,19 +110,15 @@
         }
 
         function atualizarDados() {
-            const peso = getNum("peso");
-            const manualAlt = getNum("altura");
-            const aj = getNum("aj");
-            const cb = getNum("cb");
-            const cp = getNum("cp");
-            const sexo = document.getElementById("sexo").value;
             const dataNascStr = document.getElementById("dataNasc").value;
+            const sexo = document.getElementById("sexo").value;
             
-            // 1. Idade
+            // 1. Sincronização Imediata da Idade
             const idade = calcularIdade(dataNascStr);
             if (dataNascStr) document.getElementById("res_idade").value = idade + " anos";
 
-            // 2. Chumlea
+            // 2. Cálculo da Estatura Estimada (AE) - Chumlea
+            const aj = getNum("aj");
             let ae = 0;
             if (aj > 0 && idade > 0) {
                 ae = estimarAltura(aj, idade, sexo);
@@ -130,26 +127,33 @@
                 document.getElementById("altura_estimada").value = "";
             }
 
-            // 3. IMC e Ajustes
-            let alturaFinal = manualAlt > 0 ? manualAlt : ae;
+            // 3. Definição da Altura Final para o IMC (Prioriza Manual)
+            const peso = getNum("peso");
+            const manualAlt = getNum("altura");
+            const alturaFinal = manualAlt > 0 ? manualAlt : ae;
 
             if (peso > 0 && alturaFinal > 0) {
                 const imc = peso / (alturaFinal * alturaFinal);
                 document.getElementById("res_imc").value = imc.toFixed(2);
 
-                const cpAdj = ajustarCP(cp, imc); [cite: 48]
+                // Ajuste de CP (Prado et al., 2022) [cite: 33, 48, 113-118]
+                const cp = getNum("cp");
+                const cpAdj = ajustarCP(cp, imc);
                 document.getElementById("cp_ajustada").value = cpAdj.toFixed(1) + " cm";
                 
                 const msgCP = document.getElementById("msgCP");
                 msgCP.style.display = "block";
                 const limiteCP = (sexo === "M") ? 34 : 33; [cite: 112]
-                msgCP.innerHTML = cpAdj < limiteCP ? "⚠️ <strong>Baixa Massa Muscular</strong>" : "✅ Massa Normal";
+                msgCP.innerHTML = cpAdj < limiteCP ? "⚠️ <strong>Massa Muscular Baixa</strong>" : "✅ Massa Normal";
 
+                // Ajuste de CB (NHANES)
+                const cb = getNum("cb");
                 const cbAdj = ajustarCB(cb, imc, sexo);
                 const msgCB = document.getElementById("msgCB");
                 msgCB.style.display = "block";
-                msgCB.innerText = `CB Adj: ${cbAdj.toFixed(1)} cm`;
+                msgCB.innerText = `CB Ajustada: ${cbAdj.toFixed(1)} cm`;
 
+                // Triagem e Diagnóstico
                 const mna = calcularSomaMNA();
                 const nrs = calcularSomaNRS(idade);
                 const icn = calcularICN(mna, nrs, imc);
@@ -163,15 +167,32 @@
 
         function confirmarESalvar() {
             const nome = document.getElementById("nomeResidente").value;
-            if(!nome || !getNum("peso") || !document.getElementById("dataNasc").value) {
-                return alert("Preencha Nome, Nascimento e Peso!");
+            if(!nome || !document.getElementById("dataNasc").value || !document.getElementById("res_imc").value) {
+                return alert("Preencha Nome, Nascimento e dados antropométricos para calcular o IMC!");
             }
+            
             const banco = obterBanco();
             if(!banco[nome]) banco[nome] = { perfil: {}, avaliacoes: [] };
-            banco[nome].perfil = { foto: fotoBase64, nasc: document.getElementById("dataNasc").value, admissao: document.getElementById("dataAdmissao").value, sexo: document.getElementById("sexo").value };
-            const avaliacao = { data: new Date().toLocaleDateString('pt-PT'), peso: getNum("peso"), imc: document.getElementById("res_imc").value, icn: document.getElementById("res_icn").value, classIcn: document.getElementById("res_class").value, parecer: document.getElementById("res_parecer").value, cp_ajustada: document.getElementById("cp_ajustada").value };
+            
+            banco[nome].perfil = {
+                foto: fotoBase64 || (banco[nome].perfil.foto || ""),
+                nasc: document.getElementById("dataNasc").value,
+                admissao: document.getElementById("dataAdmissao").value,
+                sexo: document.getElementById("sexo").value
+            };
+
+            const avaliacao = {
+                data: new Date().toLocaleDateString('pt-PT'),
+                peso: getNum("peso"),
+                imc: document.getElementById("res_imc").value,
+                icn: document.getElementById("res_icn").value,
+                classIcn: document.getElementById("res_class").value,
+                parecer: document.getElementById("res_parecer").value,
+                cp_ajustada: document.getElementById("cp_ajustada").value
+            };
+
             salvarAvaliacao(nome, avaliacao);
-            alert("Avaliação guardada!");
+            alert("Avaliação guardada com sucesso!");
             window.location.href = "dashboard.html";
         }
     </script>
