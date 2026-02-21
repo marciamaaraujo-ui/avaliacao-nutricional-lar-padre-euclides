@@ -5,15 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório Executivo - Painel Nutricional</title>
     <link rel="stylesheet" href="style.css">
+
     <style>
-        /* Estilos para os Gráficos de Barras em CSS */
         .chart-container { margin-top: 30px; }
-        .bar-wrap { background: #eee; border-radius: 10px; height: 25px; margin-bottom: 20px; overflow: hidden; position: relative; }
-        .bar-fill { height: 100%; transition: width 1s ease-in-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; color: white; font-size: 0.8rem; font-weight: bold; }
-        .label-group { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
-        @media print { .no-print { display: none !important; } }
+
+        .bar-wrap {
+            background: #eee;
+            border-radius: 10px;
+            height: 25px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            transition: width 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .label-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
+
 <body onload="gerarRelatorioExecutivo()">
 
     <div class="navbar no-print">
@@ -29,130 +59,210 @@
     </div>
 
     <div class="container">
-        <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 40px;">
+
+        <header style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--primary-color); padding-bottom:20px; margin-bottom:40px;">
             <div>
-                <h1 style="margin: 0;">Relatório Executivo Nutricional</h1>
-                <p style="margin: 5px 0 0 0;">Análise Global da População Institucionalizada</p>
+                <h1 style="margin:0;">Relatório Executivo Nutricional</h1>
+                <p style="margin:5px 0 0 0;">Análise Global da População Institucionalizada</p>
             </div>
-            <button class="btn-save no-print" onclick="window.print()" style="width: auto; padding: 10px 20px; font-size: 0.9rem; background: var(--secondary-color);">
+            <button class="btn-save no-print"
+                    onclick="window.print()"
+                    style="width:auto; padding:10px 20px; font-size:0.9rem; background:var(--secondary-color);">
                 🖨️ Imprimir Relatório
             </button>
         </header>
 
+        <!-- CARDS -->
         <div class="grid">
-            <div class="stat-card" style="border-top: 5px solid var(--secondary-color);">
+            <div class="stat-card" style="border-top:5px solid var(--secondary-color);">
                 <label>População Avaliada</label>
                 <p id="totalResidentes">0</p>
             </div>
-            <div class="stat-card" style="border-top: 5px solid #e74c3c;">
+
+            <div class="stat-card" style="border-top:5px solid #e74c3c;">
                 <label>Alto Risco (ICN)</label>
-                <p id="totalAltoRisco" style="color: #e74c3c;">0</p>
+                <p id="totalAltoRisco" style="color:#e74c3c;">0</p>
             </div>
-            <div class="stat-card" style="border-top: 5px solid #f39c12;">
+
+            <div class="stat-card" style="border-top:5px solid #f39c12;">
                 <label>Risco Moderado</label>
-                <p id="totalModerado" style="color: #f39c12;">0</p>
+                <p id="totalModerado" style="color:#f39c12;">0</p>
             </div>
         </div>
 
-        <section style="margin-top: 40px;">
+        <!-- GRÁFICO -->
+        <section style="margin-top:40px;">
             <h3>Distribuição de Risco (ICN %)</h3>
+
             <div class="chart-container">
-                <div class="label-group"><span>Baixo Risco</span><span id="percBaixo">0%</span></div>
-                <div class="bar-wrap"><div id="barBaixo" class="bar-fill" style="background: #27ae60; width: 0%;"></div></div>
 
-                <div class="label-group"><span>Risco Moderado</span><span id="percModerado">0%</span></div>
-                <div class="bar-wrap"><div id="barModerado" class="bar-fill" style="background: #f39c12; width: 0%;"></div></div>
+                <div class="label-group">
+                    <span>Baixo Risco</span>
+                    <span id="percBaixo">0%</span>
+                </div>
+                <div class="bar-wrap">
+                    <div id="barBaixo" class="bar-fill"
+                         style="background:#27ae60; width:0%;"></div>
+                </div>
 
-                <div class="label-group"><span>Alto Risco Clínico</span><span id="percAlto">0%</span></div>
-                <div class="bar-wrap"><div id="barAlto" class="bar-fill" style="background: #e74c3c; width: 0%;"></div></div>
+                <div class="label-group">
+                    <span>Risco Moderado</span>
+                    <span id="percModerado">0%</span>
+                </div>
+                <div class="bar-wrap">
+                    <div id="barModerado" class="bar-fill"
+                         style="background:#f39c12; width:0%;"></div>
+                </div>
+
+                <div class="label-group">
+                    <span>Alto Risco Clínico</span>
+                    <span id="percAlto">0%</span>
+                </div>
+                <div class="bar-wrap">
+                    <div id="barAlto" class="bar-fill"
+                         style="background:#e74c3c; width:0%;"></div>
+                </div>
+
             </div>
         </section>
 
+        <!-- TABELA IMC -->
         <section>
             <h3>Estado Nutricional (Distribuição IMC)</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+
+            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
                 <thead>
-                    <tr style="text-align: left; background: #f8f9fa;">
-                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">Classificação</th>
-                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">Nº Residentes</th>
-                        <th style="padding: 15px; border-bottom: 2px solid var(--primary-color);">Percentagem</th>
+                    <tr style="background:#f8f9fa; text-align:left;">
+                        <th style="padding:15px; border-bottom:2px solid var(--primary-color);">
+                            Classificação
+                        </th>
+                        <th style="padding:15px; border-bottom:2px solid var(--primary-color);">
+                            Nº Residentes
+                        </th>
+                        <th style="padding:15px; border-bottom:2px solid var(--primary-color);">
+                            Percentagem
+                        </th>
                     </tr>
                 </thead>
-                <tbody id="tabelaIMC">
-                    </tbody>
+                <tbody id="tabelaIMC"></tbody>
             </table>
         </section>
 
-        <footer style="margin-top: 50px; text-align: center; font-size: 0.8rem; color: #999;">
-            Relatório gerado automaticamente em <span id="dataAtual"></span>
+        <footer style="margin-top:50px; text-align:center; font-size:0.8rem; color:#999;">
+            Relatório gerado automaticamente em
+            <span id="dataAtual"></span>
         </footer>
+
     </div>
 
     <script src="app.js"></script>
+
     <script>
         function gerarRelatorioExecutivo() {
-            const banco = obterBanco();
-            const residentes = Object.keys(banco);
-            const total = residentes.length;
-            document.getElementById("dataAtual").innerText = new Date().toLocaleDateString('pt-PT');
 
-            if (total === 0) return;
+            const banco = obterBanco();
+            const nomes = Object.keys(banco);
+
+            let totalValidos = 0;
 
             let icnCounts = { baixo: 0, moderado: 0, alto: 0 };
             let imcCounts = { desnutricao: 0, eutrofia: 0, excesso: 0 };
 
-            residentes.forEach(nome => {
-                const avaliacoes = banco[nome].avaliacoes;
-                if (avaliacoes && avaliacoes.length > 0) {
-                    const u = avaliacoes[avaliacoes.length - 1];
-                    
-                    // Contagem ICN
-                    if (u.classIcn === "Baixo Risco") icnCounts.baixo++;
-                    else if (u.classIcn === "Risco Moderado") icnCounts.moderado++;
-                    else icnCounts.alto++;
+            nomes.forEach(nome => {
 
-                    // Contagem IMC (Critério Lipschitz para Idosos)
-                    const imcVal = parseFloat(u.imc);
-                    if (imcVal < 22) imcCounts.desnutricao++;
-                    else if (imcVal <= 27) imcCounts.eutrofia++;
-                    else imcCounts.excesso++;
+                const avaliacoes = banco[nome].avaliacoes;
+
+                if (avaliacoes && avaliacoes.length > 0) {
+
+                    totalValidos++;
+
+                    const ultima = avaliacoes[avaliacoes.length - 1];
+
+                    /* ===== ICN ===== */
+
+                    const risco = ultima.classificacaoICN;
+
+                    if (risco === "Baixo Risco") icnCounts.baixo++;
+                    else if (risco === "Risco Moderado") icnCounts.moderado++;
+                    else if (risco === "Alto Risco Clínico") icnCounts.alto++;
+
+                    /* ===== IMC ===== */
+
+                    const imcVal = parseFloat(ultima.imc);
+
+                    if (!isNaN(imcVal)) {
+
+                        if (imcVal < 22) imcCounts.desnutricao++;
+                        else if (imcVal <= 27) imcCounts.eutrofia++;
+                        else imcCounts.excesso++;
+                    }
                 }
             });
 
-            // Atualizar Cards
-            document.getElementById("totalResidentes").innerText = total;
+            document.getElementById("dataAtual").innerText =
+                new Date().toLocaleDateString('pt-PT');
+
+            if (totalValidos === 0) {
+                document.getElementById("totalResidentes").innerText = 0;
+                return;
+            }
+
+            /* ===== CARDS ===== */
+
+            document.getElementById("totalResidentes").innerText = totalValidos;
             document.getElementById("totalAltoRisco").innerText = icnCounts.alto;
             document.getElementById("totalModerado").innerText = icnCounts.moderado;
 
-            // Atualizar Barras de Gráfico
-            const atualizarBarra = (idPerc, idBar, valor) => {
-                const perc = ((valor / total) * 100).toFixed(1);
-                document.getElementById(idPerc).innerText = perc + "%";
-                document.getElementById(idBar).style.width = perc + "%";
-            };
+            /* ===== BARRAS ===== */
+
+            function atualizarBarra(idPerc, idBar, valor) {
+
+                const perc = (valor / totalValidos) * 100;
+                const percFormatado = isNaN(perc) ? 0 : perc.toFixed(1);
+
+                document.getElementById(idPerc).innerText =
+                    percFormatado + "%";
+
+                document.getElementById(idBar).style.width =
+                    percFormatado + "%";
+            }
 
             atualizarBarra("percBaixo", "barBaixo", icnCounts.baixo);
             atualizarBarra("percModerado", "barModerado", icnCounts.moderado);
             atualizarBarra("percAlto", "barAlto", icnCounts.alto);
 
-            // Preencher Tabela IMC
+            /* ===== TABELA IMC ===== */
+
             const tabela = document.getElementById("tabelaIMC");
+
             const dadosIMC = [
                 { label: "Desnutrição (IMC < 22)", qtd: imcCounts.desnutricao },
                 { label: "Eutrofia (IMC 22 - 27)", qtd: imcCounts.eutrofia },
                 { label: "Excesso de Peso (IMC > 27)", qtd: imcCounts.excesso }
             ];
 
-            tabela.innerHTML = dadosIMC.map(item => `
-                <tr>
-                    <td style="padding: 15px; border-bottom: 1px solid #eee;">${item.label}</td>
-                    <td style="padding: 15px; border-bottom: 1px solid #eee;">${item.qtd}</td>
-                    <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold;">
-                        ${((item.qtd / total) * 100).toFixed(1)}%
-                    </td>
-                </tr>
-            `).join('');
+            tabela.innerHTML = dadosIMC.map(item => {
+
+                const perc = totalValidos > 0
+                    ? ((item.qtd / totalValidos) * 100).toFixed(1)
+                    : "0.0";
+
+                return `
+                    <tr>
+                        <td style="padding:15px; border-bottom:1px solid #eee;">
+                            ${item.label}
+                        </td>
+                        <td style="padding:15px; border-bottom:1px solid #eee;">
+                            ${item.qtd}
+                        </td>
+                        <td style="padding:15px; border-bottom:1px solid #eee; font-weight:bold;">
+                            ${perc}%
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
     </script>
+
 </body>
 </html>
