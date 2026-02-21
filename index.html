@@ -4,15 +4,21 @@
 <meta charset="UTF-8">
 <title>Painel Nutricional - Nova Avaliação</title>
 <link rel="stylesheet" href="style.css">
+
 <style>
 .photo-container { display:flex; flex-direction:column; align-items:center; border:2px dashed #ccc; padding:15px; border-radius:10px; background:#fafafa;}
 #previewFoto { width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #2ecc71; display:none; margin-bottom:10px;}
 .auto-field { background:#e8f4fd; font-weight:bold; border:1px solid #3498db;}
 .highlight-box { background:#fdf2f2; border-left:4px solid #e74c3c; padding:8px; font-size:0.8rem; margin-top:5px; color:#c0392b;}
+.container { max-width:900px; margin:auto; padding:20px;}
+input, select, textarea { width:100%; padding:8px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc;}
+button { background:#2ecc71; color:white; border:none; padding:12px; border-radius:5px; cursor:pointer; font-weight:bold;}
+button:hover { background:#27ae60;}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
 <h3>IDENTIFICAÇÃO</h3>
@@ -23,17 +29,17 @@
 <option value="F">Feminino</option>
 <option value="M">Masculino</option>
 </select>
-<input type="text" id="idade" readonly class="auto-field">
+<input type="text" id="idade" readonly class="auto-field" placeholder="Idade Calculada">
 
 <h3>ANTROPOMETRIA</h3>
 
 <input type="number" id="peso" placeholder="Peso (kg)" step="0.1" oninput="atualizar()">
-<input type="number" id="altura" placeholder="Altura (m)" step="0.01" oninput="atualizar()">
+<input type="number" id="altura" placeholder="Altura Manual (m)" step="0.01" oninput="atualizar()">
 <input type="number" id="aj" placeholder="AJ (cm)" step="0.1" oninput="atualizar()">
 <input type="number" id="cp" placeholder="CP (cm)" step="0.1" oninput="atualizar()">
-<input type="number" id="cb" placeholder="CB (cm)" step="0.1">
+<input type="number" id="cb" placeholder="CB (cm)" step="0.1" oninput="atualizar()">
 
-<h3>MNA</h3>
+<h3>MNA (Simplificado)</h3>
 
 <select id="mna_a" onchange="atualizar()">
 <option value="2">2</option>
@@ -46,11 +52,12 @@
 <option value="0">0</option>
 </select>
 
-<input type="text" id="resultado_imc" readonly class="auto-field">
-<input type="text" id="resultado_icn" readonly class="auto-field">
-<input type="text" id="resultado_class" readonly class="auto-field">
+<h3>RESULTADOS</h3>
 
-<textarea id="resultado_pes" rows="4" readonly></textarea>
+<input type="text" id="resultado_imc" readonly class="auto-field" placeholder="IMC">
+<input type="text" id="resultado_icn" readonly class="auto-field" placeholder="ICN">
+<input type="text" id="resultado_class" readonly class="auto-field" placeholder="Classificação">
+<textarea id="resultado_pes" rows="4" readonly placeholder="Parecer Clínico"></textarea>
 
 <button onclick="salvar()">SALVAR AVALIAÇÃO</button>
 
@@ -64,8 +71,10 @@ let dadosTemporarios = {};
 
 function atualizar(){
 
+try {
+
 const peso = numeroSeguro(document.getElementById("peso").value);
-const altura = numeroSeguro(document.getElementById("altura").value);
+const alturaManual = numeroSeguro(document.getElementById("altura").value);
 const aj = numeroSeguro(document.getElementById("aj").value);
 const cp = numeroSeguro(document.getElementById("cp").value);
 const cb = numeroSeguro(document.getElementById("cb").value);
@@ -75,41 +84,57 @@ const nasc = document.getElementById("dataNasc").value;
 const idade = calcularIdade(nasc);
 document.getElementById("idade").value = idade ? idade + " anos" : "";
 
-let alturaFinal = altura;
+let alturaFinal = alturaManual;
 
 if(!alturaFinal && aj && idade){
-alturaFinal = estimarAltura(aj, idade, sexo);
+    alturaFinal = estimarAltura(aj, idade, sexo);
 }
 
 const imc = calcularIMC(peso, alturaFinal);
 
-if(imc){
-document.getElementById("resultado_imc").value = arred(imc);
+if(imc > 0){
+    document.getElementById("resultado_imc").value = arred(imc);
+} else {
+    document.getElementById("resultado_imc").value = "";
 }
 
 const mnaScore =
 numeroSeguro(document.getElementById("mna_a").value) +
 numeroSeguro(document.getElementById("mna_b").value);
 
-const icn = (mnaScore * 0.4) + (imc < 22 ? 2 : 1);
+let icn = 0;
 
-document.getElementById("resultado_icn").value = arred(icn);
-document.getElementById("resultado_class").value = classificarICN(icn);
+if(imc > 0){
+    icn = (mnaScore * 0.4) + (imc < 22 ? 2 : 1);
+    document.getElementById("resultado_icn").value = arred(icn);
+    document.getElementById("resultado_class").value = classificarICN(icn);
+}
 
 const cpAdj = ajustarCP(cp, imc);
 
-document.getElementById("resultado_pes").value =
-gerarPES({
-classificacaoICN: classificarICN(icn),
-imc: imc,
-cpAdj: cpAdj,
-sexo: sexo
-});
+if(imc > 0){
+    document.getElementById("resultado_pes").value =
+    gerarPES({
+        classificacaoICN: classificarICN(icn),
+        imc: imc,
+        cpAdj: cpAdj,
+        sexo: sexo
+    });
+}
 
 dadosTemporarios = {
-peso, altura: alturaFinal, icn, cp, cb,
-mnaScore, sexo
+peso,
+altura: alturaFinal,
+icn,
+cp,
+cb,
+mnaScore,
+sexo
 };
+
+} catch (erro){
+    console.error("Erro na atualização:", erro);
+}
 
 }
 
@@ -117,12 +142,14 @@ function salvar(){
 
 const nome = document.getElementById("nomeResidente").value;
 
-if(!nome) return alert("Informe o nome do residente.");
+if(!nome){
+    alert("Informe o nome do residente.");
+    return;
+}
 
-const resultado = realizarAvaliacaoCompleta(nome, dadosTemporarios);
+realizarAvaliacaoCompleta(nome, dadosTemporarios);
 
 alert("Avaliação salva com sucesso!");
-
 location.reload();
 
 }
