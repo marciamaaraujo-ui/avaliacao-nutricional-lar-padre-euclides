@@ -1,65 +1,170 @@
 <!DOCTYPE html>
 <html lang="pt-pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha Clínica - Painel Nutricional</title>
-    <link rel="stylesheet" href="style.css">
-    <style>@media print { .no-print { display: none !important; } }</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha Clínica - Painel Nutricional</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+@media print { .no-print { display: none !important; } }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.info-box {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+</style>
 </head>
+
 <body onload="carregarListaResidentes()">
 
-    <div class="navbar no-print">
-        <div class="nav-container">
-            <img src="logo.png" alt="Logo" class="nav-logo">
-            <div class="nav-links">
-                <a href="index.html" class="nav-link">Nova Avaliação</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="ficha-completa.html" class="nav-link home-btn">Ficha Clínica</a>
-                <a href="exames-laboratoriais.html" class="nav-link">Exames</a>
-            </div>
+<div class="navbar no-print">
+    <div class="nav-container">
+        <img src="logo.png" alt="Logo" class="nav-logo">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Nova Avaliação</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="ficha-completa.html" class="nav-link home-btn">Ficha Clínica</a>
+            <a href="exames-laboratoriais.html" class="nav-link">Exames</a>
         </div>
     </div>
+</div>
 
-    <div class="container">
-        <header class="no-print">
-            <h1>Ficha Clínica Individual</h1>
-            <div style="margin-top: 20px; display: flex; gap: 15px;">
-                <select id="selectResidente" onchange="gerarFicha()"><option value="">Escolha um residente...</option></select>
-                <button class="btn-save" onclick="window.print()" style="width: auto; padding: 0 20px; background: var(--secondary-color);">🖨️ Imprimir</button>
-            </div>
-        </header>
+<div class="container">
 
-        <div id="conteudoFicha" style="display: none; margin-top: 30px;">
-            <h2 id="print_nome" style="text-align: center; border-bottom: 2px solid var(--primary-color);">---</h2>
-            <section>
-                <h3>Estado Nutricional</h3>
-                <div id="res_parecer" style="font-style: italic; background: #f9f9f9; padding: 15px; border-radius: 8px;">---</div>
-            </section>
+<header class="no-print">
+    <h1>Ficha Clínica Individual</h1>
+
+    <div style="margin-top:20px; display:flex; gap:15px;">
+        <select id="selectResidente" onchange="gerarFicha()">
+            <option value="">Escolha um residente...</option>
+        </select>
+
+        <button class="btn-save"
+                onclick="window.print()"
+                style="width:auto; padding:0 20px; background:var(--secondary-color);">
+            🖨️ Imprimir
+        </button>
+    </div>
+</header>
+
+<div id="conteudoFicha" style="display:none; margin-top:30px;">
+
+    <h2 id="print_nome"
+        style="text-align:center; border-bottom:2px solid var(--primary-color); padding-bottom:10px;">
+        ---
+    </h2>
+
+    <div class="info-grid">
+
+        <div class="info-box">
+            <strong>Data da Avaliação</strong>
+            <div id="print_data">---</div>
         </div>
+
+        <div class="info-box">
+            <strong>IMC</strong>
+            <div id="print_imc">---</div>
+        </div>
+
+        <div class="info-box">
+            <strong>Classificação ICN</strong>
+            <div id="print_icn">---</div>
+        </div>
+
     </div>
 
-    <script src="app.js"></script>
-    <script>
-        function carregarListaResidentes() {
-            const banco = obterBanco();
-            const select = document.getElementById("selectResidente");
-            Object.keys(banco).sort().forEach(n => {
+    <section style="margin-top:30px;">
+        <h3>Estado Nutricional</h3>
+
+        <div id="res_parecer"
+             style="font-style:italic; background:#f9f9f9; padding:15px; border-radius:8px;">
+            ---
+        </div>
+    </section>
+
+</div>
+
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+function carregarListaResidentes() {
+
+    const banco = obterBanco();
+    const select = document.getElementById("selectResidente");
+
+    // Evita duplicação
+    select.innerHTML = '<option value="">Escolha um residente...</option>';
+
+    Object.keys(banco)
+        .sort()
+        .forEach(nome => {
+
+            if (banco[nome].avaliacoes &&
+                banco[nome].avaliacoes.length > 0) {
+
                 const opt = document.createElement("option");
-                opt.value = n; opt.textContent = n;
+                opt.value = nome;
+                opt.textContent = nome;
                 select.appendChild(opt);
-            });
-        }
+            }
+        });
+}
 
-        function gerarFicha() {
-            const nome = document.getElementById("selectResidente").value;
-            if (!nome) return;
-            document.getElementById("conteudoFicha").style.display = "block";
-            const banco = obterBanco();
-            const u = banco[nome].avaliacoes.slice(-1)[0] || {};
-            document.getElementById("print_nome").textContent = nome;
-            document.getElementById("res_parecer").textContent = u.parecer || "Sem parecer registado.";
-        }
-    </script>
+function gerarFicha() {
+
+    const nome = document.getElementById("selectResidente").value;
+    if (!nome) return;
+
+    const banco = obterBanco();
+
+    if (!banco[nome] ||
+        !banco[nome].avaliacoes ||
+        banco[nome].avaliacoes.length === 0) {
+
+        alert("Residente sem avaliação registrada.");
+        return;
+    }
+
+    const ultima =
+        banco[nome].avaliacoes[
+            banco[nome].avaliacoes.length - 1
+        ];
+
+    document.getElementById("conteudoFicha").style.display = "block";
+
+    document.getElementById("print_nome").textContent = nome;
+
+    document.getElementById("print_data").textContent =
+        ultima.data || "---";
+
+    document.getElementById("print_imc").textContent =
+        ultima.imc
+        ? ultima.imc + " kg/m²"
+        : "---";
+
+    document.getElementById("print_icn").textContent =
+        ultima.classificacaoICN || "---";
+
+    document.getElementById("res_parecer").textContent =
+        ultima.parecerPES ||
+        "Sem parecer registrado.";
+}
+
+</script>
+
 </body>
 </html>
