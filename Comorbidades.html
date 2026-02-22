@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+<meta charset="UTF-8">
+<title>Comorbidades - Lar Padre Euclides</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.comorbidade-cat{
+    display:grid;
+    grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;
+    margin-top:15px;
+}
+.check-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#f8f9fa;
+    padding:8px 10px;
+    border-radius:6px;
+}
+.print-section{
+    margin-top:40px;
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+.btn-print{
+    background:var(--secondary-color);
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:6px;
+    cursor:pointer;
+}
+</style>
+
+</head>
+
+<body onload="inicializarComorbidades()">
+
+<div class="navbar">
+<div class="nav-container">
+<img src="logo.png" alt="Logo" class="nav-logo">
+<div class="nav-links">
+<a href="index.html" class="nav-link">🏠 Página Inicial</a>
+<a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+<a href="ficha-completa.html" class="nav-link">📂 Ficha Clínica</a>
+<a href="exames-laboratoriais.html" class="nav-link">🧪 Exames</a>
+<a href="comorbidades.html" class="nav-link home-btn">🏥 Comorbidades</a>
+</div>
+</div>
+</div>
+
+<div class="container">
+
+<header>
+<h1>Mapeamento Clínico Completo</h1>
+<p>Registo detalhado de comorbidades e condições geriátricas</p>
+</header>
+
+<section style="background:var(--bg-input); border:2px solid var(--primary-color);">
+<div class="grid">
+<div>
+<label>Selecionar Residente</label>
+<select id="selRes" onchange="carregarComorbidadesSalvas()">
+<option value="">-- Escolher Residente --</option>
+</select>
+</div>
+<div>
+<label>Última Atualização</label>
+<input type="text" id="dataAtualizacao" readonly>
+</div>
+</div>
+</section>
+
+<form id="formComorbidades">
+
+<!-- ================= SEÇÕES ================= -->
+
+<section>
+<h3>1. Doenças Cardiovasculares e Cardiometabólicas</h3>
+<div class="comorbidade-cat">
+<label class="check-item"><input type="checkbox" value="HAS"> HAS</label>
+<label class="check-item"><input type="checkbox" value="DAC"> DAC</label>
+<label class="check-item"><input type="checkbox" value="Insuficiência Cardíaca"> Insuficiência Cardíaca</label>
+<label class="check-item"><input type="checkbox" value="Arritmias"> Arritmias</label>
+<label class="check-item"><input type="checkbox" value="AVC"> AVC</label>
+<label class="check-item"><input type="checkbox" value="Dislipidemia"> Dislipidemia</label>
+<label class="check-item"><input type="checkbox" value="Hipotensão Ortostática"> Hipotensão Ortostática</label>
+<label class="check-item"><input type="checkbox" value="Síncope"> Síncope</label>
+<label class="check-item"><input type="checkbox" value="Miocardiopatia"> Miocardiopatia</label>
+<label class="check-item"><input type="checkbox" value="Amiloidose Cardíaca"> Amiloidose Cardíaca</label>
+</div>
+</section>
+
+<section>
+<h3>2. Doenças Hematológicas</h3>
+<div class="comorbidade-cat">
+<label class="check-item"><input type="checkbox" value="Anemia Ferropriva"> Anemia Ferropriva</label>
+<label class="check-item"><input type="checkbox" value="Anemia Doença Crônica"> Anemia Doença Crônica</label>
+<label class="check-item"><input type="checkbox" value="Anemia Megaloblástica"> Anemia Megaloblástica</label>
+<label class="check-item"><input type="checkbox" value="Síndrome Mielodisplásica"> Síndrome Mielodisplásica</label>
+<label class="check-item"><input type="checkbox" value="Policitemia"> Policitemia</label>
+<label class="check-item"><input type="checkbox" value="Trombocitopenia"> Trombocitopenia</label>
+<label class="check-item"><input type="checkbox" value="Distúrbio Coagulação"> Distúrbio de Coagulação</label>
+</div>
+</section>
+
+<section>
+<h3>3. Endócrinas, Gastrointestinais e Renais</h3>
+<div class="comorbidade-cat">
+<label class="check-item"><input type="checkbox" value="DM2"> Diabetes Mellitus Tipo 2</label>
+<label class="check-item"><input type="checkbox" value="Hipotireoidismo"> Hipotireoidismo</label>
+<label class="check-item"><input type="checkbox" value="Osteoporose"> Osteoporose</label>
+<label class="check-item"><input type="checkbox" value="Constipação Crônica"> Constipação Crônica</label>
+<label class="check-item"><input type="checkbox" value="Doença Renal Crônica"> Doença Renal Crônica</label>
+</div>
+</section>
+
+<section style="background:#fff8f0; border:2px solid #e67e22;">
+<h3>Condições Geriátricas Transversais</h3>
+<div class="comorbidade-cat">
+<label class="check-item"><input type="checkbox" value="Fragilidade"> Fragilidade</label>
+<label class="check-item"><input type="checkbox" value="Sarcopenia"> Sarcopenia</label>
+<label class="check-item"><input type="checkbox" value="Desnutrição"> Desnutrição</label>
+<label class="check-item"><input type="checkbox" value="Disfagia"> Disfagia</label>
+<label class="check-item"><input type="checkbox" value="Quedas Recorrentes"> Quedas Recorrentes</label>
+</div>
+</section>
+
+<button type="button" class="btn-save" onclick="salvarComorbidades()">
+💾 GUARDAR DIAGNÓSTICOS
+</button>
+
+</form>
+
+<div class="print-section">
+<button class="btn-print" onclick="window.print()">📄 Relatório do Residente</button>
+<button class="btn-print" onclick="exportarPorPatologia()">📊 Listagem por Patologia (CSV)</button>
+</div>
+
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+function inicializarComorbidades(){
+const banco = obterBanco();
+const select = document.getElementById("selRes");
+select.innerHTML='<option value="">-- Escolher Residente --</option>';
+
+Object.keys(banco).sort().forEach(nome=>{
+const opt=document.createElement("option");
+opt.value=nome;
+opt.textContent=nome;
+select.appendChild(opt);
+});
+}
+
+function carregarComorbidadesSalvas(){
+const nome=document.getElementById("selRes").value;
+if(!nome) return;
+
+const banco=obterBanco();
+const checks=document.querySelectorAll('#formComorbidades input[type="checkbox"]');
+checks.forEach(c=>c.checked=false);
+
+if(!banco[nome]) return;
+
+if(!banco[nome].comorbidades){
+banco[nome].comorbidades=[];
+}
+
+checks.forEach(c=>{
+if(banco[nome].comorbidades.includes(c.value)){
+c.checked=true;
+}
+});
+
+document.getElementById("dataAtualizacao").value =
+banco[nome].dataComorbidades || "-";
+}
+
+function salvarComorbidades(){
+
+const nome=document.getElementById("selRes").value;
+if(!nome){alert("Selecione o residente!");return;}
+
+const banco=obterBanco();
+
+if(!banco[nome]){
+alert("Residente não encontrado.");
+return;
+}
+
+const selecionadas=[];
+document.querySelectorAll('#formComorbidades input[type="checkbox"]:checked')
+.forEach(c=>selecionadas.push(c.value));
+
+banco[nome].comorbidades=selecionadas;
+banco[nome].dataComorbidades=new Date().toLocaleDateString("pt-PT");
+
+salvarBanco(banco);
+
+document.getElementById("dataAtualizacao").value =
+banco[nome].dataComorbidades;
+
+alert("Comorbidades atualizadas com sucesso!");
+}
+
+/* EXPORTAÇÃO CONSOLIDADA */
+
+function exportarPorPatologia(){
+
+const banco=obterBanco();
+let csv="Residente;Comorbidade\n";
+
+Object.keys(banco).forEach(nome=>{
+if(banco[nome].comorbidades){
+banco[nome].comorbidades.forEach(c=>{
+csv+=`${nome};${c}\n`;
+});
+}
+});
+
+const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+const link=document.createElement("a");
+link.href=URL.createObjectURL(blob);
+link.download="comorbidades_consolidadas.csv";
+link.click();
+}
+
+</script>
+
+</body>
+</html>
