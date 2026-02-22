@@ -2,6 +2,7 @@
 <html lang="pt-pt">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Institucional ILPI</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,24 +12,35 @@
 
 <div class="container">
 
+<header style="display:flex; justify-content:space-between; align-items:center;">
+<div>
 <h1>Painel Epidemiológico Institucional</h1>
-
-<div class="grid">
-    <div class="stat-card">
-        <label>Total Residentes</label>
-        <p id="statTotal">0</p>
-    </div>
-    <div class="stat-card">
-        <label>Alto Risco Clínico</label>
-        <p id="statAlto">0</p>
-    </div>
-    <div class="stat-card">
-        <label>Média IMC</label>
-        <p id="statIMC">0</p>
-    </div>
+<p>Indicadores automáticos ILPI</p>
 </div>
 
-<canvas id="graficoRisco"></canvas>
+<button class="btn-save" onclick="exportarParaCSV()">
+📊 Exportar CSV
+</button>
+</header>
+
+<div class="grid" style="margin-top:30px;">
+<div class="stat-card">
+<label>Total Residentes</label>
+<p id="statTotal">0</p>
+</div>
+
+<div class="stat-card">
+<label>Alto Risco Clínico</label>
+<p id="statAlto">0</p>
+</div>
+
+<div class="stat-card">
+<label>Média IMC</label>
+<p id="statIMC">0</p>
+</div>
+</div>
+
+<canvas id="graficoRisco" style="margin-top:40px;"></canvas>
 <canvas id="graficoIMC" style="margin-top:40px;"></canvas>
 
 </div>
@@ -74,5 +86,6 @@ function renderizarDashboard() {
 }
 
 </script>
+
 </body>
 </html>
