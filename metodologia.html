@@ -1,89 +1,199 @@
 <!DOCTYPE html>
 <html lang="pt-pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metodologia Clínica - Painel Nutricional</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .method-card { border-left: 5px solid var(--secondary-color); padding: 20px; background: #f9f9f9; border-radius: 0 10px 10px 0; margin-bottom: 30px; }
-        .method-card h4 { margin-top: 0; color: var(--secondary-color); text-transform: uppercase; font-size: 1rem; }
-        .formula { background: #eee; padding: 15px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; font-weight: bold; display: inline-block; margin: 10px 0; }
-        .ref-list { font-size: 0.9rem; line-height: 1.6; color: #555; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metodologia Clínica - Painel Nutricional</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.method-card{
+    border-left:5px solid var(--secondary-color);
+    padding:20px;
+    background:#f9f9f9;
+    border-radius:0 10px 10px 0;
+    margin-bottom:30px;
+}
+.method-card h4{
+    margin-top:0;
+    color:var(--secondary-color);
+    text-transform:uppercase;
+    font-size:1rem;
+}
+.formula{
+    background:#eee;
+    padding:15px;
+    border-radius:8px;
+    font-family:Courier New, monospace;
+    font-weight:bold;
+    margin:10px 0;
+    display:inline-block;
+}
+.ref-list{
+    font-size:0.9rem;
+    line-height:1.6;
+    color:#555;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="navbar">
-        <div class="nav-container">
-            <img src="logo.png" alt="Logo" class="nav-logo">
-            <div class="nav-links">
-                <a href="index.html" class="nav-link">Nova Avaliação</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="ficha-completa.html" class="nav-link">Ficha Clínica</a>
-                <a href="exames-laboratoriais.html" class="nav-link">Exames</a>
-            </div>
-        </div>
-    </div>
+<div class="navbar">
+<div class="nav-container">
+<img src="logo.png" alt="Logo" class="nav-logo">
+<div class="nav-links">
+<a href="index.html" class="nav-link">Nova Avaliação</a>
+<a href="dashboard.html" class="nav-link">Dashboard</a>
+<a href="ficha-completa.html" class="nav-link">Ficha Clínica</a>
+<a href="exames-laboratoriais.html" class="nav-link">Exames</a>
+<a href="comorbidades.html" class="nav-link">Comorbidades</a>
+</div>
+</div>
+</div>
 
-    <div class="container">
-        <header>
-            <h1>Metodologia e Referências</h1>
-            <p>Fundamentação técnica e científica do sistema de gestão nutricional</p>
-        </header>
+<div class="container">
 
-        <section>
-            <h3>1. Mini Nutritional Assessment (MNA®)</h3>
-            <div class="method-card">
-                <h4>Aplicação</h4>
-                <p>A MNA é uma ferramenta validada especificamente para a população idosa. O sistema utiliza a versão completa (18 itens) que avalia parâmetros antropométricos, avaliação global, dietética e auto-percepção de saúde.</p>
-                <p><strong>Pontuação:</strong> 24-30 (Estado nutricional normal), 17-23.5 (Risco de desnutrição), <17 (Desnutrição).</p>
-            </div>
-        </section>
+<header>
+<h1>Metodologia e Fundamentação Técnica</h1>
+<p>Descrição completa dos algoritmos clínicos e critérios utilizados pelo sistema</p>
+</header>
 
-        <section>
-            <h3>2. Nutritional Risk Screening (NRS 2002)</h3>
-            <div class="method-card">
-                <h4>Aplicação</h4>
-                <p>Utilizado para identificar o risco nutricional em pacientes em ambiente hospitalar ou institucionalizado. O sistema processa o score baseado no estado nutricional, gravidade da doença e fator de correção para idade (≥70 anos).</p>
-            </div>
-        </section>
+<section>
+<h3>1. Avaliação Antropométrica</h3>
+<div class="method-card">
 
-        <section>
-            <h3>3. Índice de Condição Nutricional (ICN)</h3>
-            <div class="method-card">
-                <h4>Fórmula de Cálculo</h4>
-                <p>O ICN é um algoritmo próprio deste sistema que unifica as triagens para gerar um alerta de risco clínico priorizado.</p>
-                <div class="formula">
-                    ICN = (MNA * 0.4) + (NRS * 0.4) + (Score_IMC * 2)
-                </div>
-                <p><strong>Classificação:</strong> ≥13 (Baixo Risco), 8-12.9 (Risco Moderado), <8 (Alto Risco Clínico).</p>
-            </div>
-        </section>
+<h4>Cálculo do IMC</h4>
+<div class="formula">
+IMC = Peso (kg) / Altura² (m²)
+</div>
 
-        <section>
-            <h3>4. Diagnóstico Nutricional (PES)</h3>
-            <div class="method-card">
-                <h4>Estrutura do Parecer</h4>
-                <p>O sistema gera automaticamente o parecer baseado na estrutura internacional <strong>P.E.S</strong>:</p>
-                <ul>
-                    <li><strong>P (Problema):</strong> Diagnóstico nutricional principal.</li>
-                    <li><strong>E (Etiologia):</strong> Causas ou fatores contribuintes.</li>
-                    <li><strong>S (Sinais/Sintomas):</strong> Evidências obtidas na avaliação (ICN, IMC, Panturrilha).</li>
-                </ul>
-            </div>
-        </section>
+<p><strong>Classificação para Idosos (Lipschitz, 1994):</strong></p>
+<ul>
+<li>&lt; 22 → Baixo peso</li>
+<li>22 – 27 → Eutrofia</li>
+<li>&gt; 27 → Excesso de peso</li>
+</ul>
 
-        <section>
-            <h3>Referências Bibliográficas</h3>
-            <div class="ref-list">
-                <p>• GUIDIGLI, F. et al. <em>Mini Nutritional Assessment</em>. Nestlé Nutrition Institute.</p>
-                <p>• KONDUP, J. et al. <em>Nutritional Risk Screening (NRS 2002): a new method based on an analysis of controlled clinical trials</em>. Clinical Nutrition, 2003.</p>
-                <p>• LIPSCHITZ, D.A. <em>Screening for nutritional status in the elderly</em>. Primary Care, 1994 (Referência para IMC em idosos).</p>
-                <p>• World Health Organization (WHO). <em>Physical status: the use and interpretation of anthropometry</em>.</p>
-            </div>
-        </section>
-    </div>
+<h4>Ajuste da Circunferência da Panturrilha (CP)</h4>
+<p>Aplicado algoritmo corretivo baseado no IMC para estimativa de reserva muscular.</p>
+
+</div>
+</section>
+
+<section>
+<h3>2. Mini Nutritional Assessment (MNA – Versão Simplificada)</h3>
+<div class="method-card">
+
+<p>O sistema utiliza versão parcial da MNA composta por:</p>
+<ul>
+<li>Apetite</li>
+<li>Perda de Peso</li>
+<li>Score de IMC automático</li>
+</ul>
+
+<p>A pontuação é integrada ao algoritmo de risco nutricional.</p>
+
+</div>
+</section>
+
+<section>
+<h3>3. Índice de Condição Nutricional (ICN)</h3>
+<div class="method-card">
+
+<h4>Algoritmo Implementado no Sistema</h4>
+
+<div class="formula">
+ICN = (MNA × 0.4) + Fator IMC
+</div>
+
+<p>Onde:</p>
+<ul>
+<li>Se IMC &lt; 22 → Fator = 2</li>
+<li>Se IMC ≥ 22 → Fator = 1</li>
+</ul>
+
+<h4>Classificação:</h4>
+<ul>
+<li>≥ 13 → Baixo Risco</li>
+<li>8 – 12.9 → Risco Moderado</li>
+<li>&lt; 8 → Alto Risco Clínico</li>
+</ul>
+
+</div>
+</section>
+
+<section>
+<h3>4. Diagnóstico Nutricional (P.E.S)</h3>
+<div class="method-card">
+
+<p>O sistema gera automaticamente o parecer seguindo estrutura internacional:</p>
+
+<ul>
+<li><strong>P (Problema)</strong> – Desnutrição ou risco nutricional</li>
+<li><strong>E (Etiologia)</strong> – Institucionalização e fatores associados</li>
+<li><strong>S (Sinais e Sintomas)</strong> – ICN, IMC e reserva muscular</li>
+</ul>
+
+</div>
+</section>
+
+<section>
+<h3>5. Monitorização Bioquímica</h3>
+<div class="method-card">
+
+<p>O módulo laboratorial compara automaticamente resultados inseridos com valores de referência ajustados por sexo.</p>
+
+<p>Inclui:</p>
+<ul>
+<li>Hemograma completo</li>
+<li>Perfil glicêmico</li>
+<li>Perfil lipídico</li>
+<li>Função renal</li>
+<li>Vitaminas e minerais</li>
+<li>Função tireoidiana</li>
+</ul>
+
+<p>Interpretação clínica automatizada baseada em diretrizes internacionais.</p>
+
+</div>
+</section>
+
+<section>
+<h3>6. Estrutura do Sistema</h3>
+<div class="method-card">
+
+<p>Os dados são armazenados localmente via <strong>localStorage</strong>, estruturados por residente:</p>
+
+<div class="formula">
+{
+  perfil: {},
+  avaliacoes: [],
+  exames: [],
+  comorbidades: []
+}
+</div>
+
+<p>Exportação disponível em CSV para análise externa.</p>
+
+</div>
+</section>
+
+<section>
+<h3>Referências Técnicas</h3>
+<div class="ref-list">
+
+<p>• LIPSCHITZ, D.A. Screening for nutritional status in the elderly. Primary Care, 1994.</p>
+<p>• ESPEN Guidelines on Clinical Nutrition in Geriatrics.</p>
+<p>• KONDUP, J. et al. Nutritional Risk Screening (NRS 2002). Clinical Nutrition, 2003.</p>
+<p>• WHO. Physical Status: The Use and Interpretation of Anthropometry.</p>
+<p>• RDC 283/2005 – ANVISA (ILPI).</p>
+<p>• Estatuto do Idoso – Lei nº 10.741/2003.</p>
+
+</div>
+</section>
+
+</div>
 
 </body>
 </html>
