@@ -2,76 +2,34 @@
 <html lang="pt-pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard - Painel Nutricional</title>
+<title>Dashboard Institucional ILPI</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body onload="renderizarDashboard()">
 
-<div class="navbar">
-    <div class="nav-container">
-        <img src="logo.png" alt="Logo" class="nav-logo">
-        <div class="nav-links">
-            <a href="index.html" class="nav-link">Nova Avaliação</a>
-            <a href="dashboard.html" class="nav-link home-btn">Dashboard</a>
-            <a href="ficha-completa.html" class="nav-link">Ficha Clínica</a>
-            <a href="exames-laboratoriais.html" class="nav-link">Exames</a>
-        </div>
-    </div>
-</div>
+<div class="container">
 
-<div class="container" style="max-width:1200px;">
+<h1>Painel Epidemiológico Institucional</h1>
 
-<header style="display:flex; justify-content:space-between; align-items:center;">
-    <div>
-        <h1 style="margin:0;">Painel de Gestão Nutricional</h1>
-        <p style="margin:5px 0 0 0;">Monitorização e estatísticas dos residentes</p>
-    </div>
-    <button class="btn-save"
-            onclick="exportarExcel()"
-            style="width:auto; padding:12px 25px; margin:0; font-size:0.9rem;">
-        📊 Exportar Dados (Excel)
-    </button>
-</header>
-
-<div class="grid" style="margin-top:30px;">
-
-    <div class="stat-card" style="border-top:5px solid var(--primary-color);">
-        <label>Residentes Avaliados</label>
+<div class="grid">
+    <div class="stat-card">
+        <label>Total Residentes</label>
         <p id="statTotal">0</p>
     </div>
-
-    <div class="stat-card" style="border-top:5px solid #e67e22;">
-        <label>Alto Risco (ICN)</label>
-        <p id="statRisco" style="color:#e67e22;">0</p>
+    <div class="stat-card">
+        <label>Alto Risco Clínico</label>
+        <p id="statAlto">0</p>
     </div>
-
-    <div class="stat-card" style="border-top:5px solid var(--secondary-color);">
+    <div class="stat-card">
         <label>Média IMC</label>
-        <p id="statImc">0</p>
+        <p id="statIMC">0</p>
     </div>
-
 </div>
 
-<section style="margin-top:40px; padding:0; border:none;">
-<h3 style="margin-bottom:20px;">Histórico de Acompanhamento</h3>
-
-<table>
-<thead>
-<tr>
-<th>Residente</th>
-<th>Data</th>
-<th>IMC</th>
-<th>Classificação ICN</th>
-<th>Parecer</th>
-</tr>
-</thead>
-
-<tbody id="corpoTabela"></tbody>
-
-</table>
-</section>
+<canvas id="graficoRisco"></canvas>
+<canvas id="graficoIMC" style="margin-top:40px;"></canvas>
 
 </div>
 
@@ -79,90 +37,42 @@
 
 <script>
 
-function renderizarDashboard(){
+function renderizarDashboard() {
 
-const banco = obterBanco();
-const corpo = document.getElementById("corpoTabela");
-corpo.innerHTML = "";
+    const ind = calcularIndicadoresILPI();
 
-let totalRes = 0;
-let totalRisco = 0;
-let somaImc = 0;
+    document.getElementById("statTotal").innerText = ind.total;
+    document.getElementById("statAlto").innerText = ind.alto;
+    document.getElementById("statIMC").innerText = ind.mediaIMC.toFixed(1);
 
-Object.keys(banco).sort().forEach(nome=>{
-
-    if(!banco[nome] || !banco[nome].avaliacoes) return;
-
-    const avaliacoes = banco[nome].avaliacoes;
-
-    if(avaliacoes.length === 0) return;
-
-    totalRes++;
-
-    const ultima = avaliacoes[avaliacoes.length - 1];
-
-    const imcVal = parseFloat(ultima.imc) || 0;
-    somaImc += imcVal;
-
-    const classICN = ultima.classificacaoICN || "-";
-    const parecer = ultima.parecerPES || "-";
-
-    if(classICN === "Alto Risco Clínico") totalRisco++;
-
-    let corStatus = "#2c3e50";
-
-    if(classICN === "Baixo Risco") corStatus = "#27ae60";
-    else if(classICN === "Risco Moderado") corStatus = "#f39c12";
-    else if(classICN === "Alto Risco Clínico") corStatus = "#e74c3c";
-
-    corpo.innerHTML += `
-        <tr>
-            <td><strong>${nome}</strong></td>
-            <td>${ultima.data || "-"}</td>
-            <td>${imcVal ? imcVal.toFixed(1) : "-"}</td>
-            <td style="font-weight:bold; color:${corStatus}">
-                ${classICN}
-            </td>
-            <td style="font-size:0.85rem;">
-                ${parecer}
-            </td>
-        </tr>
-    `;
-});
-
-document.getElementById("statTotal").innerText = totalRes;
-document.getElementById("statRisco").innerText = totalRisco;
-document.getElementById("statImc").innerText =
-    totalRes > 0 ? (somaImc / totalRes).toFixed(1) : "0";
-
-}
-
-/* ================= EXPORTAÇÃO CSV ================= */
-
-function exportarExcel(){
-
-const banco = obterBanco();
-let csv = "Residente;Data;IMC;Classificacao ICN;Parecer\n";
-
-Object.keys(banco).forEach(nome=>{
-
-    if(!banco[nome].avaliacoes) return;
-
-    banco[nome].avaliacoes.forEach(av=>{
-        csv += `${nome};${av.data || ""};${av.imc || ""};${av.classificacaoICN || ""};"${av.parecerPES || ""}"\n`;
+    new Chart(document.getElementById("graficoRisco"), {
+        type: "doughnut",
+        data: {
+            labels: ["Alto Risco", "Risco Moderado", "Baixo Risco"],
+            datasets: [{
+                data: [
+                    ind.alto,
+                    ind.moderado,
+                    ind.total - ind.alto - ind.moderado
+                ]
+            }]
+        }
     });
 
-});
-
-const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-const link = document.createElement("a");
-link.href = URL.createObjectURL(blob);
-link.download = "dashboard_nutricional.csv";
-link.click();
-
+    new Chart(document.getElementById("graficoIMC"), {
+        type: "bar",
+        data: {
+            labels: ["IMC < 22", "IMC ≥ 22"],
+            datasets: [{
+                data: [
+                    ind.baixoPeso,
+                    ind.total - ind.baixoPeso
+                ]
+            }]
+        }
+    });
 }
 
 </script>
-
 </body>
 </html>
