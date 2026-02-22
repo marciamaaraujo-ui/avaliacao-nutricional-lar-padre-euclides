@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-pt">
 <head>
-    <meta charset="UTF-8">
-    <title>Ficha Clínica - ILPI</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        @media print { .no-print { display:none !important; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha Clínica - ILPI</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@media print { .no-print { display: none !important; } }
+</style>
 </head>
 
 <body onload="carregarListaResidentes()">
@@ -15,37 +16,38 @@
 <div class="container">
 
 <header class="no-print">
-    <h1>Ficha Clínica Individual</h1>
+<h1>Ficha Clínica Individual</h1>
 
-    <div style="display:flex; gap:15px; margin-top:20px;">
-        <select id="selectResidente" onchange="gerarFicha()">
-            <option value="">Selecione o residente...</option>
-        </select>
+<div style="margin-top:20px; display:flex; gap:15px; flex-wrap:wrap;">
+<select id="selectResidente" onchange="gerarFicha()">
+<option value="">Selecionar residente...</option>
+</select>
 
-        <button class="btn-save" onclick="window.print()" style="background:var(--secondary-color);">
-            🖨️ Imprimir
-        </button>
+<button class="btn-save" onclick="imprimirFicha()" style="background:var(--secondary-color);">
+🖨️ Imprimir
+</button>
 
-        <button class="btn-save" onclick="gerarPDFSelecionado()">
-            📄 Gerar PDF
-        </button>
-    </div>
+<button class="btn-save" onclick="gerarPDFSelecionado()">
+📄 Gerar PDF
+</button>
+</div>
 </header>
 
 <div id="conteudoFicha" style="display:none; margin-top:30px;">
 
-    <h2 id="print_nome"></h2>
+<h2 id="print_nome" style="text-align:center; border-bottom:2px solid var(--primary-color); padding-bottom:10px;"></h2>
 
-    <section>
-        <h3>Resumo Nutricional</h3>
-        <p><strong>IMC:</strong> <span id="res_imc"></span></p>
-        <p><strong>Classificação ICN:</strong> <span id="res_icn"></span></p>
-    </section>
+<section>
+<h3>Última Avaliação</h3>
+<p><strong>Data:</strong> <span id="f_data"></span></p>
+<p><strong>IMC:</strong> <span id="f_imc"></span></p>
+<p><strong>Classificação ICN:</strong> <span id="f_icn"></span></p>
+</section>
 
-    <section>
-        <h3>Diagnóstico (PES)</h3>
-        <p id="res_parecer"></p>
-    </section>
+<section>
+<h3>Diagnóstico Nutricional (PES)</h3>
+<div id="f_pes" style="background:#f5f5f5; padding:15px; border-radius:8px;"></div>
+</section>
 
 </div>
 
@@ -56,17 +58,12 @@
 <script>
 
 function carregarListaResidentes() {
-
     const banco = obterBanco();
     const select = document.getElementById("selectResidente");
-
-    select.innerHTML = '<option value="">Selecione...</option>';
+    select.innerHTML = '<option value="">Selecionar residente...</option>';
 
     Object.keys(banco).sort().forEach(nome => {
-        const opt = document.createElement("option");
-        opt.value = nome;
-        opt.textContent = nome;
-        select.appendChild(opt);
+        select.innerHTML += `<option value="${nome}">${nome}</option>`;
     });
 }
 
@@ -76,22 +73,28 @@ function gerarFicha() {
     if (!nome) return;
 
     const banco = obterBanco();
-    const ultima = banco[nome].avaliacoes.slice(-1)[0];
+    const avs = banco[nome].avaliacoes;
+    if (!avs || avs.length === 0) return;
+
+    const ultima = avs[avs.length - 1];
 
     document.getElementById("conteudoFicha").style.display = "block";
 
-    document.getElementById("print_nome").textContent = nome;
-    document.getElementById("res_imc").textContent = ultima.imc || "-";
-    document.getElementById("res_icn").textContent = ultima.classificacaoICN || "-";
-    document.getElementById("res_parecer").textContent = ultima.parecerPES || "-";
+    document.getElementById("print_nome").innerText = nome;
+    document.getElementById("f_data").innerText = ultima.data || "-";
+    document.getElementById("f_imc").innerText = ultima.imc || "-";
+    document.getElementById("f_icn").innerText = ultima.classificacaoICN || "-";
+    document.getElementById("f_pes").innerText = ultima.parecerPES || "-";
 }
 
 function gerarPDFSelecionado() {
-
     const nome = document.getElementById("selectResidente").value;
     if (!nome) return alert("Selecione um residente.");
-
     gerarPDFResidente(nome);
+}
+
+function imprimirFicha() {
+    window.print();
 }
 
 </script>
